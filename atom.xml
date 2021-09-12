@@ -1,20 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>Hexo</title>
+  <title>孙晓平的博客</title>
   
-  
+  <subtitle>一杯敬明天，一杯敬过往</subtitle>
   <link href="http://pursue.show/atom.xml" rel="self"/>
   
   <link href="http://pursue.show/"/>
-  <updated>2021-09-10T06:16:32.554Z</updated>
+  <updated>2021-09-12T12:05:09.415Z</updated>
   <id>http://pursue.show/</id>
   
   <author>
-    <name>John Doe</name>
+    <name>XpSun</name>
     
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Hello World</title>
+    <link href="http://pursue.show/2021/09/12/hello-world/"/>
+    <id>http://pursue.show/2021/09/12/hello-world/</id>
+    <published>2021-09-12T12:05:09.415Z</published>
+    <updated>2021-09-12T12:05:09.415Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;https://hexo.io/docs/&quot;&gt;documentation&lt;/a&gt;</summary>
+        
+      
+    
+    
+    
+    
+  </entry>
   
   <entry>
     <title>测试1</title>
@@ -34,32 +55,15 @@
     <link href="http://pursue.show/2021/09/10/test-my-site/"/>
     <id>http://pursue.show/2021/09/10/test-my-site/</id>
     <published>2021-09-10T03:04:07.000Z</published>
-    <updated>2021-09-10T03:04:07.026Z</updated>
+    <updated>2021-09-12T12:06:32.125Z</updated>
     
     
     
     
-    
-  </entry>
-  
-  <entry>
-    <title>Hello World</title>
-    <link href="http://pursue.show/2021/09/10/hello-world/"/>
-    <id>http://pursue.show/2021/09/10/hello-world/</id>
-    <published>2021-09-10T02:42:26.977Z</published>
-    <updated>2021-09-10T02:42:26.977Z</updated>
+    <category term="音视频开发" scheme="http://pursue.show/categories/%E9%9F%B3%E8%A7%86%E9%A2%91%E5%BC%80%E5%8F%91/"/>
     
     
-      
-      
-        
-        
-    <summary type="html">&lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;https://hexo.io/docs/&quot;&gt;documentation&lt;/a&gt;</summary>
-        
-      
-    
-    
-    
+    <category term="音视频开发" scheme="http://pursue.show/tags/%E9%9F%B3%E8%A7%86%E9%A2%91%E5%BC%80%E5%8F%91/"/>
     
   </entry>
   
