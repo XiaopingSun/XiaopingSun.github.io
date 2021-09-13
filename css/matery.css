@@ -94,10 +94,10 @@ hr {
 }
 
 blockquote {
-    border-left: 5px solid #42b983;
+    border-left: 5px solid #FF6D19;
     padding: 1rem 0.8rem 0.2rem 0.8rem;
     color: #666;
-    background-color: rgba(66, 185, 131, .1);
+    background-color: rgba(255, 109, 25, .1);
 }
 
 pre {
@@ -944,6 +944,7 @@ article .article-tags .chip {
     height: 22px;
     line-height: 22px;
     color: #fff;
+	background: #FF6D19;
     border-radius: 10px;
 }
 
@@ -1059,7 +1060,7 @@ article .article-tags .chip {
     border-radius: 15px;
     margin-right: 5px;
     margin-bottom: 2px;
-    color: #42b983;
+    color: #FF6D19;
     background: #fff;
     border: 1px solid;
     transition: all 0.6s ease-in-out;
