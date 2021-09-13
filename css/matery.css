@@ -110,7 +110,7 @@ pre {
     content: " ";
     position: absolute;
     border-radius: 50%;
-    background: #34495e;
+    background: #ED6A5E;
     width: 12px;
     height: 12px;
     top: 0;
@@ -246,7 +246,7 @@ mark {
 }
 
 .text-color {
-    color: #0f9d58 !important;
+    color: #FF6D19 !important;
 }
 
 .white-color {
@@ -876,7 +876,7 @@ article a {
 
 article a:hover {
     font-weight: bold;
-    color: #42b983;
+    color: #FF6D19;
     text-decoration: underline;
 }
 
@@ -1067,17 +1067,17 @@ article .article-tags .chip {
 
 #artDetail .tag_share .article-tag .chip:hover {
     color: #fff;
-    background: #42b983;
+    background: #FF6D19;
 }
 
 #artDetail .post-cate {
     float: right;
-    color: #42b983;
+    color: #FF6D19;
 }
 
 #artDetail .post-cate a {
     padding-right: 5px;
-    color: #42b983;
+    color: #FF6D19;
     font-weight: 500;
 }
 
@@ -1096,7 +1096,7 @@ article .article-tags .chip {
 
 #artDetail .post-info .post-category:hover {
     font-weight: bold;
-    color: #42b983;
+    color: #FF6D19;
     text-decoration: underline;
 }
 
@@ -1159,7 +1159,7 @@ article .article-tags .chip {
 
 #artDetail .reprint a {
     font-size: 1.05rem;
-    color: #42b983;
+    color: #FF6D19;
     font-weight: 500;
 }
 
@@ -1175,7 +1175,7 @@ article .article-tags .chip {
 
 #articleContent a {
     padding: 0 2px;
-    color: #42b983;
+    color: #FF6D19;
     font-weight: 500;
     text-decoration: underline;
     word-wrap: break-word;
@@ -1299,7 +1299,7 @@ thead {
 
 .chip-container .chip-active {
     color: #FFF !important;
-    background: linear-gradient(to bottom right, #FF5E3A 0%, #FF2A68 100%) !important;
+    background: linear-gradient(to bottom right, #FFA833 0%, #FF4F33 100%) !important;
     box-shadow: 2px 5px 10px #aaa !important;
 }
 
@@ -1318,7 +1318,7 @@ thead {
 
 .chip-container .chip:hover {
     color: #fff;
-    background: linear-gradient(to right, #33C7FF 0%, #3339FF 100%) !important;
+    background: linear-gradient(to right, #FFA833 0%, #FF4F33 100%) !important;
 }
 
 .chip .tag-length {
@@ -1807,8 +1807,8 @@ thead {
 
 .other-skills .chip:hover {
     color: #fff;
-    background: linear-gradient(to right, #4cbf30 0%, #0f9d58 100%);
-    border: 1px solid #4cbf30;
+    background: linear-gradient(to right, #FFA833 0%, #FF4F33 100%);
+    border: 1px solid #FFA833;
     box-shadow: 0 5px 5px rgba(0, 0, 0, .25)
 }
 
@@ -1879,7 +1879,7 @@ p.search-result-summary{
 
 .search-result-list .search-result-title {
     font-size: 1.4rem;
-    color: #42b983;
+    color: #FF6D19;
 }
 
 .search-result-list li {
