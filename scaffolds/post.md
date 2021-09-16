@@ -6,8 +6,6 @@ cover: false
 toc: true
 mathjax: true
 categories:
-	-
-tags:
-	- 
+tags: 
 summary:
 ---
