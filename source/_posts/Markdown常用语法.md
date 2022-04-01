@@ -2,7 +2,6 @@
 title: Hexo Markdown常用语法总结
 date: 2021-09-15 18:04:07
 index_img: https://hexo.qiniu.pursue.show/1200px-Markdown-mark.svg.png
-banner_img: https://hexo.qiniu.pursue.show/1200px-Markdown-mark.svg.png
 categories:
     - 工具
 tags:
@@ -220,19 +219,6 @@ _   下划线
 ```
 在日常工作中我们经常使用的网址有[Google](https://www.google.com/)、[Github](https://github.com/)和[Stack Overflow](https://stackoverflow.com/)
 
-### 引用链接
-```
-在正文中引用链接标记，可以理解为引用定义好的变量:
-[链接文字][链接标记]
-在底部定义链接标记，可以理解为定义一个地址变量，建议放到页尾:
-[链接标记]: https://pursue.show/
-```
-在正文中引用链接标记，可以理解为引用定义好的变量:
-[链接文字][链接标记]
-在底部定义链接标记，可以理解为定义一个地址变量，建议放到页尾:
-
-[链接标记]: https://pursue.show/
-
 ### 网址链接
 ```
 博客地址<https://pursue.show/>
@@ -309,6 +295,48 @@ _   下划线
     > >
     > > > 更是梦想
 2. 第二项
+
+## fluid 主题便签
+在 markdown 中加入如下的代码来使用便签：
+```
+{% note success %}
+文字 或者 'markdown' 均可
+{% endnote %}
+```
+
+或者使用 HTML 形式：
+```
+<p class="note note-primary">标签</p>
+```
+
+可选便签：
+{% note primary %}
+primary
+{% endnote %}
+
+{% note secondary %}
+secondary
+{% endnote %}
+
+{% note success %}
+success
+{% endnote %}
+
+{% note danger %}
+danger
+{% endnote %}
+
+{% note warning %}
+warning
+{% endnote %}
+
+{% note info %}
+info
+{% endnote %}
+
+{% note light %}
+light
+{% endnote %}
 
 ## 表格
 ### 表格格式
