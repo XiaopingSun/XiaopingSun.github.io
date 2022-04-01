@@ -1,14 +1,13 @@
 ---
 title: Hexo Markdown常用语法总结
 date: 2021-09-15 18:04:07
-top: true
-cover: true
-toc: true
+index_img: https://hexo.qiniu.pursue.show/1200px-Markdown-mark.svg.png
+banner_img: https://hexo.qiniu.pursue.show/1200px-Markdown-mark.svg.png
 categories:
     - 工具
 tags:
     - Markdown
-summary: 第一篇博客，用Markdown语法总结一下Markdown常用语法，包含基础语法和扩展语法GFM，但最终push到Hexo发现一些特性解析不了，比如注脚、图片链接引用和表格对齐方式，所以将这部分去掉了。
+sticky: 100
 ---
 
 # 基础语法

@@ -1,15 +1,11 @@
 ---
 title: Mac环境编译rtmpdump
-top: true
-cover: true
-toc: true
-mathjax: false
 date: 2021-09-16 22:06:56
+index_img: https://hexo.qiniu.pursue.show/rtmpdump.png
 categories: 
   - 音视频开发
 tags: 
   - rtmp
-summary: 记录一下在Mac环境下编译rtmpdump的各种排坑过程
 ---
 
 # 前言
