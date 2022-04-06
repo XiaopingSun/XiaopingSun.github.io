@@ -956,7 +956,7 @@ readFrameNew 是创建 webSocket 消费者的入口，方法中将几个比较�
       	// 这里就是前文提到的 如果当前帧 opcode 是 0，在构造 frame_header 时将 opcode 设置成当前消息首帧的 opcode 值
         header.opcode = receivedOpcode == 0 ? self->_currentFrameOpcode : receivedOpcode;
         
-      	// 获取 FIN，!! 这个是干啥的没有太理解
+      	// 获取 FIN
         header.fin = !!(SRFinMask & headerBuffer[0]);
         
         // 获取 Mask
