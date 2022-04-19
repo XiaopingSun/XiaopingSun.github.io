@@ -4,7 +4,7 @@ date: 2022-04-17 14:37:32
 index_img: https://hexo.qiniu.pursue.show/opengl.jpeg
 banner_img:
 categories: 音视频开发
-tags: OpenGL AVFoundation
+tags: [OpenGL, AVFoundation]
 sticky:
 ---
 
