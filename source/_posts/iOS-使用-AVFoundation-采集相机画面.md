@@ -1,5 +1,5 @@
 ---
-title: 使用 AVFoundation 采集相机画面
+title: iOS 使用 AVFoundation 采集相机画面
 date: 2022-04-07 10:27:02
 index_img: https://hexo.qiniu.pursue.show/xcode_banner.png
 banner_img:
