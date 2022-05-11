@@ -132,14 +132,7 @@ _destASBD->mChannelsPerFrame = 1;
 AudioConverterRef 初始化：
 
 ```objc
-- (void)setupAudioConverter {
-    
-  	// 如果创建过，先释放掉，这在频繁更新输入 ASBD 时比较有用
-    if (_context.audioConverter) {
-        XPAudioUnitCheckError(AudioConverterDispose(_context.audioConverter), "AudioConverterDispose error when setup");
-        _context.audioConverter = NULL;
-    }
-    
+...
   	// 定义软解、硬解编码器
     AudioClassDescription codecs[2] = {
         {
@@ -179,7 +172,7 @@ AudioConverterRef 初始化：
     _context.maxOutputPacketSize = maxOutputPacketSize;
     _context.channelCount = self.sourceASBD->mChannelsPerFrame;
     _context.bytesPerFrame = self.sourceASBD->mBytesPerFrame;
-}
+...
 ```
 
 最后几行用到的 context 是一个结构体，用来在调用 AudioConverterFillComplexBuffer 方法时给回调函数传入一个 user data，便于在回调函数里使用这些参数：
@@ -198,11 +191,7 @@ typedef struct {
 接收到音频数据和时间戳后，将它们 push 进队列里，满足一定数量帧个数时从队列里取出并计算起始帧的时间戳，最后送入编码器。等待编码器编码完成，将 AAC Frame 回调给上层做封装处理：
 
 ```objc
-- (void)pushBuffer:(AudioBuffer *)audioBuffer metaData:(XPMetaData *)metaData {
-    if (!_context.audioConverter) {
-        return;
-    }
-    
+...
   	// 计算 audioBuffer 包含的 frame 个数
     UInt32 frameCount = audioBuffer->mDataByteSize / self.sourceASBD->mBytesPerFrame;
     
@@ -290,7 +279,7 @@ typedef struct {
             }
         }
     }
-}
+...
 ```
 
 调用 AudioConverterFillComplexBuffer 方法后，如果传入的参数都没问题，AudioConverterRef 会去调用回调函数 ioProcess：
