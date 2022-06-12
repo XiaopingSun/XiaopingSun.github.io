@@ -750,7 +750,7 @@ waline:
   meta: ['nick', 'mail', 'link']
   requiredMeta: ['nick']
   lang: 'zh-CN'
-  emoji: ['https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo']
+  emoji: ['https://lib.baomitu.com/gh/walinejs/emojis/weibo']
   dark: 'html[data-user-color-scheme="dark"]'
   avatar: 'retro'
   avatarCDN: 'https://seccdn.libravatar.org/avatar/'
@@ -972,44 +972,44 @@ static_prefix:
   internal_css: /css
   internal_img: /img
 
-  anchor: https://cdn.jsdelivr.net/npm/anchor-js@4/
+  anchor: https://lib.baomitu.com/npm/anchor-js@4/
 
-  github_markdown: https://cdn.jsdelivr.net/npm/github-markdown-css@4/
+  github_markdown: https://lib.baomitu.com/npm/github-markdown-css@4/
 
-  jquery: https://cdn.jsdelivr.net/npm/jquery@3/dist/
+  jquery: https://lib.baomitu.com/npm/jquery@3/dist/
 
-  bootstrap: https://cdn.jsdelivr.net/npm/bootstrap@4/dist/
+  bootstrap: https://lib.baomitu.com/npm/bootstrap@4/dist/
 
   highlightjs: https://hexo.qiniu.pursue.show/
 
-  prismjs: https://cdn.jsdelivr.net/npm/prismjs@1/
+  prismjs: https://lib.baomitu.com/npm/prismjs@1/
 
-  tocbot: https://cdn.jsdelivr.net/npm/tocbot@4/dist/
+  tocbot: https://lib.baomitu.com/npm/tocbot@4/dist/
 
-  typed: https://cdn.jsdelivr.net/npm/typed.js@2/lib/
+  typed: https://lib.baomitu.com/npm/typed.js@2/lib/
 
-  fancybox: https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/
+  fancybox: https://lib.baomitu.com/npm/@fancyapps/fancybox@3/dist/
 
-  nprogress: https://cdn.jsdelivr.net/npm/nprogress@0/
+  nprogress: https://lib.baomitu.com/npm/nprogress@0/
 
-  mathjax: https://cdn.jsdelivr.net/npm/mathjax@3/es5/
+  mathjax: https://lib.baomitu.com/npm/mathjax@3/es5/
 
-  katex: https://cdn.jsdelivr.net/npm/katex@0/dist/
+  katex: https://lib.baomitu.com/npm/katex@0/dist/
 
   busuanzi: https://busuanzi.ibruce.info/busuanzi/2.3/
 
-  clipboard: https://cdn.jsdelivr.net/npm/clipboard@2/dist/
+  clipboard: https://lib.baomitu.com/npm/clipboard@2/dist/
 
-  mermaid: https://cdn.jsdelivr.net/npm/mermaid@8/dist/
+  mermaid: https://lib.baomitu.com/npm/mermaid@8/dist/
 
-  valine: https://cdn.jsdelivr.net/npm/valine@1/dist/
+  valine: https://lib.baomitu.com/npm/valine@1/dist/
 
-  waline: https://cdn.jsdelivr.net/npm/@waline/client@1/dist/
+  waline: https://lib.baomitu.com/npm/@waline/client@1/dist/
 
-  gitalk: https://cdn.jsdelivr.net/npm/gitalk@1/dist/
+  gitalk: https://lib.baomitu.com/npm/gitalk@1/dist/
 
-  disqusjs: https://cdn.jsdelivr.net/npm/disqusjs@1/dist/
+  disqusjs: https://lib.baomitu.com/npm/disqusjs@1/dist/
 
-  twikoo: https://cdn.jsdelivr.net/npm/twikoo@1/dist/
+  twikoo: https://lib.baomitu.com/npm/twikoo@1/dist/
 
-  hint: https://cdn.jsdelivr.net/npm/hint.css@2/
+  hint: https://lib.baomitu.com/npm/hint.css@2/
