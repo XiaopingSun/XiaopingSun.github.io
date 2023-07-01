@@ -1,7 +1,7 @@
 ---
 title: iOS 使用 OpenGLES 渲染相机预览画面
 date: 2022-04-17 14:37:32
-index_img: https://hexo.qiniu.pursue.show/opengl.jpeg
+index_img: https://hexo.qiniu.pursue.top/opengl.jpeg
 banner_img:
 categories: 音视频开发
 tags: [OpenGL, AVFoundation]
@@ -10,7 +10,7 @@ sticky:
 
 # 前言
 
-上一篇有提到 [使用 AVFoundation 采集相机画面](https://pursue.show/2022/04/07/%E4%BD%BF%E7%94%A8-AVFoundation-%E9%87%87%E9%9B%86%E7%9B%B8%E6%9C%BA%E7%94%BB%E9%9D%A2/)，并渲染到苹果内置的 AVCaptureVideoPreviewLayer 图层上，代码很简单，但使用上有很大局限性。AVCaptureSession 采集到的原始视频帧直接给到了 AVCaptureVideoPreviewLayer 用于渲染，我们没办法在中间环节处理视频帧数据，美颜滤镜也就没办法实现，所以我们需要借助 OpenGLES 自己实现画面渲染。
+上一篇有提到 [使用 AVFoundation 采集相机画面](https://pursue.top/2022/04/07/%E4%BD%BF%E7%94%A8-AVFoundation-%E9%87%87%E9%9B%86%E7%9B%B8%E6%9C%BA%E7%94%BB%E9%9D%A2/)，并渲染到苹果内置的 AVCaptureVideoPreviewLayer 图层上，代码很简单，但使用上有很大局限性。AVCaptureSession 采集到的原始视频帧直接给到了 AVCaptureVideoPreviewLayer 用于渲染，我们没办法在中间环节处理视频帧数据，美颜滤镜也就没办法实现，所以我们需要借助 OpenGLES 自己实现画面渲染。
 
 苹果的 GLKit 框架对 OpenGLES 的部分接口调用做了封装，使用起来非常方便。我们的需求可以直接使用 GLKView 实现，开发的代码量是比较少的，但为了熟悉 OpenGLES 的接口调用和管线渲染流程，我们还是使用最原始的方法，基于 CAEAGLLayer，自己来实现着色器代码。
 

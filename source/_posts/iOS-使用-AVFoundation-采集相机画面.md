@@ -1,7 +1,7 @@
 ---
 title: iOS 使用 AVFoundation 采集相机画面
 date: 2022-04-07 10:27:02
-index_img: https://hexo.qiniu.pursue.show/xcode_banner.png
+index_img: https://hexo.qiniu.pursue.top/xcode_banner.png
 banner_img:
 categories: 音视频开发
 tags: [AVFoundation, 采集]
@@ -67,7 +67,7 @@ switch AVCaptureDevice.authorizationStatus(for: .video) {
 
 首先需要搞清楚几个核心类的关系，参考苹果官网给出的这张图，图中展示的是一个既能拍照也能拍视频的相机会话的创建流程：
 
-![Setting Up A Capture Session](https://hexo.qiniu.pursue.show/avcapture.png)
+![Setting Up A Capture Session](https://hexo.qiniu.pursue.top/avcapture.png)
 
 - **AVCaptureDevice**
 

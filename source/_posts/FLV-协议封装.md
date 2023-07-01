@@ -1,7 +1,7 @@
 ---
 title: FLV 协议封装
 date: 2022-05-10 14:37:48
-index_img: https://hexo.qiniu.pursue.show/flv.png
+index_img: https://hexo.qiniu.pursue.top/flv.png
 banner_img:
 categories: 音视频开发
 tags: [Flash Video]
@@ -20,7 +20,7 @@ FLV 数据流由一个个的 Tag 组成，一个 FLV 中最多只能包含一路
 
 FLV 的基本结构：
 
-![flv结构](https://hexo.qiniu.pursue.show/flv%E7%BB%93%E6%9E%84.png)
+![flv结构](https://hexo.qiniu.pursue.top/flv%E7%BB%93%E6%9E%84.png)
 
 可以看到 FLV 的结构相对比较简单，由一个固定长度的 FLV Header 和包含若干 Tag 的 FLV Body 构成，Tag 的类型可以是 Audio（音频数据）、Video（视频数据） 或 Script（元数据），每个 Tag 前面有一个 PreviousTagSize 字段用来标识前一个 Tag 的长度。
 
@@ -539,7 +539,7 @@ Tag Header 写好后，把上面生成好的 Tag Body 直接写入即可：
 
 写入时一般第一个 Tag 会是 Script Tag，之后是音视频 Tag。文件写好后，下载好沙盒文件，用 ffplay 播放查看效果：
 
-![metadata](https://hexo.qiniu.pursue.show/meta.png)
+![metadata](https://hexo.qiniu.pursue.top/meta.png)
 
 黄框部分是 Script Tag 中携带的 metadata 的一部分，ffmpeg 貌似只打印值是字符串的字段，红色部分则是从 ASC 和 sps/pps 中解析出的音视频编码参数，有两个 Stream 说明播放器已经解析出 FLV 包含音频和视频，剩下的就是观察画面和声音是否正常，音画是否同步。
 
@@ -547,7 +547,7 @@ Tag Header 写好后，把上面生成好的 Tag Body 直接写入即可：
 
 写好后的 FLV 文件可以用 UltraEdit 打开查看二进制信息：
 
-![flv_byte_audio](https://hexo.qiniu.pursue.show/byte-audio.png)
+![flv_byte_audio](https://hexo.qiniu.pursue.top/byte-audio.png)
 
 红框部分是 FLV Header，可以看到前三个字节 0x46、0x4C、0x56 是协议名 FLV，第四个字节 0x01 是 FLV 版本，第五个字节 0x05 即 00000101，表示 FLV 流中包含音频和视频的 Tag。
 
@@ -567,7 +567,7 @@ Tag Header 写好后，把上面生成好的 Tag Body 直接写入即可：
 
 再来看下视频的 Tag：
 
-![flv_byte_video](https://hexo.qiniu.pursue.show/byte-video.png)
+![flv_byte_video](https://hexo.qiniu.pursue.top/byte-video.png)
 
 这个 FLV 文件的第一个 Tag 依然是 Script Tag，接着是视频 Tag。
 

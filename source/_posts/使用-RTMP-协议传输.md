@@ -1,7 +1,7 @@
 ---
 title: 使用 RTMP 协议传输
 date: 2022-05-12 11:10:11
-index_img: https://hexo.qiniu.pursue.show/rtmp.png
+index_img: https://hexo.qiniu.pursue.top/rtmp.png
 banner_img:
 categories: 音视频开发
 tags: [RTMP]
@@ -83,7 +83,7 @@ PILI_RTMP_Connect 函数主要是完成 TCP 连接、RTMP 握手和发送 connec
 
 连接 wireshark 抓包看下这个函数产生的数据包交互：
 
-![wireshark-connect](https://hexo.qiniu.pursue.show/wireshark-rtmp.png)
+![wireshark-connect](https://hexo.qiniu.pursue.top/wireshark-rtmp.png)
 
 Protocol 为 RTMP 的消息是 wireshark 帮忙解析出的应用层数据，可以看到客户端和服务端 TCP 握手成功后，客户端发送了 C0+C1 的握手消息，服务端收到后返回 S0+S1+S2，客户端收到后返回 C2 完成握手。随后客户端发送 connect 消息连接到应用 “pursue-online”，服务端发送窗口大小、对端带宽大小和 Chunk 大小的消息给客户端用来初始化网络出口和数据大小，其实这个服务端的包里还有一个消息是对客户端的 connect 的消息回复的 result，wireshark 没有显示出来。由于客户端断点没有做后续处理，服务端超过超时时间断开了 TCP 连接。
 
@@ -112,7 +112,7 @@ PILI_RTMP_ConnectStream 函数会循环读取从服务端收到的数据包（�
 
 解析得到的消息有 4 个，分别是 0x05 设置窗口大小、0x06 设置带宽大小、0x01 设置 chunk 大小 以及 0x14 用来回复 connect 命令的 result，在收到 0x05、0x06、0x01 时 librtmp 更新了本地的配置，当收到 0x14 这条 connect 的 result 时，客户端确定成功链接到 App，于是发送 releaseStream 命令让服务端先将该流释放，然后发送 FCPublish 和 createStream 命令在 App 中创建流，收到服务端 createStream 的 result 后，客户端发送 publish 命令表明开始推流，服务端收到后返回 onStatus，客户端解析 OK 后将 isPlaying 标志位设置为 YES，表示可以开始推流音视频数据：
 
-![wireshark-connect](https://hexo.qiniu.pursue.show/wireshark-connect.png)
+![wireshark-connect](https://hexo.qiniu.pursue.top/wireshark-connect.png)
 
 接着是发送音视频数据包，librtmp 将数据单元抽象成 RTMPPacket 的结构体，需要使用 Tag Header 的属性参数和 Tag Body 的数据指针构建出 RTMPPacket，然后通过 RTMP_SendPacket 函数发送出去：
 
@@ -165,7 +165,7 @@ PILI_RTMP_ConnectStream 函数会循环读取从服务端收到的数据包（�
 
 wireshark 抓包可以看到，第一个包负载的是 metadata，也就是 FLV 的 script tag，之后交替的是 audio 和 video tag：
 
-![wireshark-stream](https://hexo.qiniu.pursue.show/wireshark-stream.png)
+![wireshark-stream](https://hexo.qiniu.pursue.top/wireshark-stream.png)
 
 使用完别忘了关闭连接释放资源：
 

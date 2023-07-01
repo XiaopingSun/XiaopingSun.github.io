@@ -1,7 +1,7 @@
 ---
 title: iOS 使用 VideoToolBox 编码 H.264
 date: 2022-05-06 15:37:09
-index_img: https://hexo.qiniu.pursue.show/WX20220506-154108%402x.png
+index_img: https://hexo.qiniu.pursue.top/WX20220506-154108%402x.png
 banner_img:
 categories: 音视频开发
 tags: [VideoToolBox, 编码]

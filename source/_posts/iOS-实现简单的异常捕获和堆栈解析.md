@@ -1,7 +1,7 @@
 ---
 title: iOS 实现简单的异常捕获和堆栈解析
 date: 2022-08-07 13:09:40
-index_img: https://hexo.qiniu.pursue.show/xcode_banner.png
+index_img: https://hexo.qiniu.pursue.top/xcode_banner.png
 banner_img:
 categories: iOS
 tags: 异常捕获
@@ -16,7 +16,7 @@ sticky:
 
 根据 Crash 的不同来源，一般分为 Mach 异常、Unix 信号 和 NSException。Mach 异常也称内核级异常，可以通过创建监控线程的方式监听 Mach 异常并处理异常信息，如果开发者没有捕获 Mach 异常，则异常将被转换为对应的 Unix 信号投递到出错线程。NSException 也称为应用级异常，可以通过 try catch 来捕获，也可以通过 NSSetUncaughtExceptionHandler 机制来捕获，最终未被处理的 NSException 会向自身程序发送 SIGABRT 信号使程序崩溃。三种异常处理的顺序可以参考这张图：
 
-![异常处理的顺序](https://hexo.qiniu.pursue.show/5219632-04e43775dfba56f8.webp)
+![异常处理的顺序](https://hexo.qiniu.pursue.top/5219632-04e43775dfba56f8.webp)
 
 # 实现方式
 

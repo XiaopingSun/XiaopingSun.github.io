@@ -1,7 +1,7 @@
 ---
 title: iOS 使用 AVAssetWriter 实时写入视频流
 date: 2022-08-06 22:09:30
-index_img: https://hexo.qiniu.pursue.show/xcode_banner.png
+index_img: https://hexo.qiniu.pursue.top/xcode_banner.png
 banner_img:
 categories: 音视频开发
 tags: AVFoundation

@@ -1,7 +1,7 @@
 ---
 title: iOS 编译 ijkplayer
 date: 2022-05-13 09:14:38
-index_img: https://hexo.qiniu.pursue.show/ijkplayer.png
+index_img: https://hexo.qiniu.pursue.top/ijkplayer.png
 banner_img:
 categories: 音视频开发
 tags: [播放器, ijkplayer]
@@ -28,7 +28,7 @@ git checkout -B develop k0.8.8
 
 进入仓库目录，我们编译用到的相关脚本是截图中红框部分：
 
-![ijkplayer 文件目录](https://hexo.qiniu.pursue.show/ijk.png)
+![ijkplayer 文件目录](https://hexo.qiniu.pursue.top/ijk.png)
 
 {% note info %}
 
@@ -78,11 +78,11 @@ cd ios/
 
 这样编译的 ffmpeg 会启用 ssl，编译完成后，打开 ijkplayer 的 demo 可以看到 ijkplayer 有两个静态库的 target，IJKMediaFramework 和 IJKMediaFrameworkWithSSL：
 
-![ijkMediaFramework](https://hexo.qiniu.pursue.show/ijkplayerframework.png)
+![ijkMediaFramework](https://hexo.qiniu.pursue.top/ijkplayerframework.png)
 
 IJKMediaFrameworkWithSSL 的库添加了 SSL 库的引用，但工程默认依赖的是 IJKMediaFramework，为了避免修改头文件，可以给 IJKMediaFramework 添加 SSL 库的引用：
 
-![添加 ssl 引用](https://hexo.qiniu.pursue.show/addssl.png)
+![添加 ssl 引用](https://hexo.qiniu.pursue.top/addssl.png)
 
 添加好就可以 Build 项目了。
 
@@ -90,7 +90,7 @@ IJKMediaFrameworkWithSSL 的库添加了 SSL 库的引用，但工程默认依�
 
 不出意外编译过程中会碰到一个 armv7 的报错类似[这样](https://github.com/bilibili/ijkplayer/issues/4494)，解决方法是在脚本里将 armv7 架构去掉：
 
-![删除 armv7](https://hexo.qiniu.pursue.show/armv7.png)
+![删除 armv7](https://hexo.qiniu.pursue.top/armv7.png)
 
 如果项目有要求支持 armv7，可以尝试使用低版本的 xcode sdk 编译，上面的 issue 上有解决方法，但没有尝试。
 

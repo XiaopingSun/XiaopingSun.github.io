@@ -1,7 +1,7 @@
 ---
 title: iOS 使用 OpenGLES 渲染水印图片
 date: 2022-04-19 16:33:16
-index_img: https://hexo.qiniu.pursue.show/opengl.jpeg
+index_img: https://hexo.qiniu.pursue.top/opengl.jpeg
 banner_img: 
 categories: 音视频开发
 tags: OpenGL
@@ -10,7 +10,7 @@ sticky:
 
 # 前言
 
-这次我们用 OpenGLES 将水印、贴图渲染到相机的预览画面上，代码跟上一篇 [iOS 使用 OpenGLES 实现相机画面镜像](https://pursue.show/2022/04/19/iOS-%E4%BD%BF%E7%94%A8-OpenGLES-%E5%AE%9E%E7%8E%B0%E7%9B%B8%E6%9C%BA%E7%94%BB%E9%9D%A2%E9%95%9C%E5%83%8F/) 差不多。
+这次我们用 OpenGLES 将水印、贴图渲染到相机的预览画面上，代码跟上一篇 [iOS 使用 OpenGLES 实现相机画面镜像](https://pursue.top/2022/04/19/iOS-%E4%BD%BF%E7%94%A8-OpenGLES-%E5%AE%9E%E7%8E%B0%E7%9B%B8%E6%9C%BA%E7%94%BB%E9%9D%A2%E9%95%9C%E5%83%8F/) 差不多。
 
 # 实现思路
 

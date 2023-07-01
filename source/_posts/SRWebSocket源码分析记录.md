@@ -1,7 +1,7 @@
 ---
 title: SRWebSocket源码分析记录
 date: 2022-04-03 11:21:07
-index_img: https://hexo.qiniu.pursue.show/websocket.png
+index_img: https://hexo.qiniu.pursue.top/websocket.png
 categories: 网络协议
 tags: [webSocket, 网络协议]
 ---
@@ -14,7 +14,7 @@ tags: [webSocket, 网络协议]
 
 webSocket 诞生前，如果要在客户端和服务端之间实现双向通信，通常的做法是客户端 HTTP 轮询服务端接口，这样不仅效率低，会消耗大量流量，而且也不能保证服务端消息第一时间传递给客户端，算不上是真正意义的双向通信，而这也是 webSocket 出现的原因。webSocket 协议被设计来取代现有 HTTP 轮询方式实现双向通信，它和 HTTP 的区别在于，webSocket 不再遵循客户端主动发起请求，服务端回复响应的 Request-Response 机制，而是可以在客户端没有发送请求的情况下，服务端也可以主动发送数据给客户端，仅使用一个 TCP 连接就实现真正意义的双向通讯。同时，webSocket 将消息打包成一个个帧序列，与冗长的 HTTP 请求体相比消耗更少的流量。
 
-![http 轮询和 websocket 对比](https://hexo.qiniu.pursue.show/websocket-http.webp)
+![http 轮询和 websocket 对比](https://hexo.qiniu.pursue.top/websocket-http.webp)
 
 webSocket 和 HTTP 一样属于应用层协议，协议 scheme 是  `ws://` 和 `wss://` ，默认端口是 80 和 443，其交互过程包含以下阶段：
 
@@ -24,13 +24,13 @@ webSocket 和 HTTP 一样属于应用层协议，协议 scheme 是  `ws://` 和 
 
 上面提到 webSocket 只使用了一个 TCP 连接，那首先是要与服务端建立这个 TCP 连接。
 
-![TCP 连接](https://hexo.qiniu.pursue.show/tcp-connect.png)
+![TCP 连接](https://hexo.qiniu.pursue.top/tcp-connect.png)
 
 ## SSL 握手（如果有）
 
 如果协议头是 `wss://`，默认会在建立 TCP 连接后，webSocket 握手前，获取服务端证书并校验，SSL 握手完成后后续请求会使用协商后的加密算法。SRWebSocket 源码支持未授信证书和自签证书的导入验证。
 
-![SSL 握手](https://hexo.qiniu.pursue.show/ssl-handshake)
+![SSL 握手](https://hexo.qiniu.pursue.top/ssl-handshake)
 
 ## webSocket 握手
 
@@ -81,7 +81,7 @@ Sec-WebSocket-Key 是客户端在请求前生成 16 位随机字符经过 Base64
 
 客户端支持的协议版本，如果该版本没有匹配服务端理解的任何一个版本，需要握手失败。
 
-![handshake 请求](https://hexo.qiniu.pursue.show/handshake-req.png)
+![handshake 请求](https://hexo.qiniu.pursue.top/handshake-req.png)
 
 ### 来自服务端的握手返回
 
@@ -108,7 +108,7 @@ Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
 
 服务端在收到客户端的 Sec-WebSocket-Key 之后，将 Sec-WebSocket-Key 拼接协议规定的字符串 `258EAFA5-E914-47DA-95CA-C5AB0DC85B11` 后，做一次 Sha-1 散列，接着 Base64 编码，得到的字符串作为 Sec-WebSocket-Accept 返回给客户端，而客户端要做的是将之前请求使用的 Sec-WebSocket-Key 按照服务端的流程做字符串处理后，与 Sec-WebSocket-Accept 比对，如果不匹配，需要握手失败。
 
-![handshake 返回](https://hexo.qiniu.pursue.show/handshake-resp.png)
+![handshake 返回](https://hexo.qiniu.pursue.top/handshake-resp.png)
 
 ## 数据帧
 
@@ -182,7 +182,7 @@ webSocket 的消息类型大致分为两种：数据类型和控制类型，数�
 
 ### 看个例子
 
-![websocket 抓包](https://hexo.qiniu.pursue.show/websocket-wire.png)
+![websocket 抓包](https://hexo.qiniu.pursue.top/websocket-wire.png)
 
 这是一条服务端给客户端发送的 webSocket 消息，首先看它的 Opcode 是 1 并且 Fin 是 1，说明这条数据消息没有使用分帧策略。Mask 为 0 说明没有使用掩码，字段里也就没有 Masking key。Payload length 是 126，说明在 Payload length 之后有 2 字节的 Extended Payload Length 用来标识负载的真实长度。Extended Payload Length 标识负载长度是 277，我们用这个长度去解析 Payload。由于这条数据消息只有一个数据帧，因此我们解析完成后可以将消息直接回调给上层。
 
@@ -743,7 +743,7 @@ readHTTPHeader 方法中调用 readUntilHeaderCompleteWithCallback ，其方法�
 
 首先看一下 SRWebSocket 读取和写入的流程：
 
-![SRWebSocket 流程图](https://hexo.qiniu.pursue.show/SRWebSockey%E6%B5%81%E7%A8%8B%E5%9B%BE.png)
+![SRWebSocket 流程图](https://hexo.qiniu.pursue.top/SRWebSockey%E6%B5%81%E7%A8%8B%E5%9B%BE.png)
 
 黄色区域部分是 SRWebSocket 的处理流程，可以看到，在输入输出流和客户端之间有一个读写缓存区作为输入输出数据的缓冲，相比数据写入，数据读取会复杂一些。
 

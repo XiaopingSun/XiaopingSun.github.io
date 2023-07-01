@@ -1,7 +1,7 @@
 ---
 title: iOS 使用 AudioUnit 采集麦克风音频数据
 date: 2022-04-29 16:11:44
-index_img: https://hexo.qiniu.pursue.show/coreaudio.png
+index_img: https://hexo.qiniu.pursue.top/coreaudio.png
 banner_img: 
 categories: 音视频开发
 tags: [Core Audio, 采集]
@@ -18,7 +18,7 @@ Audio Unit 是一个极其强大的音频引擎模块，它将功能模块按类
 
 目前只需要实现采集音频的功能，所以 Unit 的类型我们选择 kAudioUnitType_Output，虽然从字面上来看这个类型像是用于输出的，但这里理解为”外设“更好一点，因为它可以包含输入和输出。kAudioUnitType_Output 类型下包含很多子类型，我们要用到的是 kAudioUnitSubType_RemoteIO：
 
-![output unit](https://hexo.qiniu.pursue.show/remoteio.png)
+![output unit](https://hexo.qiniu.pursue.top/remoteio.png)
 
 上图是 RemoteIO Unit 的数据流向图，它包含两个 Bus（Bus 是编曲软件 Logic 的叫法，代码里一般记作 element），可以理解成是两个数据通道，Bus1 与输入设备硬件交互，Bus0 与输出设备硬件交互。还有一个 Scope 的概念，数据流从外界进入到 Bus 中的端口叫做 Input Scope，数据从 Bus 中流出的端口叫做 Output Scope，所以 RemoteIO Unit 的工作流程可以总结为：输入设备硬件采集到的数据通过 Bus1 的 Input Scope 流入 Bus1，经过 Bus1 的 DSP 处理后，从 Bus1 的 Output Scope 流入 Bus0 的 Input Scope，经过 Bus0 的 DSP 处理后发送给输出硬件设备。
 

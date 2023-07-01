@@ -1,7 +1,7 @@
 ---
 title: Hexo Markdown常用语法总结
 date: 2021-09-15 18:04:07
-index_img: https://hexo.qiniu.pursue.show/1200px-Markdown-mark.svg.png
+index_img: https://hexo.qiniu.pursue.top/1200px-Markdown-mark.svg.png
 categories:
     - 工具
 tags:
@@ -221,23 +221,23 @@ _   下划线
 
 ### 网址链接
 ```
-博客地址<https://pursue.show/>
+博客地址<https://pursue.top/>
 ```
-博客地址<https://pursue.show/>
+博客地址<https://pursue.top/>
 > 注: 扩展语法GFM中<>可省略
 
 ## 图片
 ### 图片链接
 ```
-![个人头像](https://qcdn-z1.qiniu.pursue.show/540%E9%98%BF%E6%96%B9.png)  
+![个人头像](https://qcdn-z1.qiniu.pursue.top/540%E9%98%BF%E6%96%B9.png)  
 ```
-![个人头像](https://qcdn-z1.qiniu.pursue.show/540%E9%98%BF%E6%96%B9.png)  
+![个人头像](https://qcdn-z1.qiniu.pursue.top/540%E9%98%BF%E6%96%B9.png)  
 
 ### 图片标签
 ```
-<img src="https://qcdn-z1.qiniu.pursue.show/540%E9%98%BF%E6%96%B9.png" width="50%">  
+<img src="https://qcdn-z1.qiniu.pursue.top/540%E9%98%BF%E6%96%B9.png" width="50%">  
 ```
-<img src="https://qcdn-z1.qiniu.pursue.show/540%E9%98%BF%E6%96%B9.png" width="50%">  
+<img src="https://qcdn-z1.qiniu.pursue.top/540%E9%98%BF%E6%96%B9.png" width="50%">  
 
 ## 支持的HTML元素
 ```
@@ -343,24 +343,24 @@ light
 ```
 | 序号 | 标题 | 网址 |
 | ------ | ------ | ------ |
-| 01 | 博客 | https://pursue.show/ |
+| 01 | 博客 | https://pursue.top/ |
 | 02 | 微博 | https://weibo.com/u/2270909331 |
 ```
 | 序号 | 标题 | 网址 |
 | ------ | ------ | ------ |
-| 01 | 博客 | https://pursue.show/ |
+| 01 | 博客 | https://pursue.top/ |
 | 02 | 微博 | https://weibo.com/u/2270909331 |
 
 ### 表格内使用其他标记
 ```
 | 序号 | 标题 | 网址 |
 | ------ | ------ | ------ |
-| *01* | [博客](https://pursue.show/) | https://pursue.show/ |
+| *01* | [博客](https://pursue.top/) | https://pursue.top/ |
 | **02** | [微博](https://weibo.com/u/2270909331) | https://weibo.com/u/2270909331 |
 ```
 | 序号 | 标题 | 网址 |
 | ------ | ------ | ------ |
-| *01* | [博客](https://pursue.show/) | https://pursue.show/ |
+| *01* | [博客](https://pursue.top/) | https://pursue.top/ |
 | **02** | [微博](https://weibo.com/u/2270909331) | https://weibo.com/u/2270909331 |
 
 

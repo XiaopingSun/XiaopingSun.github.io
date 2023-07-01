@@ -1,7 +1,7 @@
 ---
 title: iOS 使用 OpenGLES 实现相机画面镜像
 date: 2022-04-19 12:02:00
-index_img: https://hexo.qiniu.pursue.show/opengl.jpeg
+index_img: https://hexo.qiniu.pursue.top/opengl.jpeg
 banner_img:
 categories: 音视频开发
 tags: OpenGL
@@ -10,7 +10,7 @@ sticky:
 
 # 前言
 
-上一篇 [使用 OpenGLES 渲染相机预览画面](https://pursue.show/2022/04/17/iOS-%E4%BD%BF%E7%94%A8-OpenGLES-%E6%B8%B2%E6%9F%93%E7%9B%B8%E6%9C%BA%E9%A2%84%E8%A7%88%E7%94%BB%E9%9D%A2/) 实现了自定义相机画面渲染，使用自定义的图层替代了 AVFoundation 默认渲染图层，但还需要考虑的是预览和编码镜像的问题。由于现在图层使用的 Buffer 数据来自 AVCaptureVideoDataOutput ，我们可以通过设置 AVCaptureVideoDataOutput 链接的 AVCaptureConnection 的  videoMirrored 属性，并关闭 automaticallyAdjustsVideoMirroring 去统一调整预览和编码的镜像，但有些场景需要预览镜像编码不镜像，或预览不镜像编码镜像，所以就需要一个工具类去处理预览和编码镜像不一致的场景。
+上一篇 [使用 OpenGLES 渲染相机预览画面](https://pursue.top/2022/04/17/iOS-%E4%BD%BF%E7%94%A8-OpenGLES-%E6%B8%B2%E6%9F%93%E7%9B%B8%E6%9C%BA%E9%A2%84%E8%A7%88%E7%94%BB%E9%9D%A2/) 实现了自定义相机画面渲染，使用自定义的图层替代了 AVFoundation 默认渲染图层，但还需要考虑的是预览和编码镜像的问题。由于现在图层使用的 Buffer 数据来自 AVCaptureVideoDataOutput ，我们可以通过设置 AVCaptureVideoDataOutput 链接的 AVCaptureConnection 的  videoMirrored 属性，并关闭 automaticallyAdjustsVideoMirroring 去统一调整预览和编码的镜像，但有些场景需要预览镜像编码不镜像，或预览不镜像编码镜像，所以就需要一个工具类去处理预览和编码镜像不一致的场景。
 
 # 实现思路
 
