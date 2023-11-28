@@ -221,9 +221,9 @@ _   下划线
 
 ### 网址链接
 ```
-博客地址<https://pursue.top/>
+博客地址<https://blog.pursue.top/>
 ```
-博客地址<https://pursue.top/>
+博客地址<https://blog.pursue.top/>
 > 注: 扩展语法GFM中<>可省略
 
 ## 图片
@@ -343,24 +343,24 @@ light
 ```
 | 序号 | 标题 | 网址 |
 | ------ | ------ | ------ |
-| 01 | 博客 | https://pursue.top/ |
+| 01 | 博客 | https://blog.pursue.top/ |
 | 02 | 微博 | https://weibo.com/u/2270909331 |
 ```
 | 序号 | 标题 | 网址 |
 | ------ | ------ | ------ |
-| 01 | 博客 | https://pursue.top/ |
+| 01 | 博客 | https://blog.pursue.top/ |
 | 02 | 微博 | https://weibo.com/u/2270909331 |
 
 ### 表格内使用其他标记
 ```
 | 序号 | 标题 | 网址 |
 | ------ | ------ | ------ |
-| *01* | [博客](https://pursue.top/) | https://pursue.top/ |
+| *01* | [博客](https://blog.pursue.top/) | https://blog.pursue.top/ |
 | **02** | [微博](https://weibo.com/u/2270909331) | https://weibo.com/u/2270909331 |
 ```
 | 序号 | 标题 | 网址 |
 | ------ | ------ | ------ |
-| *01* | [博客](https://pursue.top/) | https://pursue.top/ |
+| *01* | [博客](https://blog.pursue.top/) | https://blog.pursue.top/ |
 | **02** | [微博](https://weibo.com/u/2270909331) | https://weibo.com/u/2270909331 |
 
 
