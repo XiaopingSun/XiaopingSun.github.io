@@ -5,7 +5,7 @@ const ap = new APlayer({
     audio: [{
         name: 'Pursue',
         artist: '李鑫',
-        url: 'https://hexo.qiniu.pursue.top/Pursue.mp3',
-        cover: 'https://hexo.qiniu.pursue.top/portrait.png',
+        url: '/resources/music/Pursue.mp3',
+        cover: '/resources/music/portrait.png',
     }]
 });

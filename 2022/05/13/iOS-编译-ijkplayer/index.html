@@ -7,8 +7,8 @@
 
 <head>
   <meta charset="UTF-8">
-  <link rel="apple-touch-icon" sizes="76x76" href="https://hexo.qiniu.pursue.top/%E9%9F%B3%E4%B9%90.png">
-  <link rel="icon" href="https://hexo.qiniu.pursue.top/%E9%9F%B3%E4%B9%90.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/resources/image/music_icon.png">
+  <link rel="icon" href="/resources/image/music_icon.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
@@ -23,14 +23,14 @@
 <meta property="og:site_name" content="XpSun&#39;s Blog">
 <meta property="og:description" content="前言 最近想看看 ijkplayer 的源码，学习下 ffmpeg，这篇先记录下 iOS 端编译支持 SSL 的 ijkplayer framework。 编译过程 首先将 ijkplayer 下载到本地： 1git clone git@github.com:bilibili&#x2F;ijkplayer.git 下载好的仓库在 k0.8.8的 Tag 上切分支： 1git checkout -B deve">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://hexo.qiniu.pursue.top/ijkplayer.png">
+<meta property="og:image" content="https://blog.pursue.top/resources/image/ijkplayer.png">
 <meta property="article:published_time" content="2022-05-13T01:14:38.000Z">
-<meta property="article:modified_time" content="2025-04-09T05:08:37.326Z">
+<meta property="article:modified_time" content="2025-04-09T06:05:53.930Z">
 <meta property="article:author" content="XpSun">
 <meta property="article:tag" content="ijkplayer">
 <meta property="article:tag" content="播放器">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://hexo.qiniu.pursue.top/ijkplayer.png">
+<meta name="twitter:image" content="https://blog.pursue.top/resources/image/ijkplayer.png">
   
   
   <title>iOS 编译 ijkplayer - XpSun&#39;s Blog</title>
@@ -70,7 +70,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"blog.pursue.top","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":80,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://hexo.qiniu.pursue.top/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+    var CONFIG = {"hostname":"blog.pursue.top","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":80,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/resources/image/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -186,7 +186,7 @@
 </nav>
 
     <div class="banner" id="banner" parallax=true
-         style="background: url('https://hexo.qiniu.pursue.top/SC01C11.jpg') no-repeat center center;
+         style="background: url('/resources/image/SC01C11.jpg') no-repeat center center;
            background-size: cover;">
       <div class="full-bg-img">
         <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
@@ -275,7 +275,7 @@
 <p>下载好的仓库在 k0.8.8的 Tag 上切分支：</p>
 <figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">git checkout -B develop k0.8.8<br></code></pre></div></td></tr></table></figure>
 <p>进入仓库目录，我们编译用到的相关脚本是截图中红框部分：</p>
-<p><img src="https://hexo.qiniu.pursue.top/ijk.png" srcset="https://hexo.qiniu.pursue.top/loading.gif" lazyload alt="ijkplayer 文件目录"></p>
+<p><img src="/resources/image/ijk.png" srcset="/resources/image/loading.gif" lazyload alt="ijkplayer 文件目录"></p>
 <div class="note note-info">
             <p><strong><a target="_blank" rel="noopener" href="http://init-ios.sh">init-ios.sh</a></strong>: 将 gas-preprocessor 和 ffmpeg 下载到 extra/ 文件夹下，并将 ffmpeg 按具体架构 git clone --reference 到 ios/ 文件夹下用于编译不同的架构。</p><p><strong><a target="_blank" rel="noopener" href="http://init-ios-ssl.sh">init-ios-ssl.sh</a></strong>: 将 openssl 源码下载到 extra/ 文件夹下，并将其按架构 git clone --reference 到 ios/ 文件夹下用于编译不同的架构。</p><p><strong><a target="_blank" rel="noopener" href="http://compile-ffmpeg.sh">compile-ffmpeg.sh</a></strong>: 脚本调用 do-compile-ffmpeg 编译不同架构的 ffmpeg，编译后 lipo create 生成 universal 版本和头文件。</p><p><strong><a target="_blank" rel="noopener" href="http://compile-openssl.sh">compile-openssl.sh</a></strong>: 脚本调用 do-compile-openssl 编译不同架构的 openssl，编译后 lipo create 生成 universal 版本和头文件。</p><p><strong>do-compile-ffmpeg</strong>: 配置编译参数，按架构编译 ffmpeg。</p><p><strong>do-compile-openssl</strong>: 配置编译参数，按架构编译 openssl。</p>
           </div>
@@ -286,13 +286,13 @@
 <p>do-compile-ffmpeg 脚本会先去当前架构下 openssl 的编译目录查看是否有编译好的 libssl.a 以此作为是否需要支持 ssl 的依据，所以在调用 <a target="_blank" rel="noopener" href="http://compile-ffmpeg.sh">compile-ffmpeg.sh</a> 脚本前需要先编译好 openssl，支持 ssl 的脚本执行顺序：</p>
 <figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">./init-ios-openssl.sh<br>./init-ios.sh<br>cd ios/<br>./compile-openssl.sh<br>./compile-ffmpeg.sh<br></code></pre></div></td></tr></table></figure>
 <p>这样编译的 ffmpeg 会启用 ssl，编译完成后，打开 ijkplayer 的 demo 可以看到 ijkplayer 有两个静态库的 target，IJKMediaFramework 和 IJKMediaFrameworkWithSSL：</p>
-<p><img src="https://hexo.qiniu.pursue.top/ijkplayerframework.png" srcset="https://hexo.qiniu.pursue.top/loading.gif" lazyload alt="ijkMediaFramework"></p>
+<p><img src="/resources/image/ijkplayerframework.png" srcset="/resources/image/loading.gif" lazyload alt="ijkMediaFramework"></p>
 <p>IJKMediaFrameworkWithSSL 的库添加了 SSL 库的引用，但工程默认依赖的是 IJKMediaFramework，为了避免修改头文件，可以给 IJKMediaFramework 添加 SSL 库的引用：</p>
-<p><img src="https://hexo.qiniu.pursue.top/addssl.png" srcset="https://hexo.qiniu.pursue.top/loading.gif" lazyload alt="添加 ssl 引用"></p>
+<p><img src="/resources/image/addssl.png" srcset="/resources/image/loading.gif" lazyload alt="添加 ssl 引用"></p>
 <p>添加好就可以 Build 项目了。</p>
 <h1>一个坑</h1>
 <p>不出意外编译过程中会碰到一个 armv7 的报错类似<a target="_blank" rel="noopener" href="https://github.com/bilibili/ijkplayer/issues/4494">这样</a>，解决方法是在脚本里将 armv7 架构去掉：</p>
-<p><img src="https://hexo.qiniu.pursue.top/armv7.png" srcset="https://hexo.qiniu.pursue.top/loading.gif" lazyload alt="删除 armv7"></p>
+<p><img src="/resources/image/armv7.png" srcset="/resources/image/loading.gif" lazyload alt="删除 armv7"></p>
 <p>如果项目有要求支持 armv7，可以尝试使用低版本的 xcode sdk 编译，上面的 issue 上有解决方法，但没有尝试。</p>
 <h1>后记</h1>
 <p>开始撸源码吧。</p>

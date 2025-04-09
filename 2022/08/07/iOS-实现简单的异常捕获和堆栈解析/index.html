@@ -7,8 +7,8 @@
 
 <head>
   <meta charset="UTF-8">
-  <link rel="apple-touch-icon" sizes="76x76" href="https://hexo.qiniu.pursue.top/%E9%9F%B3%E4%B9%90.png">
-  <link rel="icon" href="https://hexo.qiniu.pursue.top/%E9%9F%B3%E4%B9%90.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/resources/image/music_icon.png">
+  <link rel="icon" href="/resources/image/music_icon.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
@@ -23,13 +23,13 @@
 <meta property="og:site_name" content="XpSun&#39;s Blog">
 <meta property="og:description" content="前言 这两周的一个需求，给引擎添加 crash 捕获和上传功能。如果正常一个 iOS App 需要添加 crash 捕获，一般会接入 Bugly 这种一体化 crash 分析平台，或者如果有自己的后台来搜集 crash 日志，也可以使用 KSCrash 或 PLCrashReporter 来实现崩溃日志的捕获。但本身作为一个引擎 SDK 来说，还是要尽可能少的接入三方库，即使是开源的。好在需求仅要">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://hexo.qiniu.pursue.top/xcode_banner.png">
+<meta property="og:image" content="https://blog.pursue.top/resources/image/xcode_banner.png">
 <meta property="article:published_time" content="2022-08-07T05:09:40.000Z">
-<meta property="article:modified_time" content="2025-04-09T05:08:37.324Z">
+<meta property="article:modified_time" content="2025-04-09T06:03:39.046Z">
 <meta property="article:author" content="XpSun">
 <meta property="article:tag" content="异常捕获">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://hexo.qiniu.pursue.top/xcode_banner.png">
+<meta name="twitter:image" content="https://blog.pursue.top/resources/image/xcode_banner.png">
   
   
   <title>iOS 实现简单的异常捕获和堆栈解析 - XpSun&#39;s Blog</title>
@@ -69,7 +69,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"blog.pursue.top","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":80,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://hexo.qiniu.pursue.top/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+    var CONFIG = {"hostname":"blog.pursue.top","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":80,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/resources/image/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -185,7 +185,7 @@
 </nav>
 
     <div class="banner" id="banner" parallax=true
-         style="background: url('https://hexo.qiniu.pursue.top/SC01C11.jpg') no-repeat center center;
+         style="background: url('/resources/image/SC01C11.jpg') no-repeat center center;
            background-size: cover;">
       <div class="full-bg-img">
         <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
@@ -270,7 +270,7 @@
 <p>这两周的一个需求，给引擎添加 crash 捕获和上传功能。如果正常一个 iOS App 需要添加 crash 捕获，一般会接入 Bugly 这种一体化 crash 分析平台，或者如果有自己的后台来搜集 crash 日志，也可以使用 KSCrash 或 PLCrashReporter 来实现崩溃日志的捕获。但本身作为一个引擎 SDK 来说，还是要尽可能少的接入三方库，即使是开源的。好在需求仅要求记录崩溃的大体堆栈信息，地址可解析即可，不需要太复杂的逻辑。</p>
 <h1>Crash 的分类和处理顺序</h1>
 <p>根据 Crash 的不同来源，一般分为 Mach 异常、Unix 信号 和 NSException。Mach 异常也称内核级异常，可以通过创建监控线程的方式监听 Mach 异常并处理异常信息，如果开发者没有捕获 Mach 异常，则异常将被转换为对应的 Unix 信号投递到出错线程。NSException 也称为应用级异常，可以通过 try catch 来捕获，也可以通过 NSSetUncaughtExceptionHandler 机制来捕获，最终未被处理的 NSException 会向自身程序发送 SIGABRT 信号使程序崩溃。三种异常处理的顺序可以参考这张图：</p>
-<p><img src="https://hexo.qiniu.pursue.top/5219632-04e43775dfba56f8.webp" srcset="https://hexo.qiniu.pursue.top/loading.gif" lazyload alt="异常处理的顺序"></p>
+<p><img src="/resources/image/5219632-04e43775dfba56f8.webp" srcset="/resources/image/loading.gif" lazyload alt="异常处理的顺序"></p>
 <h1>实现方式</h1>
 <p>Mach 异常 和 Unix 信号由于来源都是底层内核级异常，只是回调方式不同，因此在项目中选择监听 Unix 信号。应用级异常 NSException 是需要监听的，捕获的 exception 中有对排查问题很有帮助的 reason 信息，需要将这部分信息保存起来，再将 crash 信息传递给 Mach 和 Unix 层来捕获。</p>
 <h1>代码</h1>

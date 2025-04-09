@@ -7,8 +7,8 @@
 
 <head>
   <meta charset="UTF-8">
-  <link rel="apple-touch-icon" sizes="76x76" href="https://hexo.qiniu.pursue.top/%E9%9F%B3%E4%B9%90.png">
-  <link rel="icon" href="https://hexo.qiniu.pursue.top/%E9%9F%B3%E4%B9%90.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/resources/image/music_icon.png">
+  <link rel="icon" href="/resources/image/music_icon.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
@@ -23,14 +23,14 @@
 <meta property="og:site_name" content="XpSun&#39;s Blog">
 <meta property="og:description" content="前言 提到 iOS 的音频，首先想到的是苹果提供的 Core Audio。Core Audio 其实是一个抽象的概念，它包含平台下所有音频相关的类库，包括 AVFoundation、Audio Queue Services、Audio Unit、OpenAL 等等。我们这次需要实现一个音频采集类，采集麦克风的原始数据给到推流 SDK 的 codec 做编码，可实现的方式有很多种，可以用 AVFou">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://hexo.qiniu.pursue.top/coreaudio.png">
+<meta property="og:image" content="https://blog.pursue.top/resources/image/coreaudio.png">
 <meta property="article:published_time" content="2022-04-29T08:11:44.000Z">
-<meta property="article:modified_time" content="2025-04-09T05:08:37.322Z">
+<meta property="article:modified_time" content="2025-04-09T06:02:45.210Z">
 <meta property="article:author" content="XpSun">
 <meta property="article:tag" content="采集">
 <meta property="article:tag" content="Core Audio">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://hexo.qiniu.pursue.top/coreaudio.png">
+<meta name="twitter:image" content="https://blog.pursue.top/resources/image/coreaudio.png">
   
   
   <title>iOS 使用 AudioUnit 采集麦克风音频数据 - XpSun&#39;s Blog</title>
@@ -70,7 +70,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"blog.pursue.top","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":80,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://hexo.qiniu.pursue.top/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+    var CONFIG = {"hostname":"blog.pursue.top","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":80,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/resources/image/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -186,7 +186,7 @@
 </nav>
 
     <div class="banner" id="banner" parallax=true
-         style="background: url('https://hexo.qiniu.pursue.top/SC01C11.jpg') no-repeat center center;
+         style="background: url('/resources/image/SC01C11.jpg') no-repeat center center;
            background-size: cover;">
       <div class="full-bg-img">
         <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
@@ -272,7 +272,7 @@
 <h1>实现思路</h1>
 <p>Audio Unit 是一个极其强大的音频引擎模块，它将功能模块按类型划分抽象成不同的 Unit，比如输入输出的 Unit 与硬件直接交互、延迟混响类效果器 Unit 可以串联在输入 Unit 后给采集的声音添加各种效果，混音 Unit 可以将多路音频合成一路最终串联输出 Unit 送给音频设备播放，还有一些 MIDI、采样相关的 Unit 一般在编曲相关的 App 中比较常见，苹果官方的编曲软件 GarageBand 和 Logic 都是基于此来完成。与 OC 平台相比，iOS 平台上可用的 Unit 数量是比较有限的，不如 OS 平台丰富，但对于移动设备来说已经很够用了，并且随着 iOS 版本的更新 Unit 数量也在不断增加。</p>
 <p>目前只需要实现采集音频的功能，所以 Unit 的类型我们选择 kAudioUnitType_Output，虽然从字面上来看这个类型像是用于输出的，但这里理解为”外设“更好一点，因为它可以包含输入和输出。kAudioUnitType_Output 类型下包含很多子类型，我们要用到的是 kAudioUnitSubType_RemoteIO：</p>
-<p><img src="https://hexo.qiniu.pursue.top/remoteio.png" srcset="https://hexo.qiniu.pursue.top/loading.gif" lazyload alt="output unit"></p>
+<p><img src="/resources/image/remoteio.png" srcset="/resources/image/loading.gif" lazyload alt="output unit"></p>
 <p>上图是 RemoteIO Unit 的数据流向图，它包含两个 Bus（Bus 是编曲软件 Logic 的叫法，代码里一般记作 element），可以理解成是两个数据通道，Bus1 与输入设备硬件交互，Bus0 与输出设备硬件交互。还有一个 Scope 的概念，数据流从外界进入到 Bus 中的端口叫做 Input Scope，数据从 Bus 中流出的端口叫做 Output Scope，所以 RemoteIO Unit 的工作流程可以总结为：输入设备硬件采集到的数据通过 Bus1 的 Input Scope 流入 Bus1，经过 Bus1 的 DSP 处理后，从 Bus1 的 Output Scope 流入 Bus0 的 Input Scope，经过 Bus0 的 DSP 处理后发送给输出硬件设备。</p>
 <p>我们不需要 Bus0 发送数据给输出设备来播放我们采集到的声音，所以可以用代码设置将 Bus0 关闭，同时我们希望经过 Bus1 的 DSP 处理后可以得到我们想要的数据格式，因此要给 Bus1 的 Output Scope 设置 Audio Stream Basic Description，并监听 Output Scope 的 Input 事件，在事件回调中渲染音频数据，拿到我们想要的 Buffer。</p>
 <h1>代码实现</h1>
