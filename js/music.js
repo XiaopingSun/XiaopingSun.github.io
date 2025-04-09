@@ -6,6 +6,6 @@ const ap = new APlayer({
         name: 'Pursue',
         artist: '李鑫',
         url: '/resources/music/Pursue.mp3',
-        cover: '/resources/music/portrait.png',
+        cover: '/resources/image/portrait.png',
     }]
 });
