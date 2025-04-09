@@ -1,0 +1,592 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://hexo.qiniu.pursue.top/%E9%9F%B3%E4%B9%90.png">
+  <link rel="icon" href="https://hexo.qiniu.pursue.top/%E9%9F%B3%E4%B9%90.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="XpSun">
+  <meta name="keywords" content="IT技术博客 电吉他 生活">
+  
+    <meta name="description" content="前言 上一篇有提到 使用 AVFoundation 采集相机画面，并渲染到苹果内置的 AVCaptureVideoPreviewLayer 图层上，代码很简单，但使用上有很大局限性。AVCaptureSession 采集到的原始视频帧直接给到了 AVCaptureVideoPreviewLayer 用于渲染，我们没办法在中间环节处理视频帧数据，美颜滤镜也就没办法实现，所以我们需要借助 OpenGL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS 使用 OpenGLES 渲染相机预览画面">
+<meta property="og:url" content="https://blog.pursue.top/2022/04/17/iOS-%E4%BD%BF%E7%94%A8-OpenGLES-%E6%B8%B2%E6%9F%93%E7%9B%B8%E6%9C%BA%E9%A2%84%E8%A7%88%E7%94%BB%E9%9D%A2/index.html">
+<meta property="og:site_name" content="XpSun&#39;s Blog">
+<meta property="og:description" content="前言 上一篇有提到 使用 AVFoundation 采集相机画面，并渲染到苹果内置的 AVCaptureVideoPreviewLayer 图层上，代码很简单，但使用上有很大局限性。AVCaptureSession 采集到的原始视频帧直接给到了 AVCaptureVideoPreviewLayer 用于渲染，我们没办法在中间环节处理视频帧数据，美颜滤镜也就没办法实现，所以我们需要借助 OpenGL">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hexo.qiniu.pursue.top/opengl.jpeg">
+<meta property="article:published_time" content="2022-04-17T06:37:32.000Z">
+<meta property="article:modified_time" content="2025-04-09T05:08:37.323Z">
+<meta property="article:author" content="XpSun">
+<meta property="article:tag" content="AVFoundation">
+<meta property="article:tag" content="OpenGL">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://hexo.qiniu.pursue.top/opengl.jpeg">
+  
+  
+  <title>iOS 使用 OpenGLES 渲染相机预览画面 - XpSun&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://fastly.jsdelivr.net/npm/highlight.js@10/styles/github-dark-dimmed.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.pursue.top","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":80,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://hexo.qiniu.pursue.top/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>XpSun&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('https://hexo.qiniu.pursue.top/SC01C11.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="iOS 使用 OpenGLES 渲染相机预览画面">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-04-17 14:37" pubdate>
+        2022年4月17日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      15k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      129 分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">iOS 使用 OpenGLES 渲染相机预览画面</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：2025年4月9日 下午
+                
+              </p>
+            
+            <div class="markdown-body">
+              <h1>前言</h1>
+<p>上一篇有提到 <a target="_blank" rel="noopener" href="https://pursue.top/2022/04/07/%E4%BD%BF%E7%94%A8-AVFoundation-%E9%87%87%E9%9B%86%E7%9B%B8%E6%9C%BA%E7%94%BB%E9%9D%A2/">使用 AVFoundation 采集相机画面</a>，并渲染到苹果内置的 AVCaptureVideoPreviewLayer 图层上，代码很简单，但使用上有很大局限性。AVCaptureSession 采集到的原始视频帧直接给到了 AVCaptureVideoPreviewLayer 用于渲染，我们没办法在中间环节处理视频帧数据，美颜滤镜也就没办法实现，所以我们需要借助 OpenGLES 自己实现画面渲染。</p>
+<p>苹果的 GLKit 框架对 OpenGLES 的部分接口调用做了封装，使用起来非常方便。我们的需求可以直接使用 GLKView 实现，开发的代码量是比较少的，但为了熟悉 OpenGLES 的接口调用和管线渲染流程，我们还是使用最原始的方法，基于 CAEAGLLayer，自己来实现着色器代码。</p>
+<h1>代码实现</h1>
+<h2 id="准备工作">准备工作</h2>
+<h3 id="使用-CAEAGLLayer">使用 CAEAGLLayer</h3>
+<p>首先在项目中创建一个继承 UIView 的 XPGLKView，如果需要在图层上自定义 OpenGL 渲染，需要将 UIView 的 layerClass 设置为 CAEAGLLayer：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-class"><span class="hljs-keyword">@implementation</span> <span class="hljs-title">XPGLKView</span></span><br><br>+(Class)layerClass &#123;<br>    <span class="hljs-keyword">return</span> [<span class="hljs-built_in">CAEAGLLayer</span> <span class="hljs-keyword">class</span>];<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<h3 id="顶点数据计算">顶点数据计算</h3>
+<p>我们需要计算两类坐标，一类是 OpenGL 顶点坐标，一类是纹理贴图的坐标，先定义一个结构体类型，包含两类坐标：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> &#123;<br>    GLKVector2 positionCoordinates;<br>    GLKVector2 textureCoordinates;<br>&#125; VerticesCoordinates;<br></code></pre></div></td></tr></table></figure>
+<p>我们的场景只需要 4 个顶点，使用  <code>glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);</code> 即可绘制两个三角形，按照顶点坐标和纹理坐标一一对应的关系，可以得到一个初步的顶点数据：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc">VerticesCoordinates vertices[] = &#123;<br>    &#123;&#123;<span class="hljs-number">-1.0</span>f, <span class="hljs-number">-1.0</span>f&#125;, &#123;<span class="hljs-number">0.0</span>f, <span class="hljs-number">0.0</span>f&#125;&#125;, <span class="hljs-comment">// 左下</span><br>    &#123;&#123; <span class="hljs-number">1.0</span>f, <span class="hljs-number">-1.0</span>f&#125;, &#123;<span class="hljs-number">1.0</span>f, <span class="hljs-number">0.0</span>f&#125;&#125;, <span class="hljs-comment">// 右下</span><br>    &#123;&#123;<span class="hljs-number">-1.0</span>f,  <span class="hljs-number">1.0</span>f&#125;, &#123;<span class="hljs-number">0.0</span>f, <span class="hljs-number">1.0</span>f&#125;&#125;, <span class="hljs-comment">// 左上</span><br>    &#123;&#123; <span class="hljs-number">1.0</span>f,  <span class="hljs-number">1.0</span>f&#125;, &#123;<span class="hljs-number">1.0</span>f, <span class="hljs-number">1.0</span>f&#125;&#125;  <span class="hljs-comment">// 右上</span><br>&#125;;<br></code></pre></div></td></tr></table></figure>
+<p>上面看着没什么问题，但实际渲染发现图像上下颠倒了，原因是使用 CoreVideo 框架读取 Pixel Buffer 数据时是按照屏幕坐标原点（左上角）开始的，而纹理坐标正好相反，所以我们需要翻转一下纹理坐标的 Y 轴，得到最终的顶点数据：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc">VerticesCoordinates vertices[] = &#123;<br>    &#123;&#123;<span class="hljs-number">-1.0</span>f, <span class="hljs-number">-1.0</span>f&#125;, &#123;<span class="hljs-number">0.0</span>f, <span class="hljs-number">1.0</span>f&#125;&#125;, <span class="hljs-comment">// 左下</span><br>    &#123;&#123; <span class="hljs-number">1.0</span>f, <span class="hljs-number">-1.0</span>f&#125;, &#123;<span class="hljs-number">1.0</span>f, <span class="hljs-number">1.0</span>f&#125;&#125;, <span class="hljs-comment">// 右下</span><br>    &#123;&#123;<span class="hljs-number">-1.0</span>f,  <span class="hljs-number">1.0</span>f&#125;, &#123;<span class="hljs-number">0.0</span>f, <span class="hljs-number">0.0</span>f&#125;&#125;, <span class="hljs-comment">// 左上</span><br>    &#123;&#123; <span class="hljs-number">1.0</span>f,  <span class="hljs-number">1.0</span>f&#125;, &#123;<span class="hljs-number">1.0</span>f, <span class="hljs-number">0.0</span>f&#125;&#125;  <span class="hljs-comment">// 右上</span><br>&#125;;<br></code></pre></div></td></tr></table></figure>
+<h3 id="着色器程序">着色器程序</h3>
+<p>为了代码整洁，我们封装一个着色器程序，包含着色器的初始化、编译和链接功能：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-comment">// 初始化方法接受顶点着色器和片段着色器的代码字符串，创建着色器程序后，调用 compileShader 编译着色器，最后将着色器绑定在当前着色器程序上</span><br>- (<span class="hljs-keyword">instancetype</span>)initWithVertexShaderString:(<span class="hljs-built_in">NSString</span> *)vShaderString fragmentShaderString:(<span class="hljs-built_in">NSString</span> *)fShaderString &#123;<br>    <span class="hljs-keyword">self</span> = [<span class="hljs-variable language_">super</span> init];<br>    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">self</span>) &#123;<br>        _attributes = [<span class="hljs-built_in">NSMutableArray</span> array];<br>        _ID = glCreateProgram();<br>        <br>        <span class="hljs-keyword">if</span> (![<span class="hljs-keyword">self</span> compileShader:&amp;_vertexShader type:GL_VERTEX_SHADER string:vShaderString]) &#123;<br>            <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;Failed to compile vertex shader&quot;</span>);<br>        &#125;<br>        <br>        <span class="hljs-keyword">if</span> (![<span class="hljs-keyword">self</span> compileShader:&amp;_fragmentShader type:GL_FRAGMENT_SHADER string:fShaderString]) &#123;<br>            <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;Failed to compile fragment shader&quot;</span>);<br>        &#125;<br>        <br>        glAttachShader(_ID, _vertexShader);<br>        glAttachShader(_ID, _fragmentShader);<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">self</span>;<br>&#125;<br><br><span class="hljs-comment">// 释放</span><br>- (<span class="hljs-type">void</span>)dealloc &#123;<br>    <span class="hljs-keyword">if</span> (_vertexShader) &#123;<br>        glDeleteShader(_vertexShader);<br>    &#125;<br>    <span class="hljs-keyword">if</span> (_fragmentShader) &#123;<br>        glDeleteShader(_fragmentShader);<br>    &#125;<br>    <span class="hljs-keyword">if</span> (_ID) &#123;<br>        glDeleteProgram(_ID);<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// 创建、编译着色器</span><br>- (<span class="hljs-type">BOOL</span>)compileShader:(GLuint *)shader type:(GLenum)type string:(<span class="hljs-built_in">NSString</span> *)shaderString &#123;<br>    GLint status;<br>    <span class="hljs-keyword">const</span> GLchar *source = (GLchar *)[shaderString UTF8String];<br>    <span class="hljs-keyword">if</span> (!source) &#123;<br>        <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;Failed to load shader string&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">NO</span>;<br>    &#125;<br>    <br>  	<span class="hljs-comment">// 创建着色器</span><br>    *shader = glCreateShader(type);<br>  	<span class="hljs-comment">// 绑定着色器代码</span><br>    glShaderSource(*shader, <span class="hljs-number">1</span>, &amp;source, <span class="hljs-literal">NULL</span>);<br>  	<span class="hljs-comment">// 编译着色器</span><br>    glCompileShader(*shader);<br>    <br>  	<span class="hljs-comment">// 检查着色器编译状态</span><br>    glGetShaderiv(*shader, GL_COMPILE_STATUS, &amp;status);<br>    <span class="hljs-keyword">if</span> (status != GL_TRUE) &#123;<br>        GLint logLength;<br>        glGetShaderiv(*shader, GL_INFO_LOG_LENGTH, &amp;logLength);<br>        <span class="hljs-keyword">if</span> (logLength) &#123;<br>            GLchar *log = (GLchar *)malloc(logLength);<br>            glGetShaderInfoLog(*shader, logLength, &amp;logLength, log);<br>            <span class="hljs-keyword">if</span> (shader == &amp;_vertexShader) &#123;<br>                <span class="hljs-keyword">self</span>.vertexShaderLog = [<span class="hljs-built_in">NSString</span> stringWithFormat:<span class="hljs-string">@&quot;%s&quot;</span>, log];<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                <span class="hljs-keyword">self</span>.fragmentShaderLog = [<span class="hljs-built_in">NSString</span> stringWithFormat:<span class="hljs-string">@&quot;%s&quot;</span>, log];<br>            &#125;<br>            free(log);<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> status == GL_TRUE;<br>&#125;<br><br><span class="hljs-comment">// 链接着色器</span><br>- (<span class="hljs-type">BOOL</span>)link &#123;<br>    GLint status;<br>    glLinkProgram(_ID);<br>    glGetProgramiv(_ID, GL_LINK_STATUS, &amp;status);<br>    <span class="hljs-keyword">if</span> (status == GL_FALSE) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">NO</span>;<br>    &#125;<br>    <br>    <span class="hljs-keyword">if</span> (_vertexShader) &#123;<br>        glDeleteShader(_vertexShader);<br>        _vertexShader = <span class="hljs-number">0</span>;<br>    &#125;<br>    <span class="hljs-keyword">if</span> (_fragmentShader) &#123;<br>        glDeleteShader(_fragmentShader);<br>        _fragmentShader = <span class="hljs-number">0</span>;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">YES</span>;<br>&#125;<br><br><span class="hljs-comment">// 使用着色器程序</span><br>- (<span class="hljs-type">void</span>)use &#123;<br>    glUseProgram(_ID);<br>&#125;<br><br><span class="hljs-comment">// 给顶点着色器属性绑定 location</span><br>- (<span class="hljs-type">void</span>)addAttribute:(<span class="hljs-built_in">NSString</span> *)attributeName &#123;<br>    <span class="hljs-keyword">if</span> (![_attributes containsObject:attributeName]) &#123;<br>        [_attributes addObject:attributeName];<br>        glBindAttribLocation(_ID, (GLuint)[_attributes indexOfObject:attributeName], [attributeName UTF8String]);<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// 获取顶点着色器属性 location</span><br>- (GLuint)getAttributeLocation:(<span class="hljs-built_in">NSString</span> *)attributeName &#123;<br>    <span class="hljs-keyword">return</span> (GLuint)[_attributes indexOfObject:attributeName];<br>&#125;<br><br><span class="hljs-comment">// 获取 uniform 属性 localtion</span><br>- (GLuint)getUniformLocation:(<span class="hljs-built_in">NSString</span> *)uniformName &#123;<br>    <span class="hljs-keyword">return</span> glGetUniformLocation(_ID, [uniformName UTF8String]);<br>&#125;<br><br><span class="hljs-comment">// 打印错误信息</span><br>- (<span class="hljs-type">void</span>)showError &#123;<br>    <span class="hljs-built_in">NSString</span> *progLog = [<span class="hljs-keyword">self</span> programLog];<br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;Program link log: %@&quot;</span>, progLog);<br>    <span class="hljs-built_in">NSString</span> *fragLog = [<span class="hljs-keyword">self</span> fragmentShaderLog];<br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;Fragment shader compile log: %@&quot;</span>, fragLog);<br>    <span class="hljs-built_in">NSString</span> *vertLog = [<span class="hljs-keyword">self</span> vertexShaderLog];<br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;Vertex shader compile log: %@&quot;</span>, vertLog);<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>有了着色器程序，再来看下顶点着色器和片段着色器的代码：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-comment">// 顶点着色器</span><br><span class="hljs-keyword">static</span> <span class="hljs-built_in">NSString</span> *XP_GLK_VSH = <span class="hljs-string">@&quot; \</span><br><span class="hljs-string">attribute vec4 position; \</span><br><span class="hljs-string">attribute vec4 inputTextureCoordinate; \</span><br><span class="hljs-string">varying vec2 textureCoordinate; \</span><br><span class="hljs-string">\</span><br><span class="hljs-string">void main() \</span><br><span class="hljs-string">&#123; \</span><br><span class="hljs-string">gl_Position = position; \</span><br><span class="hljs-string">textureCoordinate = inputTextureCoordinate.xy; \</span><br><span class="hljs-string">&#125; \</span><br><span class="hljs-string">&quot;</span>;<br><br><span class="hljs-comment">// 顶点着色器有两个 attribute 的属性，position 是从顶点缓冲区获取的顶点坐标</span><br><span class="hljs-comment">// inputTextureCoordinate 则是纹理坐标，这两个属性的类型是 vec4，是一个四维的坐标</span><br><span class="hljs-comment">// 而我们创建的顶点、纹理坐标是二维的，opengl 会使用默认自动转成 vec4 类型</span><br><span class="hljs-comment">// textureCoordinate 是顶点着色器传递给片段着色器的属性，片段着色器使用 textureCoordinate 计算纹理颜色</span><br><br><span class="hljs-comment">// ************************************************************************</span><br><br><span class="hljs-comment">// 片段着色器</span><br><span class="hljs-keyword">static</span> <span class="hljs-built_in">NSString</span> *XP_GLK_FSH = <span class="hljs-string">@&quot; \</span><br><span class="hljs-string">varying highp vec2 textureCoordinate; \</span><br><span class="hljs-string">uniform sampler2D inputImageTexture; \</span><br><span class="hljs-string">\</span><br><span class="hljs-string">void main() \</span><br><span class="hljs-string">&#123; \</span><br><span class="hljs-string">gl_FragColor = texture2D(inputImageTexture, textureCoordinate); \</span><br><span class="hljs-string">&#125; \</span><br><span class="hljs-string">&quot;</span>;<br><br><span class="hljs-comment">// textureCoordinate 是从顶点着色器传过来的顶点坐标，inputImageTexture 是纹理采样器</span><br><span class="hljs-comment">// texture2D()方法计算纹理在该点的颜色值，输出给 gl_FragColor</span><br><span class="hljs-comment">// 纹理采样器需要在使用前先绑定到纹理单元，稍后代码会有提到</span><br></code></pre></div></td></tr></table></figure>
+<p>有了顶点数据和着色器程序，接下来看一下 XPGLKView 的初始化代码。</p>
+<h2 id="初始化-v2">初始化</h2>
+<p>初始化方法中设置一些变量的默认值，主要还是配置 OpenGL 环境：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc">- (<span class="hljs-type">void</span>)commonInit &#123;<br>  	<span class="hljs-comment">// 标志位用于控制后台停止渲染</span><br>    _needStopDisplay = <span class="hljs-literal">NO</span>;<br>    <span class="hljs-comment">// 填充模式</span><br>    _fillMode = XPVideoFillModeAspectFill;<br>  	<span class="hljs-comment">// 递归锁 用来控制 openGL 的 API </span><br>    _renderLock = [[<span class="hljs-built_in">NSRecursiveLock</span> alloc] init];<br>    <br>    <span class="hljs-comment">// add observer</span><br>    [<span class="hljs-keyword">self</span> addObservers];<br>    <br>    <span class="hljs-comment">// layer</span><br>  	<span class="hljs-comment">// 首先是拿到 UIView 上的 CAEAGLLayer 图层做一些设置，opaque 属性设置为 YES 可以提升渲染效率</span><br>  	<span class="hljs-comment">// contentsScale 比例因子设置为屏幕的比例因子，是为了适配 Retina 这类高分辨率的屏幕</span><br>  	<span class="hljs-comment">// drawableProperties 设置的两个 Key &amp; Value，kEAGLDrawablePropertyRetainedBacking 设置为 NO 表示当前帧绘制后就清空其内容</span><br>  	<span class="hljs-comment">// kEAGLDrawablePropertyColorFormat 设置为 kEAGLColorFormatRGBA8 设置 renderBuffer 按 32位存储</span><br>    <span class="hljs-built_in">CAEAGLLayer</span> *layer = (<span class="hljs-built_in">CAEAGLLayer</span> *)<span class="hljs-keyword">self</span>.layer;<br>    layer.opaque = <span class="hljs-literal">YES</span>;<br>    layer.contentsScale = [[<span class="hljs-built_in">UIScreen</span> mainScreen] scale];<br>    layer.drawableProperties = [<span class="hljs-built_in">NSDictionary</span> dictionaryWithObjectsAndKeys:[<span class="hljs-built_in">NSNumber</span> numberWithBool:<span class="hljs-literal">NO</span>], kEAGLDrawablePropertyRetainedBacking, kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, <span class="hljs-literal">nil</span>];<br>        <br>    <span class="hljs-comment">// EAGLContext</span><br>  	<span class="hljs-comment">// 创建 OpenGL 上下文，如果不支持 OpenGLES 3.0 则使用 2.0 版本，创建好后将上下文绑定到当前线程。</span><br>    <span class="hljs-keyword">if</span> (!_context) &#123;<br>        _context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];<br>        <span class="hljs-keyword">if</span> (!_context) &#123;<br>            _context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">if</span> (!_context || ![EAGLContext setCurrentContext:_context]) &#123;<br>        <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;failed to setup EAGLContext&quot;</span>);<br>    &#125;<br>    <br>    <span class="hljs-comment">// clear color - black</span><br>  	<span class="hljs-comment">// 默认填充颜色 - 黑色</span><br>    _backgroundColor = GLKVector4Make(<span class="hljs-number">0.0</span>f, <span class="hljs-number">0.0</span>f, <span class="hljs-number">0.0</span>f, <span class="hljs-number">1.0</span>f);<br>    <br>    <span class="hljs-comment">// texture cache</span><br>  	<span class="hljs-comment">// 创建纹理数据缓冲区，CVOpenGLESTextureRef 和 CVOpenGLESTextureCacheRef 来自 CoreVideo 框架</span><br>  	<span class="hljs-comment">// 此例中用于将相机回调的 Pixel Buffer 转换成 OpenGL 的纹理缓存</span><br>    CVReturn ret = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, <span class="hljs-literal">NULL</span>, _context, <span class="hljs-literal">NULL</span>, &amp;_textureCache);<br>    <span class="hljs-keyword">if</span> (ret != kCVReturnSuccess) &#123;<br>        <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;CVOpenGLESTextureCacheCreate: %d&quot;</span>, ret);<br>    &#125;<br>    <br>    <span class="hljs-comment">// program</span><br>  	<span class="hljs-comment">// 创建着色器程序，编译链接顶点着色器和片段着色器，并给顶端着色器绑定两个属性，顶点坐标和纹理坐标</span><br>    _program = [[XPGLKProgram alloc] initWithVertexShaderString:XP_GLK_VSH fragmentShaderString:XP_GLK_FSH];<br>    [_program addAttribute:<span class="hljs-string">@&quot;position&quot;</span>];<br>    [_program addAttribute:<span class="hljs-string">@&quot;inputTextureCoordinate&quot;</span>];<br>    <span class="hljs-keyword">if</span> (![_program link]) &#123;<br>        [_program showError];<br>        <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;Filter shader link failed&quot;</span>);<br>        _program = <span class="hljs-literal">nil</span>;<br>    &#125;<br>    <br>    <span class="hljs-comment">// create FBO</span><br>  	<span class="hljs-comment">// 创建帧缓存</span><br>    glGenFramebuffers(<span class="hljs-number">1</span>, &amp;_frameBuffer);<br>    glBindFramebuffer(GL_FRAMEBUFFER, _frameBuffer);<br>    <br>  	<span class="hljs-comment">// 创建颜色渲染缓存</span><br>    glGenRenderbuffers(<span class="hljs-number">1</span>, &amp;_renderBuffer);<br>    glBindRenderbuffer(GL_RENDERBUFFER, _renderBuffer);<br>    <br>  	<span class="hljs-comment">// 借助 layer 给 renderBuffer 分配空间（像素点个数、每个像素点占多少位）</span><br>    [_context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(<span class="hljs-built_in">CAEAGLLayer</span> *)<span class="hljs-keyword">self</span>.layer];<br>    <br>  	<span class="hljs-comment">// 获取初始化后的 renderBuffer 宽高</span><br>    GLint backingWidth, backingHeight;<br>    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &amp;backingWidth);<br>    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &amp;backingHeight);<br>    <br>  	<span class="hljs-comment">// 如果是 0，直接销毁返回</span><br>    <span class="hljs-keyword">if</span> (backingWidth == <span class="hljs-number">0</span> || backingHeight == <span class="hljs-number">0</span>) &#123;<br>        [<span class="hljs-keyword">self</span> destroyFrameBuffer];<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <br>  	<span class="hljs-comment">// 记录下来，用于调整视口大小</span><br>    _viewportSize.width = (<span class="hljs-built_in">CGFloat</span>)backingWidth;<br>    _viewportSize.height = (<span class="hljs-built_in">CGFloat</span>)backingHeight;<br>    <br>  	<span class="hljs-comment">// 将 renderBuffer 绑定到帧缓存的颜色缓冲区</span><br>    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, _renderBuffer);<br>  	<span class="hljs-comment">// 检查帧缓存状态</span><br>    GLuint framebufferStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);<br>    <span class="hljs-keyword">if</span> (framebufferStatus != GL_FRAMEBUFFER_COMPLETE) &#123;<br>        <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;Fail setup GL framebuffer %d:%d&quot;</span>, backingWidth, backingHeight);<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;Success setup GL framebuffer %d:%d&quot;</span>, backingWidth, backingHeight);<br>    &#125;<br>    <br>    <span class="hljs-comment">// create VBO</span><br>  	<span class="hljs-comment">// 创建顶点数据缓存</span><br>    glGenBuffers(<span class="hljs-number">1</span>, &amp;_vertexBuffer);<br>    glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);<br>    glBufferData(GL_ARRAY_BUFFER, <span class="hljs-keyword">sizeof</span>(_vertices), _vertices, GL_DYNAMIC_DRAW);<br>    <br>    <span class="hljs-comment">// attributes、uniforms</span><br>  	<span class="hljs-comment">// 获取顶点着色器定义的属性的 location</span><br>    _positionAttribute = [_program getAttributeLocation:<span class="hljs-string">@&quot;position&quot;</span>];<br>    _textureCoordinateAttribute = [_program getAttributeLocation:<span class="hljs-string">@&quot;inputTextureCoordinate&quot;</span>];<br>  <br>  	<span class="hljs-comment">// 获取片段着色器定义的纹理采样器的 location</span><br>    _inputTextureUniform = [_program getUniformLocation:<span class="hljs-string">@&quot;inputImageTexture&quot;</span>];<br>    <br>  	<span class="hljs-comment">// 打开顶点着色器属性</span><br>    glEnableVertexAttribArray(_positionAttribute);<br>    glEnableVertexAttribArray(_textureCoordinateAttribute);<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>首先通过 layer 配置帧缓冲区的一些属性，随后初始化并绑定上下文，创建我们封装过的着色器程序，创建帧缓存、顶点缓存，最后将顶点着色器属性打开。</p>
+<h2 id="渲染">渲染</h2>
+<p>初始化之后，就可以准备渲染画面了，渲染方法触发的时机是 AVCaptureSession 的相机数据帧回调，我们在回调里切换渲染线程，调用 displayPixelBuffer 方法：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> mark - AVCaptureVideoDataOutputSampleBufferDelegate</span><br>- (<span class="hljs-type">void</span>)captureOutput:(<span class="hljs-built_in">AVCaptureOutput</span> *)captureOutput didOutputSampleBuffer:(<span class="hljs-built_in">CMSampleBufferRef</span>)sampleBuffer fromConnection:(<span class="hljs-built_in">AVCaptureConnection</span> *)connection &#123;<br>    CVPixelBufferRef originPixelBuffer = <span class="hljs-built_in">CMSampleBufferGetImageBuffer</span>(sampleBuffer);<br>    XPDispatchSync(<span class="hljs-keyword">self</span>.renderQueue, cameraSourceRenderQueueKey, ^&#123;<br>        [<span class="hljs-keyword">self</span>.previewView displayPixelBuffer:originPixelBuffer];<br>    &#125;);<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>渲染的方法实现：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc">- (<span class="hljs-type">void</span>)displayPixelBuffer:(CVPixelBufferRef)pixelBuffer &#123;<br>  	<span class="hljs-comment">// 避免在当前上下文使用多线程调用 opengl 接口  这里用了递归锁</span><br>    [_renderLock lock];<br>    <br>    <span class="hljs-comment">// check needStopDisplay</span><br>  	<span class="hljs-comment">// 后台不渲染</span><br>    <span class="hljs-keyword">if</span> (_needStopDisplay) &#123;<br>        [_renderLock unlock];<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <br>    <span class="hljs-comment">// checkout eagl context</span><br>  	<span class="hljs-comment">// 校验上下文</span><br>    <span class="hljs-keyword">if</span> ([EAGLContext currentContext] != _context) &#123;<br>        [EAGLContext setCurrentContext:_context];<br>    &#125;<br>    <br>    <span class="hljs-comment">// use program</span><br>  	<span class="hljs-comment">// 使用着色器程序</span><br>    [_program use];<br>    <br>    <span class="hljs-comment">// bind frame buffer</span><br>  	<span class="hljs-comment">// 绑定帧缓冲  根据颜色渲染缓冲的 buffer 大小更新视口</span><br>    glBindFramebuffer(GL_FRAMEBUFFER, _frameBuffer);<br>    glViewport(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, (GLint)_viewportSize.width, (GLint)_viewportSize.height);<br>    <br>    <span class="hljs-comment">// clean cache</span><br>  	<span class="hljs-comment">// 刷新深度缓冲、颜色缓冲</span><br>    glClearColor(_backgroundColor.r, _backgroundColor.g, _backgroundColor.b, _backgroundColor.a);<br>    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);<br>    <br>    <span class="hljs-comment">// clean texture and texture cache</span><br>  	<span class="hljs-comment">// 清理纹理缓冲</span><br>    <span class="hljs-keyword">if</span> (_texture) &#123;<br>        <span class="hljs-built_in">CFRelease</span>(_texture);<br>        _texture = <span class="hljs-literal">NULL</span>;<br>    &#125;<br>    CVOpenGLESTextureCacheFlush(_textureCache, <span class="hljs-number">0</span>);<br>    <br>    <span class="hljs-comment">// create a CVOpenGLESTexture from the CVImageBuffer</span><br>  	<span class="hljs-comment">// pixel buffer 转换成纹理数据</span><br>    size_t frameWidth = CVPixelBufferGetWidth(pixelBuffer);<br>    size_t frameHeight = CVPixelBufferGetHeight(pixelBuffer);<br>    CVPixelBufferLockBaseAddress(pixelBuffer, <span class="hljs-number">0</span>);<br>  	<span class="hljs-comment">// 相当于 glTexImage2D()</span><br>    CVReturn ret = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,<br>                                                                _textureCache,<br>                                                                pixelBuffer,<br>                                                                <span class="hljs-literal">NULL</span>,<br>                                                                GL_TEXTURE_2D,<br>                                                                GL_RGBA,  <span class="hljs-comment">// 颜色分量数量</span><br>                                                                (GLsizei)frameWidth,<br>                                                                (GLsizei)frameHeight,<br>                                                                GL_BGRA,  <span class="hljs-comment">// 像素数据格式</span><br>                                                                GL_UNSIGNED_BYTE,<br>                                                                <span class="hljs-number">0</span>,<br>                                                                &amp;_texture);<br>    <span class="hljs-keyword">if</span> (!_texture || ret != kCVReturnSuccess) &#123;<br>        <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;error: Mapping texture:%d&quot;</span>, ret);<br>    &#125;<br>    CVPixelBufferUnlockBaseAddress(pixelBuffer, <span class="hljs-number">0</span>);<br>    <br>    <span class="hljs-comment">// handle texture</span><br>  	<span class="hljs-comment">// 激活纹理单元（一般 GL_TEXTURE0 这个纹理单元默认会被激活，不需要手动调用）</span><br>    glActiveTexture(GL_TEXTURE0);<br>  	<span class="hljs-comment">// 将刚生成的纹理到纹理缓冲区</span><br>    glBindTexture(CVOpenGLESTextureGetTarget(_texture), CVOpenGLESTextureGetName(_texture));<br>  	<span class="hljs-comment">// 配置纹理参数</span><br>    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);<br>    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);<br>    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);<br>    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);<br>  	<span class="hljs-comment">// 将纹理单元 0 绑定到片段着色器的 inputImageTexture 纹理采样器</span><br>    glUniform1i(_inputTextureUniform, <span class="hljs-number">0</span>);<br>    <br>    <span class="hljs-comment">// update vertices</span><br>  	<span class="hljs-comment">// 通过比对当前帧的宽高和前一帧的宽高，决定是否需要更新顶点坐标</span><br>    [<span class="hljs-keyword">self</span> updateInputImageSize:<span class="hljs-built_in">CGSizeMake</span>(frameWidth, frameHeight)];<br>    <br>    <span class="hljs-comment">// bind vertex buffer and handle vertex shader attribute pointer</span><br>  	<span class="hljs-comment">// 绑定顶点缓冲</span><br>    glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);<br>  	<span class="hljs-comment">// 告知顶点着色器如何解析顶点数据，即先解析两个 float 给 position 属性，再解析两个 float 给inputTextureCoordinate 属性。</span><br>    glVertexAttribPointer(_positionAttribute, <span class="hljs-number">2</span>, GL_FLOAT, GL_FALSE, <span class="hljs-keyword">sizeof</span>(VerticesCoordinates), (<span class="hljs-type">void</span> *)offsetof(VerticesCoordinates, positionCoordinates));<br>    glVertexAttribPointer(_textureCoordinateAttribute, <span class="hljs-number">2</span>, GL_FLOAT, GL_FALSE, <span class="hljs-keyword">sizeof</span>(VerticesCoordinates), (<span class="hljs-type">void</span> *)offsetof(VerticesCoordinates, textureCoordinates));<br>    <br>    <span class="hljs-comment">// draw two triangle with 4 vertices</span><br>  	<span class="hljs-comment">// 根据给的 4 个顶点绘制两个三角形</span><br>    glDrawArrays(GL_TRIANGLE_STRIP, <span class="hljs-number">0</span>, <span class="hljs-number">4</span>);<br>    <br>  	<span class="hljs-comment">// 绑定 renderBuffer 并提交给 Core Animation</span><br>    glBindRenderbuffer(GL_RENDERBUFFER, _renderBuffer);<br>    [_context presentRenderbuffer:GL_RENDERBUFFER];<br>    <br>    [_renderLock unlock];<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<h2 id="适配填充模式">适配填充模式</h2>
+<p>按目前的顶点和纹理坐标，渲染内容默认会铺满整个图层，如果相机回调的 Pixel Buffer 宽高与图层宽高不一致，会产生拉伸的现象，因此需要适配不同的填充模式，我们定义了三种填充模式：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">NS_ENUM</span>(<span class="hljs-built_in">NSUInteger</span>, XPVideoFillMode) &#123;<br>    XPVideoFillModeStretch,   <span class="hljs-comment">// 拉伸以填满屏幕</span><br>    XPVideoFillModeAspectFit, <span class="hljs-comment">// 保持宽高比，长边铺满屏幕，短边填充黑边</span><br>    XPVideoFillModeAspectFill,<span class="hljs-comment">// 保持宽高比，短边铺满屏幕，长边裁剪</span><br>&#125;;<br></code></pre></div></td></tr></table></figure>
+<p>每种填充模式的顶点坐标计算方式：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc">- (<span class="hljs-type">void</span>)recalculateVerticesCoordinates &#123;<br>  	<span class="hljs-comment">// 当前图层尺寸</span><br>    <span class="hljs-built_in">CGSize</span> currentViewSize = _currentBoundsSize;<br>    <span class="hljs-built_in">CGRect</span> currentViewBounds = <span class="hljs-built_in">CGRectMake</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, currentViewSize.width, currentViewSize.height);<br>  	<span class="hljs-comment">// 计算视频帧以 AspectRatio 方式填充在当前图层时，视频帧的 frame</span><br>    <span class="hljs-built_in">CGRect</span> insetRect = <span class="hljs-built_in">AVMakeRectWithAspectRatioInsideRect</span>(_inputImageSize, currentViewBounds);<br>    <br>    <span class="hljs-built_in">CGFloat</span> heightScaling, widthScaling;<br>    <span class="hljs-keyword">switch</span> (_fillMode) &#123;<br>        <span class="hljs-keyword">case</span> XPVideoFillModeStretch:<br>            widthScaling = <span class="hljs-number">1.0</span>f;<br>            heightScaling = <span class="hljs-number">1.0</span>f;<br>            <span class="hljs-keyword">break</span>;<br>            <br>        <span class="hljs-keyword">case</span> XPVideoFillModeAspectFit:<br>            widthScaling = insetRect.size.width / currentViewSize.width;<br>            heightScaling = insetRect.size.height / currentViewSize.height;<br>            <span class="hljs-keyword">break</span>;<br>            <br>        <span class="hljs-keyword">case</span> XPVideoFillModeAspectFill: &#123;<br>            widthScaling = currentViewSize.height / insetRect.size.height;<br>            heightScaling = currentViewSize.width / insetRect.size.width;<br>        &#125;<br>            <span class="hljs-keyword">break</span>;<br>            <br>        <span class="hljs-keyword">default</span>:<br>            <span class="hljs-keyword">break</span>;<br>    &#125;<br>    <br>  	<span class="hljs-comment">// 顶点坐标</span><br>    _vertices[<span class="hljs-number">0</span>].positionCoordinates = GLKVector2Make(-widthScaling, -heightScaling);<br>    _vertices[<span class="hljs-number">1</span>].positionCoordinates = GLKVector2Make(widthScaling, -heightScaling);<br>    _vertices[<span class="hljs-number">2</span>].positionCoordinates = GLKVector2Make(-widthScaling, heightScaling);<br>    _vertices[<span class="hljs-number">3</span>].positionCoordinates = GLKVector2Make(widthScaling, heightScaling);<br><br>  	<span class="hljs-comment">// 纹理坐标</span><br>    _vertices[<span class="hljs-number">0</span>].textureCoordinates = GLKVector2Make(<span class="hljs-number">0.0</span>f, <span class="hljs-number">1.0</span>f);<br>    _vertices[<span class="hljs-number">1</span>].textureCoordinates = GLKVector2Make(<span class="hljs-number">1.0</span>f, <span class="hljs-number">1.0</span>f);<br>    _vertices[<span class="hljs-number">2</span>].textureCoordinates = GLKVector2Make(<span class="hljs-number">0.0</span>f, <span class="hljs-number">0.0</span>f);<br>    _vertices[<span class="hljs-number">3</span>].textureCoordinates = GLKVector2Make(<span class="hljs-number">1.0</span>f, <span class="hljs-number">0.0</span>f);<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>在渲染过程中，将顶点数据更新同步到 GPU：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc">glBufferSubData(GL_ARRAY_BUFFER, <span class="hljs-number">0</span>, <span class="hljs-keyword">sizeof</span>(_vertices), _vertices);<br></code></pre></div></td></tr></table></figure>
+<h1>后记</h1>
+<p>相机画面的自定义渲染没有用到 OpenGL 的高级功能，主要是对 OpenGL 对象、纹理、管线概念的理解，和 Core Animation、Core Video 的交互。下面贴一些文档可以用来参考：</p>
+<blockquote>
+<p>1.OpenGL 中文手册 <a target="_blank" rel="noopener" href="https://learnopengl-cn.github.io/">https://learnopengl-cn.github.io/</a></p>
+<p>2.iOS 核心动画高级技巧 <a target="_blank" rel="noopener" href="https://zsisme.gitbooks.io/ios-/content/index.html">https://zsisme.gitbooks.io/ios-/content/index.html</a></p>
+<p>3.OpenGLES 苹果官网文档 <a target="_blank" rel="noopener" href="https://developer.apple.com/library/archive/documentation/3DDrawing/Conceptual/OpenGLES_ProgrammingGuide/Introduction/Introduction.html#//apple_ref/doc/uid/TP40008793-CH1-SW1">https://developer.apple.com/library/archive/documentation/3DDrawing/Conceptual/OpenGLES_ProgrammingGuide/Introduction/Introduction.html#//apple_ref/doc/uid/TP40008793-CH1-SW1</a></p>
+<p>4.《OpenGL ES应用开发实践 指南 iOS卷》</p>
+</blockquote>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E9%9F%B3%E8%A7%86%E9%A2%91%E5%BC%80%E5%8F%91/">音视频开发</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/AVFoundation/">AVFoundation</a>
+                    
+                      <a class="hover-with-bg" href="/tags/OpenGL/">OpenGL</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/04/19/iOS-%E4%BD%BF%E7%94%A8-OpenGLES-%E5%AE%9E%E7%8E%B0%E7%9B%B8%E6%9C%BA%E7%94%BB%E9%9D%A2%E9%95%9C%E5%83%8F/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">iOS 使用 OpenGLES 实现相机画面镜像</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/04/07/iOS-%E4%BD%BF%E7%94%A8-AVFoundation-%E9%87%87%E9%9B%86%E7%9B%B8%E6%9C%BA%E7%94%BB%E9%9D%A2/">
+                        <span class="hidden-mobile">iOS 使用 AVFoundation 采集相机画面</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="gitalk-container"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#gitalk-container', function() {
+      Fluid.utils.createCssLink('/css/gitalk.css')
+      Fluid.utils.createScript('https://lib.baomitu.com/gitalk/1.7.2/gitalk.min.js', function() {
+        var options = Object.assign(
+          {"clientID":"f9864fbe3f26bf3e3fda","clientSecret":"340b5fef89b3fed001756139cf60d36fd4a8a599","repo":"XiaopingSun.github.io","owner":"XiaopingSun","admin":["XiaopingSun"],"language":"zh-CN","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token"},
+          {
+            id: 'ed0a9fe36bad8b71962282351e8181e8'
+          }
+        )
+        var gitalk = new Gitalk(options);
+        gitalk.render('gitalk-container');
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+      <div class="col-lg-7 mx-auto nopadding-x-md">
+        <div class="container custom mx-auto">
+           <link rel="stylesheet" href="/css/APlayer.min.css"> <div id="aplayer"></div> <script type="text/javascript" src="/js/APlayer.min.js"></script> <script type="text/javascript" src="/js/music.js"></script> 
+        </div>
+      </div>
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+  <!-- 备案信息 -->
+  <div class="beian">
+    <span>
+      <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+        沪ICP备2023015573号-1
+      </a>
+    </span>
+    
+  </div>
+
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

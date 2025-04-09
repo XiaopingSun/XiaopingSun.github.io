@@ -1,0 +1,1024 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://hexo.qiniu.pursue.top/%E9%9F%B3%E4%B9%90.png">
+  <link rel="icon" href="https://hexo.qiniu.pursue.top/%E9%9F%B3%E4%B9%90.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="XpSun">
+  <meta name="keywords" content="IT技术博客 电吉他 生活">
+  
+    <meta name="description" content="前言 这篇简单记录一下 FLV 的封装过程。 FLV 封装格式简介 FLV（Flash Video）是 Adobe 公司设计开发的一种流行的流媒体格式，由于其视频文件体积轻巧、封装简单等特点，使其很适合在互联网上进行应用。此外，FLV 可以使用 Flash Player 进行播放，而 Flash Player 插件已经安装在全世界绝大部分浏览器上，这使得通过网页播放FLV视频十分容易，FLV封装格">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FLV 协议封装">
+<meta property="og:url" content="https://blog.pursue.top/2022/05/10/FLV-%E5%8D%8F%E8%AE%AE%E5%B0%81%E8%A3%85/index.html">
+<meta property="og:site_name" content="XpSun&#39;s Blog">
+<meta property="og:description" content="前言 这篇简单记录一下 FLV 的封装过程。 FLV 封装格式简介 FLV（Flash Video）是 Adobe 公司设计开发的一种流行的流媒体格式，由于其视频文件体积轻巧、封装简单等特点，使其很适合在互联网上进行应用。此外，FLV 可以使用 Flash Player 进行播放，而 Flash Player 插件已经安装在全世界绝大部分浏览器上，这使得通过网页播放FLV视频十分容易，FLV封装格">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hexo.qiniu.pursue.top/flv.png">
+<meta property="article:published_time" content="2022-05-10T06:37:48.000Z">
+<meta property="article:modified_time" content="2025-04-09T05:08:37.318Z">
+<meta property="article:author" content="XpSun">
+<meta property="article:tag" content="Flash Video">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://hexo.qiniu.pursue.top/flv.png">
+  
+  
+  <title>FLV 协议封装 - XpSun&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://fastly.jsdelivr.net/npm/highlight.js@10/styles/github-dark-dimmed.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.pursue.top","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":80,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://hexo.qiniu.pursue.top/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>XpSun&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('https://hexo.qiniu.pursue.top/SC01C11.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="FLV 协议封装">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-05-10 14:37" pubdate>
+        2022年5月10日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      16k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      137 分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">FLV 协议封装</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：2025年4月9日 下午
+                
+              </p>
+            
+            <div class="markdown-body">
+              <h1>前言</h1>
+<p>这篇简单记录一下 FLV 的封装过程。</p>
+<h1>FLV 封装格式简介</h1>
+<p>FLV（Flash Video）是 Adobe 公司设计开发的一种流行的流媒体格式，由于其视频文件体积轻巧、封装简单等特点，使其很适合在互联网上进行应用。此外，FLV 可以使用 Flash Player 进行播放，而 Flash Player 插件已经安装在全世界绝大部分浏览器上，这使得通过网页播放FLV视频十分容易，FLV封装格式的文件后缀通常为“.flv”。</p>
+<p>FLV 数据流由一个个的 Tag 组成，一个 FLV 中最多只能包含一路视频流和一路音频流，同一个类型的 Tag 也不能定义多条独立的流。另外 FLV 在存储时使用大端，所以在写入数据时需要注意字节序的转换。</p>
+<p>FLV 的基本结构：</p>
+<p><img src="https://hexo.qiniu.pursue.top/flv%E7%BB%93%E6%9E%84.png" srcset="https://hexo.qiniu.pursue.top/loading.gif" lazyload alt="flv结构"></p>
+<p>可以看到 FLV 的结构相对比较简单，由一个固定长度的 FLV Header 和包含若干 Tag 的 FLV Body 构成，Tag 的类型可以是 Audio（音频数据）、Video（视频数据） 或 Script（元数据），每个 Tag 前面有一个 PreviousTagSize 字段用来标识前一个 Tag 的长度。</p>
+<h2 id="FLV-Header">FLV Header</h2>
+<p>FLV Header 是整个 FLV 文件的开始，固定长度为 9 个字节，它包含以下字段：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>字段长度/类型</th>
+<th>字段内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Signature</td>
+<td>UI8</td>
+<td>签名字段，总是 0x46，‘F’</td>
+</tr>
+<tr>
+<td>Signature</td>
+<td>UI8</td>
+<td>签名字段，总是 0x4C，‘L’</td>
+</tr>
+<tr>
+<td>Signature</td>
+<td>UI8</td>
+<td>签名字段，总是 0x56，‘V’</td>
+</tr>
+<tr>
+<td>Version</td>
+<td>UI8</td>
+<td>版本号，0x01 代表 FLV version 1</td>
+</tr>
+<tr>
+<td>TypeFlagsReserved</td>
+<td>UB[5]</td>
+<td>保留字段，必须是 0</td>
+</tr>
+<tr>
+<td>TypeFlagsAudio</td>
+<td>UB[1]</td>
+<td>如果是 1 说明 FLV 中包含音频 Tag</td>
+</tr>
+<tr>
+<td>TypeFlagsReserved</td>
+<td>UB[1]</td>
+<td>保留字段，必须是 0</td>
+</tr>
+<tr>
+<td>TypeFlagsVideo</td>
+<td>UB[1]</td>
+<td>如果是 1 说明 FLV 中包含视频 Tag</td>
+</tr>
+<tr>
+<td>DataOffset</td>
+<td>UI32</td>
+<td>FLV Body 距离文件起始位置的偏移量，即 FLV Header 的长度。在 FLV version 1 中固定是 9。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="FLV-Body">FLV Body</h2>
+<p>从第 10 个字节开始是 FLV Body，包含多个 PreviousTagSize 和 Tag 的组合对：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>字段长度/类型</th>
+<th>字段内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PreviousTagSize0</td>
+<td>UI32</td>
+<td>由于 PreviousTagSize0 前面没有 Tag 所以一定是 0</td>
+</tr>
+<tr>
+<td>Tag1</td>
+<td>FLVTAG</td>
+<td>第一个 Tag</td>
+</tr>
+<tr>
+<td>PreviousTagSize1</td>
+<td>UI32</td>
+<td>Tag1 的长度（Tag Header + Tag Body）</td>
+</tr>
+<tr>
+<td>Tag2</td>
+<td>FLVTAG</td>
+<td>第二个 Tag</td>
+</tr>
+<tr>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+</tbody>
+</table>
+<h3 id="PreviousTagSize">PreviousTagSize</h3>
+<p>表示前一个 Tag 的长度，固定为 4 字节的无符号整型。</p>
+<h3 id="Tag">Tag</h3>
+<p>Tag 用来负载实际的数据，为了标识 Tag 的类型和其他信息，又将 Tag 拆分成 Tag Header 和 Tag Body：</p>
+<h4 id="Tag-Header">Tag Header</h4>
+<p>固定长度为 11 个字节，包含以下字段：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>字段长度/类型</th>
+<th>字段内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TagType</td>
+<td>UI8</td>
+<td>标识 Tag 类型<br />8：audio<br />9：video<br />18：script</td>
+</tr>
+<tr>
+<td>DataSize</td>
+<td>UI24</td>
+<td>Tag Body 的长度</td>
+</tr>
+<tr>
+<td>Timestamp</td>
+<td>UI24</td>
+<td>相对于第一个 Tag 的时间戳，单位为 ms<br />第一个 Tag 时间戳是 0</td>
+</tr>
+<tr>
+<td>TimestampExtended</td>
+<td>UI8</td>
+<td>时间戳的扩展，如果 Timestamp 的 3 字节不够用，会增加 TimestampExtended 表示最高的 8 位</td>
+</tr>
+<tr>
+<td>StreamID</td>
+<td>UI24</td>
+<td>固定是 0</td>
+</tr>
+</tbody>
+</table>
+<p>在播放回放的场景时，FLV 会始终依赖 Tag Header 里的时间戳，而忽略使用 Tag Data 负载中的时间信息。</p>
+<h4 id="Tag-Body">Tag Body</h4>
+<p>从 Tag Header 中可以知道这个 Tag 的类型是音频、视频还是元信息，负载的大小和时间信息，下面将这三种类型分开讨论：</p>
+<h5 id="AudioData">AudioData</h5>
+<p>解析音频编码数据前，需要让播放端知晓一些信息，比如编码格式、采样率、位深、声道数，播放端需要这些信息去初始化解码器，所以 AudioData 中除了音频编码数据外还有一些信息字段：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>字段长度/类型</th>
+<th>字段内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SoundFormat</td>
+<td>UB[4]</td>
+<td>音频编码格式：<br />0 = Linear PCM, platform endian<br/>1 = ADPCM<br/>2 = MP3<br/>3 = Linear PCM, little endian<br/>4 = Nellymoser 16-kHz mono<br/>5 = Nellymoser 8-kHz mono<br/>6 = Nellymoser<br/>7 = G.711 A-law logarithmic PCM 8 = G.711 mu-law logarithmic PCM 9 = reserved<br/>10 = AAC<br/>11 = Speex<br/>14 = MP3 8-Khz<br/>15 = Device-specific sound</td>
+</tr>
+<tr>
+<td>SoundRate</td>
+<td>UB[2]</td>
+<td>音频采样率，对于 AAC 总是 3：<br />0 = 5.5-kHz<br/>1 = 11-kHz<br/>2 = 22-kHz<br/>3 = 44-kHz</td>
+</tr>
+<tr>
+<td>SoundSize</td>
+<td>UB[1]</td>
+<td>音频采样位深：<br />0 = snd8Bit<br/>1 = snd16Bit</td>
+</tr>
+<tr>
+<td>SoundType</td>
+<td>UB[1]</td>
+<td>声道数，对于 Nellymoser 总是 0，对于 AAC 总是 1：<br />0 = sndMono<br/>1 = sndStereo</td>
+</tr>
+<tr>
+<td>SoundData</td>
+<td>UI8[size of sound data]</td>
+<td>包含负载数据的最后一层，根据不同的编码格式，还会区分不同的结构，如果编码是 AAC，则是 AACAUDIODATA 结构</td>
+</tr>
+</tbody>
+</table>
+<h6 id="AACAUDIODATA">AACAUDIODATA</h6>
+<p>先看看它长什么样子：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>字段长度/类型</th>
+<th>字段内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AACPacketType</td>
+<td>UI8</td>
+<td>用来标识 AAC Packet 的类型<br />0: AAC sequence header<br/>1: AAC raw</td>
+</tr>
+<tr>
+<td>Data</td>
+<td>UI8[n]</td>
+<td>如果 AACPacketType 为 0，是两字节的 AudioSpecificConfig；<br />如果 AACPacketType 为 1，是 AAC 帧数据。</td>
+</tr>
+</tbody>
+</table>
+<p>如<a target="_blank" rel="noopener" href="https://wiki.multimedia.cx/index.php/MPEG-4_Audio#Audio_Specific_Config">维基百科</a>上关于 AudioSpecificConfig（后面简称 ASC） 的描述：</p>
+<blockquote>
+<p>The Audio Specific Config is the global header for MPEG-4 Audio:</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-number">5</span> bits: object type<br><span class="hljs-keyword">if</span> (object type == <span class="hljs-number">31</span>)<br>    <span class="hljs-number">6</span> bits + <span class="hljs-number">32</span>: object type<br><span class="hljs-number">4</span> bits: frequency index<br><span class="hljs-keyword">if</span> (frequency index == <span class="hljs-number">15</span>)<br>    <span class="hljs-number">24</span> bits: frequency<br><span class="hljs-number">4</span> bits: channel configuration<br>var bits: AOT Specific Config<br></code></pre></div></td></tr></table></figure>
+</blockquote>
+<p>ASC 是 MPEG-4 定义的 AAC 的一个全局头部，它包含编码类型（object type），采样率（frequency index）、通道数（channel configuration）和 AOT Specific Config（未知，我们暂时没有用到）。可以看到有些字段在 AudioData 中是有定义过的，这里为什么会要求重新传呢？可以看下 adobe 官方文档上的解释：</p>
+<blockquote>
+<p>If the SoundFormat indicates AAC, the SoundType should be set to 1 (stereo) and the SoundRate should be set to 3 (44 kHz). However, this does not mean that AAC audio in FLV is always stereo, 44 kHz data. Instead, the Flash Player ignores these values and extracts the channel and sample rate data is encoded in the AAC bitstream.</p>
+</blockquote>
+<p>可以看到对于 AAC 格式， Adobe 的 Flash Player 并没有使用 AudioData 中的编码类型、采样率、通道数信息，而是读取的 ASC 中的信息，猜测一部分原因是 AudioData 中定义的信息类型有些局限，而 ASC 中相当于扩展了可选编码类型、采样率和通道数，使 FLV 能更好地兼容负载编码数据的特性。</p>
+<p>由于 ASC 是一个全局的头部信息，所以在打包 Audio Tag 时，第一个 Audio Tag 需要携带 ASC（AACPacketType = 0），后续的 Audio Tag 才是 AAC 帧数据（AACPacketType = 1），后面的例子里可以看到。</p>
+<h5 id="VideoData">VideoData</h5>
+<p>解码视频帧之前需要让播放器知晓编码类型等其他参数用于解码，所以除了视频帧数据还有一些参数信息在 VideoData 里：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>字段长度/类型</th>
+<th>字段内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FrameType</td>
+<td>UB[4]</td>
+<td>帧类型，对于 AVC 关键帧 是 1，非关键帧是 2<br />1: keyframe (for AVC, a seekable frame) <br/>2: inter frame (for AVC, a non- seekable frame)；<br/>3: disposable inter frame (H.263 only)<br/>4: generated keyframe (reserved for server use only)<br/>5: video info/command frame</td>
+</tr>
+<tr>
+<td>CodecID</td>
+<td>UB[4]</td>
+<td>编码类型，AVC 是 7<br />1: JPEG (currently unused)<br/>2: Sorenson H.263<br/>3: Screen video<br/>4: On2 VP6<br/>5: On2 VP6 with alpha channel 6: Screen video version 2<br/>7: AVC</td>
+</tr>
+<tr>
+<td>VideoData</td>
+<td>UI8[size of video data]</td>
+<td>根据编码类型的不同，VideoData 又分为不同的负载格式，对于 AVC 是  AVCVIDEOPACKET:<br />If CodecID == 2:  H263VIDEOPACKET<br/>If CodecID == 3 SCREENVIDEOPACKET<br/>If CodecID == 4: VP6FLVVIDEOPACKET<br/>If CodecID == 5: VP6FLVALPHAVIDEOPACKET<br/>If CodecID == 6: SCREENV2VIDEOPACKET<br/>If CodecID == 7: AVCVIDEOPACKET</td>
+</tr>
+</tbody>
+</table>
+<h6 id="AVCVIDEOPACKET">AVCVIDEOPACKET</h6>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>字段长度/类型</th>
+<th>字段内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AVCPacketType</td>
+<td>UI8</td>
+<td>标识 AVC Packet 的负载类型：<br />0: AVC sequence header<br/>1: AVC NALU<br/>2: AVC end of sequence</td>
+</tr>
+<tr>
+<td>CompositionTime</td>
+<td>SI24</td>
+<td>当 AVCPacketType 为 1 时，CompositionTime 表示该 AVC 视频帧 pts 和 dts 的偏移，单位毫秒，AVCPacketType 不为 1 时为 0</td>
+</tr>
+<tr>
+<td>Data</td>
+<td>UI8[n]</td>
+<td>Tag 实际负载的视频编码数据<br />AVCPacketType 为 0 时负载为 AVCDecoderConfigurationRecord 即 sps、pps；<br />AVCPacketType 为 1 时负载为一个或多个 NALU 单元；<br />AVCPacketType 为 1 时为空。</td>
+</tr>
+</tbody>
+</table>
+<p>FLV 封装 H264 时使用的是 AVCC 标准而非 AnnexB，所以 sps 和 pps 需要单独打包成 ExtraData，而不是作为一个 NALU 来发送。FLV 使用 AVCPacketType 字段标识负载是 ExtraData 还是视频帧数据 NALU，ExtraData 的字段参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/yue_huang/article/details/75126155">码流格式: Annex-B, AVCC(H.264)与HVCC(H.265), extradata详解</a></p>
+<h5 id="ScriptData">ScriptData</h5>
+<p>ScriptData 中一般包含音视频的 meta data 信息，使用 AMF 编码，由于要支持多种数据类型和可变长度，所以相对会复杂一点，首先看下 ScriptData 的整体结构：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>字段长度/类型</th>
+<th>字段内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Objects</td>
+<td>SCRIPTDATAOBJECT[]</td>
+<td>任意数量的 SCRIPTDATAOBJECT 结构</td>
+</tr>
+<tr>
+<td>End</td>
+<td>UI24</td>
+<td>标识 ScriptData 的结束，总是 9，即 0x000009</td>
+</tr>
+</tbody>
+</table>
+<h6 id="SCRIPTDATAOBJECT-结构">SCRIPTDATAOBJECT 结构</h6>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>字段长度/类型</th>
+<th>字段内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ObjectName</td>
+<td>SCRIPTDATASTRING</td>
+<td>Object 的名称</td>
+</tr>
+<tr>
+<td>ObjectData</td>
+<td>SCRIPTDATAVALUE</td>
+<td>Object 的内容</td>
+</tr>
+</tbody>
+</table>
+<h6 id="SCRIPTDATASTRING-结构">SCRIPTDATASTRING 结构</h6>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>字段长度/类型</th>
+<th>字段内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>StringLength</td>
+<td>UI16</td>
+<td>字符串长度</td>
+</tr>
+<tr>
+<td>StringData</td>
+<td>STRING</td>
+<td>字符串内容</td>
+</tr>
+</tbody>
+</table>
+<h6 id="还有一个长字符的-SCRIPTDATALONGSTRING-结构">还有一个长字符的 SCRIPTDATALONGSTRING 结构</h6>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>字段长度/类型</th>
+<th>字段内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>StringLength</td>
+<td>UI32</td>
+<td>字符串长度</td>
+</tr>
+<tr>
+<td>StringData</td>
+<td>STRING</td>
+<td>字符串内容</td>
+</tr>
+</tbody>
+</table>
+<p>AMF 编码的 key 一般会是一个字符串，在编码字符串前需要先编码字符串的长度，如果长度大于 UI16 Max，可以使用 SCRIPTDATALONGSTRING 拓展成 32 位表示长度，这里有个问题，拿什么来标识是 SCRIPTDATASTRING 还是 SCRIPTDATALONGSTRING？先看下 SCRIPTDATAVALUE 的结构：</p>
+<h6 id="SCRIPTDATAVALUE-结构">SCRIPTDATAVALUE 结构</h6>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>字段长度/类型</th>
+<th>字段内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Type</td>
+<td>UI8</td>
+<td>变量的类型：<br />0 = Number type<br/>1 = Boolean type<br/>2 = String type<br/>3 = Object type<br/>4 = MovieClip type<br/>5 = Null type<br/>6 = Undefined type<br/>7 = Reference type 8 = ECMA array type 10 = Strict array type 11 = Date type<br/>12 = Long string type</td>
+</tr>
+<tr>
+<td>ECMAArrayLength</td>
+<td>仅 Type = 8 时，UI32</td>
+<td>ECMA 数组长度</td>
+</tr>
+<tr>
+<td>ScriptDataValue</td>
+<td>If Type == 0 DOUBLE<br />If Type == 1 UI8<br />If Type == 2 SCRIPTDATASTRING<br />If Type == 3 SCRIPTDATAOBJECT<br />If Type == 4 SCRIPTDATASTRING<br />defining the MovieClip path<br />If Type == 7 UI16<br />If Type == 8 SCRIPTDATAVARIABLE[ECMAArrayLength]<br />If Type == 10 SCRIPTDATAVARIABLE[n]<br />If Type == 11 SCRIPTDATADATE<br />If Type == 12 SCRIPTDATALONGSTRING</td>
+<td>Value 数据，定义了具体类型</td>
+</tr>
+<tr>
+<td>ScriptDataValueTerminator</td>
+<td>if Type == 3 SCRIPTDATAOBJECTEND<br />if Type == 8 SCRIPTDATAVARIABLEEND</td>
+<td>Object 和 Array 的结束标识，对于ECMA array 结束标识为 0x000009</td>
+</tr>
+</tbody>
+</table>
+<p>如果 Type == 8，即 ECMA Array，在一字节的 Type 字段后会有 4 个字节的 ECMAArrayLength 标识数组长度，ScriptDataValue 内容类型为 SCRIPTDATAVARIABLE，数组的结束标识为 ScriptDataValueTerminator 即 0x000009。</p>
+<h6 id="SCRIPTDATAVARIABLE-结构">SCRIPTDATAVARIABLE 结构</h6>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>字段长度/类型</th>
+<th>字段内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VariableName</td>
+<td>SCRIPTDATASTRING</td>
+<td>变量名称</td>
+</tr>
+<tr>
+<td>VariableData</td>
+<td>SCRIPTDATAVALUE</td>
+<td>变量内容</td>
+</tr>
+</tbody>
+</table>
+<h1>实现思路</h1>
+<p>项目依赖的 RTMP 框架是 librtmp，这个框架在发送 FLV Tag 时，只需要外层传入 Tag Body 和 Tag Header 的一些参数描述，librtmp 内部会自己打包成 FLV Tag。所以先自定义一个 flv_tag 的结构体用于描述 Tag Header 并携带 Tag Body 数据：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * FLV Tag 类型定义</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">struct</span> flv_tag &#123;<br>    uint8_t     tag_type;<br>    uint32_t    data_size;<br>    uint32_t    timestamp;<br>    uint32_t    stream_id;<br>    <span class="hljs-type">void</span>        *data;  <br>&#125;;<br><br><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> flv_tag, flv_tag_t<br><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> flv_tag, *flv_tag_p<br></code></pre></div></td></tr></table></figure>
+<p>所以要做的就是用 metaData、video、audio 数据构建这个结构体，创建一个本地写入的类，先后写入 FLV Header、Script Tag、Audio &amp; Video Tag，写入完成后我们使用 ffplay 播放 FLV 文件，并使用 UltraEdit 来查看二进制流来分析。</p>
+<h1>部分代码实现</h1>
+<h2 id="Script-Tag-的生成">Script Tag 的生成</h2>
+<p>首先需要根据官方文档的 AMF 编码方式生成 metaData，再封装成 flv_tag 结构体：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-meta">#<span class="hljs-keyword">define</span> kFlvScriptTagBodyLength 222</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> FLV_TAG_TYPE_SCRIPT ((uint8_t)0x12)</span><br><br>...<br>  	<span class="hljs-comment">// 创建 script tag body 指针，kFlvScriptTagBodyLength 需要根据下边的 metadata 字段提前计算好</span><br>    uint8_t *data = malloc(kFlvScriptTagBodyLength);<br>    uint8_t *p = data;<br>  <br>    <span class="hljs-comment">// 写入1字节字符串类型 + 2字节字符串长度 + 10字节字符串 </span><br>    p = put_string(p, <span class="hljs-string">&quot;onMetaData&quot;</span>, <span class="hljs-number">10</span>);  <span class="hljs-comment">// 13</span><br>  <br>  	<span class="hljs-comment">// 写入1字节 EMCA 数组类型</span><br>    p = put_byte(p, kAMFEMCAArray); <span class="hljs-comment">// 1</span><br>  <br>  	<span class="hljs-comment">// 写入4字节数组长度</span><br>    p = put_be32(p, <span class="hljs-number">8</span>); <span class="hljs-comment">// 4</span><br>    <br>  	<span class="hljs-comment">// 写入2字节字符串长度 + 8字节字符串 + 1字节double类型 + 8字节double值</span><br>    p = put_named_double(p, <span class="hljs-string">&quot;duration&quot;</span>, <span class="hljs-number">8</span>, <span class="hljs-number">0.0</span>);    <span class="hljs-comment">// 8 + 11</span><br>    p = put_named_double(p, <span class="hljs-string">&quot;width&quot;</span>, <span class="hljs-number">5</span>, <span class="hljs-number">720</span>);  <span class="hljs-comment">// 5 + 11</span><br>    p = put_named_double(p, <span class="hljs-string">&quot;height&quot;</span>, <span class="hljs-number">6</span>, <span class="hljs-number">1280</span>);    <span class="hljs-comment">// 6 + 11</span><br>    p = put_named_double(p, <span class="hljs-string">&quot;videocodecid&quot;</span>, <span class="hljs-number">12</span>, <span class="hljs-number">7</span>);    <span class="hljs-comment">// 12 + 11</span><br>    p = put_named_double(p, <span class="hljs-string">&quot;audiodatarate&quot;</span>, <span class="hljs-number">13</span>, <span class="hljs-number">128</span>);  <span class="hljs-comment">// 13 + 11</span><br>    p = put_named_double(p, <span class="hljs-string">&quot;audiosamplerate&quot;</span>, <span class="hljs-number">15</span>, <span class="hljs-number">48000</span>); <span class="hljs-comment">// 15 + 11</span><br>    p = put_named_double(p, <span class="hljs-string">&quot;audiocodecid&quot;</span>, <span class="hljs-number">12</span>, <span class="hljs-number">10</span>);   <span class="hljs-comment">// 12 + 11</span><br>    <br>  	<span class="hljs-comment">// 写入2字节字符串长度 + 8字节字符串 + 1字节字符串类型 + 2字节字符串长度 + 19字节字符串</span><br>    p = put_named_string(p, <span class="hljs-string">&quot;app_name&quot;</span>, <span class="hljs-number">8</span>, <span class="hljs-string">&quot;XPLivePusherKitDemo&quot;</span>, <span class="hljs-number">19</span>);  <span class="hljs-comment">// 8 + 19 + 5</span><br>    p = put_named_string(p, <span class="hljs-string">&quot;app_version&quot;</span>, <span class="hljs-number">11</span>, <span class="hljs-string">&quot;1.0.0&quot;</span>, <span class="hljs-number">5</span>);  <span class="hljs-comment">// 11 + 5 + 5</span><br>    <br>  	<span class="hljs-comment">// 写入结束标识 0x000009</span><br>    p = put_be16(p, <span class="hljs-number">0</span>); <span class="hljs-comment">// 2</span><br>    p = put_byte(p, kAMFObjectEnd); <span class="hljs-comment">// 1</span><br>    <br>  	<span class="hljs-comment">// 封装成 flv_tag</span><br>    flv_init_tag(_script_tag,<br>                 FLV_TAG_TYPE_SCRIPT,<br>                 kFlvScriptTagBodyLength,<br>                 XPGetTimeStampOffset(_timeBase),<br>                 <span class="hljs-number">0</span>,<br>                 data);<br>...<br></code></pre></div></td></tr></table></figure>
+<h2 id="Audio-Tag-的生成">Audio Tag 的生成</h2>
+<p>AAC 编码格式的 Audio Tag Body 包含三块内容：1 字节的 Flags、1 字节的 AACPacketType 以及负载数据，Flags 包括 4 bit 的编码格式、2 bit 的采样率、1 bit 的位深、1 bit 的通道数，所以在封装 flv_tag 之前这些参数是需要准备的：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-meta">#<span class="hljs-keyword">define</span> FLV_AUDIO_TAG_SOUND_FORMAT_AAC   10 &lt;&lt; 4</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> FLV_AUDIO_TAG_SOUND_SIZE_16      1 &lt;&lt; 1</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> FLV_AUDIO_TAG_SOUND_TYPE_MONO    0x00</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> FLV_AUDIO_TAG_SOUND_TYPE_STEREO  0x01</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> FLV_AUDIO_TAG_SOUND_RATE_11      1 &lt;&lt; 2</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> FLV_AUDIO_TAG_SOUND_RATE_22      2 &lt;&lt; 2</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> FLV_AUDIO_TAG_SOUND_RATE_44      3 &lt;&lt; 2</span><br><br>...<br>    <span class="hljs-comment">// 判断单双声道</span><br>    <span class="hljs-type">int</span> flvStereoOrMono = (<span class="hljs-number">2</span> == channelCount) ? FLV_AUDIO_TAG_SOUND_TYPE_STEREO : FLV_AUDIO_TAG_SOUND_TYPE_MONO;<br><br>    <span class="hljs-comment">// 创建 Flags，根据参数给对应的 bit 位写值</span><br>    <span class="hljs-type">int</span> flags = <span class="hljs-number">0</span>;<br>    flags = FLV_AUDIO_TAG_SOUND_FORMAT_AAC | FLV_AUDIO_TAG_SOUND_SIZE_16 | flvStereoOrMono;<br><br>    <span class="hljs-keyword">switch</span> (sampleRate) &#123;<br>      <span class="hljs-keyword">case</span> <span class="hljs-number">11025</span>:<br>        flags |= FLV_AUDIO_TAG_SOUND_RATE_11;<br>        <span class="hljs-keyword">break</span>;<br>      <span class="hljs-keyword">case</span> <span class="hljs-number">22050</span>:<br>        flags |= FLV_AUDIO_TAG_SOUND_RATE_22;<br>        <span class="hljs-keyword">break</span>;<br>      <span class="hljs-keyword">case</span> <span class="hljs-number">44100</span>:<br>        flags |= FLV_AUDIO_TAG_SOUND_RATE_44;<br>        <span class="hljs-keyword">break</span>;<br>      <span class="hljs-keyword">default</span>:<br>        <span class="hljs-keyword">break</span>;<br>    &#125;<br>    int32_t size = (int32_t)(AACFrame.dataSize + <span class="hljs-number">2</span>);<br>    flv_tag_p flv_tag = flv_create_tag();<br>    uint8_t *data = malloc(size);<br><br>    <span class="hljs-comment">// 判断负载是 ASC 还是 AAC Packet</span><br>    <span class="hljs-type">BOOL</span> isAudioSpecificConfig = (AACFrame.dataSize == <span class="hljs-number">2</span>);<br><br>    <span class="hljs-comment">// 写入</span><br>    uint8_t *p = data;<br>    p = put_byte(p, flags);<br>    p = put_byte(p, isAudioSpecificConfig ? <span class="hljs-literal">NO</span> : <span class="hljs-literal">YES</span>);<br>    p = put_buff(p, AACFrame.data, AACFrame.dataSize);<br><br>    <span class="hljs-comment">// 封装 flv_tag</span><br>    flv_init_tag(flv_tag,<br>                 FLV_TAG_TYPE_AUDIO,<br>                 size,<br>                 (uint32_t)metaData.pts,<br>                 <span class="hljs-number">0</span>,<br>                 data);<br>...<br></code></pre></div></td></tr></table></figure>
+<h2 id="Video-Tag-的生成">Video Tag 的生成</h2>
+<p>AVC 编码的 Video Tag 负载类型一般有两种，AVC sequence header 即 AVCDecoderConfigurationRecord，以及 NALU，在负载内容前需要标识 1 字节的 Flags（包含 4 bit 帧类型 FrameType 和 4 bit 编码类型CodecID），接着是 1 字节的 AVCPacketType 和 3 字节的 CompositionTime：</p>
+<h3 id="AVCDecoderConfigurationRecord">AVCDecoderConfigurationRecord</h3>
+<p>iOS 的 VideoToolBox 回调方法中拿到的 sps 和 pps 是独立的，需要将他们打包成 extradata 放到 Tag Body 里作为负载数据：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-meta">#<span class="hljs-keyword">define</span> FLV_VIDEO_TAG_CODEC_AVC               7</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> FLV_VIDEO_TAG_FRAME_TYPE_KEYFRAME     1 &lt;&lt; 4</span><br><br>...<br>    <span class="hljs-comment">// 创建 Flags，写入编码类型</span><br>    <span class="hljs-type">int</span> flags = <span class="hljs-number">0</span>;<br>    flags = FLV_VIDEO_TAG_CODEC_AVC | FLV_VIDEO_TAG_FRAME_TYPE_KEYFRAME;<br><br>    uint8_t *conf = <span class="hljs-literal">NULL</span>;<br>    int32_t outputDataSize = <span class="hljs-number">0</span>;<br><br>    <span class="hljs-comment">// 计算拼接好的 extradata长度</span><br>    size_t confSize = <span class="hljs-number">11</span> + __spsSize + __ppsSize;<br>    conf = (uint8_t *)malloc(confSize);<br>    uint8_t *p2 = conf;<br><br>    <span class="hljs-comment">// version</span><br>    p2 = put_byte(p2, <span class="hljs-number">1</span>); <br>    <span class="hljs-comment">// avc profile</span><br>    p2 = put_byte(p2, __sps[<span class="hljs-number">1</span>]); <br>    <span class="hljs-comment">// avc compatibility</span><br>    p2 = put_byte(p2, __sps[<span class="hljs-number">2</span>]); <span class="hljs-comment">// compat</span><br>    <span class="hljs-comment">// avc level</span><br>    p2 = put_byte(p2, __sps[<span class="hljs-number">3</span>]); <br>    <span class="hljs-comment">// 0xFC | (2bit 的 NALU 长度占用字节 - 1) ff：4  11111111</span><br>    p2 = put_byte(p2, <span class="hljs-number">0xff</span>);   <br>    <span class="hljs-comment">// 0xE0 | (5bit 的 sps 个数) e1：1  11111101</span><br>    p2 = put_byte(p2, <span class="hljs-number">0xe1</span>);   <br>    <span class="hljs-comment">// sps size</span><br>    p2 = put_be16(p2, __spsSize);<br>    <span class="hljs-comment">// sps data</span><br>    p2 = put_buff(p2, (<span class="hljs-keyword">const</span> uint8_t *)__sps, __spsSize);<br>    <span class="hljs-comment">// pps 个数</span><br>    p2 = put_byte(p2, <span class="hljs-number">1</span>);<br>    <span class="hljs-comment">// pps size</span><br>    p2 = put_be16(p2, __ppsSize);<br>    <span class="hljs-comment">// pps data</span><br>    p2 = put_buff(p2, (<span class="hljs-keyword">const</span> uint8_t *)__pps, __ppsSize);<br><br>    <span class="hljs-comment">// Tag Body 整体大小</span><br>    outputDataSize = (int32_t)(confSize + <span class="hljs-number">5</span>);				<br>    uint8_t *outputData = (uint8_t *)malloc(outputDataSize);<br><br>    uint8_t *p = outputData;<br>    <span class="hljs-comment">// 写入 Flags</span><br>    p = put_byte(p, flags);<br>    <span class="hljs-comment">// 写入 AVCPacketType，0 为 extradata</span><br>    p = put_byte(p, <span class="hljs-number">0</span>);<br>    <span class="hljs-comment">// 写入 CompositionTime</span><br>    p = put_be24(p, (<span class="hljs-type">int</span>)(metaData.pts - metaData.dts));<br>    <span class="hljs-comment">// 写入 extradata</span><br>    p = put_buff(p, conf, confSize);<br><br>    <span class="hljs-comment">// 封装 flv_tag</span><br>    flv_tag_p tag = flv_create_tag();<br>    flv_init_tag(tag,<br>                 FLV_TAG_TYPE_VIDEO,<br>                 outputDataSize,<br>                 (uint32_t)metaData.pts,<br>                 <span class="hljs-number">0</span>,<br>                 outputData);<br>...<br></code></pre></div></td></tr></table></figure>
+<h3 id="NALU">NALU</h3>
+<p>NALU 的封装相对简单一点：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-meta">#<span class="hljs-keyword">define</span> FLV_VIDEO_TAG_FRAME_TYPE_KEYFRAME     1 &lt;&lt; 4</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> FLV_VIDEO_TAG_FRAME_TYPE_INTERFRAME   2 &lt;&lt; 4</span><br><br>...<br>    <span class="hljs-comment">// 创建 Flags 写入编码类型和帧类型</span><br>    <span class="hljs-type">int</span> flags = <span class="hljs-number">0</span>;<br>    flags = FLV_VIDEO_TAG_CODEC_AVC;<br><br>    <span class="hljs-keyword">if</span> (XPNALUTypeIDR ==  naluFrame.type || XPNALUTypeSEI == naluFrame.type) &#123;<br>      flags |= FLV_VIDEO_TAG_FRAME_TYPE_KEYFRAME;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>      flags |= FLV_VIDEO_TAG_FRAME_TYPE_INTERFRAME;<br>    &#125;<br><br>    <span class="hljs-comment">// 计算 Tag Body 总长度</span><br>    int32_t outputDataSize = <span class="hljs-number">5</span> + (int32_t)naluFrame.dataSize;<br>    uint8_t *outputData = (uint8_t *)malloc(outputDataSize);<br><br>    uint8_t *p = outputData;<br>    <span class="hljs-comment">// 写入 Flags</span><br>    p = put_byte(p, flags);<br>    <span class="hljs-comment">// 写入 AVCPacketType，1 为 NALU</span><br>    p = put_byte(p, <span class="hljs-number">1</span>);<br>    <span class="hljs-comment">// 写入 CompositionTime</span><br>    p = put_be24(p, (<span class="hljs-type">int</span>)(metaData.pts - metaData.dts));<br>    <span class="hljs-comment">// 写入 NALU</span><br>    p = put_buff(p, (<span class="hljs-keyword">const</span> uint8_t *)naluFrame.data, naluFrame.dataSize);<br><br>    <span class="hljs-comment">// 封装 flv_tag</span><br>    flv_tag_p tag = flv_create_tag();<br>    flv_init_tag(tag,<br>                 FLV_TAG_TYPE_VIDEO,<br>                 outputDataSize,<br>                 (uint32_t)metaData.pts,<br>                 <span class="hljs-number">0</span>,<br>                 outputData);<br>...<br></code></pre></div></td></tr></table></figure>
+<h2 id="FLV-Header-的写入">FLV Header 的写入</h2>
+<p>FLV Header 一共是 9 个字节，包含 Signature、Version、Flags 和 Headersize，写入时需要注意 FLV 采用大端的字节序，而 iOS 平台是小端，写入大于一个字节数字类型时需要调整字节序，SetValue 函数提供了这样的功能：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-comment">//    - FLV Header（9字节）：</span><br><span class="hljs-comment">//        1.Signature（3字节） 文件表示  总为&quot;FLV&quot;（0x46, 0x4c, 0x56）</span><br><span class="hljs-comment">//        2.Version（1字节） 版本号   目前为0x01</span><br><span class="hljs-comment">//        3.Flags（1字节） 前5位保留  必须为0   第6位标识是否存在音频Tag   第7位保留  必须为0  第8位标识是否存在视频Tag</span><br><span class="hljs-comment">//        4.Headersize（4字节） 从FLV Header开始到FLV Body开始的字节数  版本1中总是9</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> kFlvHeaderLength 9</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> kFlvTagHeaderFlags_Audio 0x04</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> kFlvTagHeaderFlags_Video 0x01</span><br><br>...<br>    <span class="hljs-type">int</span> index = <span class="hljs-number">0</span>;<br>    <span class="hljs-type">char</span>* signature = <span class="hljs-string">&quot;FLV&quot;</span>;<br>    uint8_t version = <span class="hljs-number">1</span>;<br>    uint8_t flags = kFlvTagHeaderFlags_Audio | kFlvTagHeaderFlags_Video;<br>    uint32_t headerSize = kFlvHeaderLength;<br>    <br>    SetValue(header, &amp;index, (uint8_t *)signature, <span class="hljs-number">3</span>, <span class="hljs-literal">NO</span>);<br>    SetValue(header, &amp;index, (uint8_t *)&amp;version, <span class="hljs-number">1</span>, <span class="hljs-literal">YES</span>);<br>    SetValue(header, &amp;index, (uint8_t *)&amp;flags, <span class="hljs-number">1</span>, <span class="hljs-literal">YES</span>);<br>    SetValue(header, &amp;index, (uint8_t *)&amp;headerSize, <span class="hljs-number">4</span>, <span class="hljs-literal">YES</span>);<br>...<br></code></pre></div></td></tr></table></figure>
+<p>FLV Header 获取到后，使用 NSFileManager 在本地创建文件，使用 NSFileHandler 负责后续 Tag 的写入：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-meta">#<span class="hljs-keyword">define</span> kFlvHeaderLength 9</span><br>...<br>    <span class="hljs-built_in">NSData</span> *flvFileHeaderData = [<span class="hljs-built_in">NSData</span> dataWithBytes:flvHeader length:kFlvHeaderLength];<br>    [[<span class="hljs-built_in">NSFileManager</span> defaultManager] createFileAtPath:filePath contents:flvFileHeaderData attributes:<span class="hljs-literal">nil</span>];<br>    _filledLength += kFlvHeaderLength;<br>    <br>    _handle = [<span class="hljs-built_in">NSFileHandle</span> fileHandleForWritingAtPath:filePath];<br>    [_handle seekToEndOfFile];<br>...<br></code></pre></div></td></tr></table></figure>
+<h2 id="FLV-Tag-的写入">FLV Tag 的写入</h2>
+<p>将 previousTagSize 和 Tag Header 放在一起写入：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-comment">//    - Tag Header（11字节）：</span><br><span class="hljs-comment">//        1.Type（1字节） 表示Tag类型  包括音频(0x08)  视频(0x09)和script data(0x12)</span><br><span class="hljs-comment">//        2.Datasize（3字节） 表示该Tag Data部分的大小</span><br><span class="hljs-comment">//        3.Timestamp（3字节） 表示该Tag的时间戳</span><br><span class="hljs-comment">//        4.Timestamp_ex（1字节） 表示时间戳的扩展字节  当24位数值不够时  该字节作为最高位将时间戳扩展为32位数值</span><br><span class="hljs-comment">//        5.StreamID（3字节） 表示stream id  总是0</span><br>    <br><span class="hljs-comment">//    每个Tag前面是一个Previous Tag Size字段（4字节）  表示前面一个Tag的大小</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> kFlvPreviousTagSizeLength 4</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> kFlvTagHeaderLength 11</span><br><br>...    <br>    uint8_t header[kFlvPreviousTagSizeLength + kFlvTagHeaderLength];<br>    <span class="hljs-type">int</span> index = <span class="hljs-number">0</span>;<br>    <br>		<span class="hljs-comment">// timestamp 中高位 1 字节</span><br>    uint8_t timestampUpper1Byte = flvTag-&gt;timestamp &gt;&gt; <span class="hljs-number">24</span>;<br>		<span class="hljs-comment">// timestamp 中低位 3 字节</span><br>    uint32_t timestampLower3Bytes = flvTag-&gt;timestamp &amp; <span class="hljs-number">0x00FFFFFF</span>;<br>    <br>		<span class="hljs-comment">// 写入 4 字节 previousTagSize</span><br>    SetValue(header, &amp;index, (uint8_t *)&amp;_previousTagSize, kFlvPreviousTagSizeLength, <span class="hljs-literal">YES</span>);<br>		<span class="hljs-comment">// 写入 1 字节 Tag 类型，0x08 音频，0x09 视频，0x12 Script</span><br>    SetValue(header, &amp;index, (uint8_t *)&amp;(flvTag-&gt;tag_type), <span class="hljs-number">1</span>, <span class="hljs-literal">YES</span>);<br>		<span class="hljs-comment">// 写入 Tag Body 长度</span><br>    SetValue(header, &amp;index, (uint8_t *)&amp;(flvTag-&gt;data_size), <span class="hljs-number">3</span>, <span class="hljs-literal">YES</span>);<br>		<span class="hljs-comment">// 写入低位 3 字节时间戳</span><br>    SetValue(header, &amp;index, (uint8_t *)&amp;timestampLower3Bytes, <span class="hljs-number">3</span>, <span class="hljs-literal">YES</span>);<br>		<span class="hljs-comment">// 写入高位 1 字节时间戳</span><br>    SetValue(header, &amp;index, (uint8_t *)&amp;timestampUpper1Byte, <span class="hljs-number">1</span>, <span class="hljs-literal">YES</span>);<br>		<span class="hljs-comment">// 写入 stream Id 固定是 0</span><br>    SetValue(header, &amp;index, (uint8_t *)&amp;(flvTag-&gt;stream_id), <span class="hljs-number">3</span>, <span class="hljs-literal">YES</span>);<br>    <br>    <span class="hljs-built_in">NSData</span> *data = [<span class="hljs-built_in">NSData</span> dataWithBytes:header length:<span class="hljs-keyword">sizeof</span>(header)];<br>    [_handle writeData:data];<br>...<br></code></pre></div></td></tr></table></figure>
+<p>Tag Header 写好后，把上面生成好的 Tag Body 直接写入即可：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc">...<br>		<span class="hljs-built_in">NSData</span> *data = [<span class="hljs-built_in">NSData</span> dataWithBytes:flvTag-&gt;data length:flvTag-&gt;data_size];<br>    [_handle writeData:data];<br>...<br></code></pre></div></td></tr></table></figure>
+<p>写入时一般第一个 Tag 会是 Script Tag，之后是音视频 Tag。文件写好后，下载好沙盒文件，用 ffplay 播放查看效果：</p>
+<p><img src="https://hexo.qiniu.pursue.top/meta.png" srcset="https://hexo.qiniu.pursue.top/loading.gif" lazyload alt="metadata"></p>
+<p>黄框部分是 Script Tag 中携带的 metadata 的一部分，ffmpeg 貌似只打印值是字符串的字段，红色部分则是从 ASC 和 sps/pps 中解析出的音视频编码参数，有两个 Stream 说明播放器已经解析出 FLV 包含音频和视频，剩下的就是观察画面和声音是否正常，音画是否同步。</p>
+<h1>二进制文件分析</h1>
+<p>写好后的 FLV 文件可以用 UltraEdit 打开查看二进制信息：</p>
+<p><img src="https://hexo.qiniu.pursue.top/byte-audio.png" srcset="https://hexo.qiniu.pursue.top/loading.gif" lazyload alt="flv_byte_audio"></p>
+<p>红框部分是 FLV Header，可以看到前三个字节 0x46、0x4C、0x56 是协议名 FLV，第四个字节 0x01 是 FLV 版本，第五个字节 0x05 即 00000101，表示 FLV 流中包含音频和视频的 Tag。</p>
+<p>第一个篮框部分是 previousTagSize0，由于前面没有 Tag，所以这 4 字节固定为 0。</p>
+<p>接着黄框部分是第一个 Tag 的 Header，首字节是 0x12，说明第一个 Tag 是 Script Tag，之后的 3 字节 0x00000DE 表示 Tag Body 的长度为 222，再往后的 4 个字节 0x00000000 表示 Tag 的时间戳，最后 3 字节表示 stream id 为 0。</p>
+<p>黄框后的部分是 Tag Body，也就是 metaData 数据了，可以看到右侧已经解析出了部分 metadata。Tag Body 的起始位置是 0x00000018 加上 0x00000DE 的长度，Tag Body 的结束位置应该在 0x000000F5，可以看到 0x000000F3、0x000000F4、0x000000F5 这三个字节刚好是 AMF 定义的结束标识 0x000009 ，说明 metadata 写入是 OK 的。</p>
+<p>接下来第二个蓝框表示第一个 Script Tag 的长度，11 字节的 Tag Header，222 字节的 Tag Body 加一起刚好是 0x000000E9。</p>
+<p>第二个黄框是第二个 Tag 的 Header，0x08 说明是一个音频 Tag，然后跨过 Header 其他字段直接看 Tag Body，第一个字节 A2 即10100010，前 4 位表示编码类型是 AAC，第 5、6 位表示采样率 5.5-kHz（其实这里应该固定是 3，即 44.1-kHz，但因为解码并没有依赖这个字段，而是依赖 ASC，所以这里没有影响），第 7 位表示 16 位深，第 8 位表示单声道。再往后第二个字节是 AACPacketType，0x00 表示这个 Audio Tag 的负载是 ASC，所以之后的两个字节 0x1188 是 ASC。</p>
+<p>接着第三个蓝框表示第二个 Audio Tag 的长度，11 字节的 Tag Header 加上 4 字节的 Tag Body 刚好是 0x0000000F。</p>
+<p>第三个黄框首字节依然是 0x08，音频 Tag，可以看到 Tag Body 第二个字节的 AACPacketType 是 0x01，说明 Audio Tag 携带的是 AAC Packet。</p>
+<p>再来看下视频的 Tag：</p>
+<p><img src="https://hexo.qiniu.pursue.top/byte-video.png" srcset="https://hexo.qiniu.pursue.top/loading.gif" lazyload alt="flv_byte_video"></p>
+<p>这个 FLV 文件的第一个 Tag 依然是 Script Tag，接着是视频 Tag。</p>
+<p>第二个黄框的首字节 0x09 标识是一个视频 Tag，Tag Body 的首字节 0x17 即 00010111，前 4 位标识是一个关键帧（虽然这是个 extradata 的 Tag，但还是标记成关键帧），后 4 位标识编码类型 AVC，之后第二个字节 AVCPacketType 是 0x00 说明这个视频 Tag 负载的是 extradata，服务端获取后可以解析出 sps/pps。</p>
+<p>第三个黄框的首字节 0x09 说明还是一个视频 Tag，不同的是这个 Tag 的 Body 第二字节 AVCPacketType 是 0x01，说明 Tag 负载的是 NALU，并且第一个字节 0x17 还说明负载中的 NALU 中包含关键帧。</p>
+<h1>后记</h1>
+<p>至此 FLV 封装就完成了，如果本地播放没有问题，就可以用 Tag Body 和 Tag Header 信息构造 librtmp 的 RTMPPacket 结构体，通过 RTMP 协议推送给服务端了。</p>
+<h1>参考文档</h1>
+<blockquote>
+<p>Adobe 官方文档 <a target="_blank" rel="noopener" href="https://rtmp.veriskope.com/pdf/video_file_format_spec_v10.pdf">https://rtmp.veriskope.com/pdf/video_file_format_spec_v10.pdf</a></p>
+<p>之前按雷神文档写过的一个 FLV 解析工具 <a target="_blank" rel="noopener" href="https://github.com/XiaopingSun/AVTools/blob/main/AVTools/Module/FLVMediainfo/FLVMediainfo.cpp">https://github.com/XiaopingSun/AVTools/blob/main/AVTools/Module/FLVMediainfo/FLVMediainfo.cpp</a></p>
+<p>FLV 协议5分钟入门浅析 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/chyingp/p/flv-getting-started.html">https://www.cnblogs.com/chyingp/p/flv-getting-started.html</a></p>
+<p>MPEG-4 Audio 维基百科 <a target="_blank" rel="noopener" href="https://wiki.multimedia.cx/index.php/MPEG-4_Audio#Sampling_Frequencies">https://wiki.multimedia.cx/index.php/MPEG-4_Audio#Sampling_Frequencies</a></p>
+<p>码流格式: Annex-B, AVCC(H.264)与HVCC(H.265), extradata详解 <a target="_blank" rel="noopener" href="https://blog.csdn.net/yue_huang/article/details/75126155">https://blog.csdn.net/yue_huang/article/details/75126155</a></p>
+</blockquote>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E9%9F%B3%E8%A7%86%E9%A2%91%E5%BC%80%E5%8F%91/">音视频开发</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Flash-Video/">Flash Video</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/05/12/%E4%BD%BF%E7%94%A8-RTMP-%E5%8D%8F%E8%AE%AE%E4%BC%A0%E8%BE%93/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">使用 RTMP 协议传输</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/05/06/iOS-%E4%BD%BF%E7%94%A8-VideoToolBox-%E7%BC%96%E7%A0%81-H-264/">
+                        <span class="hidden-mobile">iOS 使用 VideoToolBox 编码 H.264</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="gitalk-container"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#gitalk-container', function() {
+      Fluid.utils.createCssLink('/css/gitalk.css')
+      Fluid.utils.createScript('https://lib.baomitu.com/gitalk/1.7.2/gitalk.min.js', function() {
+        var options = Object.assign(
+          {"clientID":"f9864fbe3f26bf3e3fda","clientSecret":"340b5fef89b3fed001756139cf60d36fd4a8a599","repo":"XiaopingSun.github.io","owner":"XiaopingSun","admin":["XiaopingSun"],"language":"zh-CN","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token"},
+          {
+            id: 'ae284f114a14a876620afdd33a72ca19'
+          }
+        )
+        var gitalk = new Gitalk(options);
+        gitalk.render('gitalk-container');
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+      <div class="col-lg-7 mx-auto nopadding-x-md">
+        <div class="container custom mx-auto">
+           <link rel="stylesheet" href="/css/APlayer.min.css"> <div id="aplayer"></div> <script type="text/javascript" src="/js/APlayer.min.js"></script> <script type="text/javascript" src="/js/music.js"></script> 
+        </div>
+      </div>
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+  <!-- 备案信息 -->
+  <div class="beian">
+    <span>
+      <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+        沪ICP备2023015573号-1
+      </a>
+    </span>
+    
+  </div>
+
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

@@ -1,0 +1,810 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://hexo.qiniu.pursue.top/%E9%9F%B3%E4%B9%90.png">
+  <link rel="icon" href="https://hexo.qiniu.pursue.top/%E9%9F%B3%E4%B9%90.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="XpSun">
+  <meta name="keywords" content="IT技术博客 电吉他 生活">
+  
+    <meta name="description" content="前言 本文是一篇学习 cmake 的笔记，主要内容来自 cmake 官网的 教程。 环境配置 Mac 环境下推荐使用 brew 安装 cmake： 1brew install cmake cmake 使用 step 1 一个基础的入门小例子 编译和运行 首先创建一个项目文件夹 tutorial： 1mkdir tutorial &amp;&amp; cd tutorial 在当前目前目录创建源代码">
+<meta property="og:type" content="article">
+<meta property="og:title" content="cmake 基础使用">
+<meta property="og:url" content="https://blog.pursue.top/2022/07/09/cmake-%E5%9F%BA%E7%A1%80%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="XpSun&#39;s Blog">
+<meta property="og:description" content="前言 本文是一篇学习 cmake 的笔记，主要内容来自 cmake 官网的 教程。 环境配置 Mac 环境下推荐使用 brew 安装 cmake： 1brew install cmake cmake 使用 step 1 一个基础的入门小例子 编译和运行 首先创建一个项目文件夹 tutorial： 1mkdir tutorial &amp;&amp; cd tutorial 在当前目前目录创建源代码">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hexo.qiniu.pursue.top/cmake.jpeg">
+<meta property="article:published_time" content="2022-07-09T15:58:46.000Z">
+<meta property="article:modified_time" content="2025-04-09T05:08:37.320Z">
+<meta property="article:author" content="XpSun">
+<meta property="article:tag" content="cmake">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://hexo.qiniu.pursue.top/cmake.jpeg">
+  
+  
+  <title>cmake 基础使用 - XpSun&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://fastly.jsdelivr.net/npm/highlight.js@10/styles/github-dark-dimmed.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.pursue.top","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":80,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://hexo.qiniu.pursue.top/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>XpSun&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('https://hexo.qiniu.pursue.top/SC01C11.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="cmake 基础使用">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-07-09 23:58" pubdate>
+        2022年7月9日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      28k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      236 分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">cmake 基础使用</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：2025年4月9日 下午
+                
+              </p>
+            
+            <div class="markdown-body">
+              <h1>前言</h1>
+<p>本文是一篇学习 cmake 的笔记，主要内容来自 cmake 官网的 <a target="_blank" rel="noopener" href="https://cmake.org/cmake/help/latest/guide/tutorial/">教程</a>。</p>
+<h1>环境配置</h1>
+<p>Mac 环境下推荐使用 brew 安装 cmake：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">brew install cmake<br></code></pre></div></td></tr></table></figure>
+<h1>cmake 使用</h1>
+<h2 id="step-1-一个基础的入门小例子">step 1 一个基础的入门小例子</h2>
+<h3 id="编译和运行">编译和运行</h3>
+<p>首先创建一个项目文件夹 tutorial：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">mkdir tutorial &amp;&amp; cd tutorial<br></code></pre></div></td></tr></table></figure>
+<p>在当前目前目录创建源代码文件 tutorial.cxx，提供 main 函数调用系统 sqrt 函数计算平方根，具体内容如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs c"><span class="hljs-comment">// A simple program that computes the square root of a number</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;cmath&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;cstdlib&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string&gt;</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span>* argv[])</span><br>&#123;<br>  <span class="hljs-keyword">if</span> (argc &lt; <span class="hljs-number">2</span>) &#123;<br>    <span class="hljs-built_in">std</span>::<span class="hljs-built_in">cout</span> &lt;&lt; <span class="hljs-string">&quot;Usage: &quot;</span> &lt;&lt; argv[<span class="hljs-number">0</span>] &lt;&lt; <span class="hljs-string">&quot; number&quot;</span> &lt;&lt; <span class="hljs-built_in">std</span>::<span class="hljs-built_in">endl</span>;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>  &#125;<br><br>  <span class="hljs-comment">// convert input to double</span><br>  <span class="hljs-type">const</span> <span class="hljs-type">double</span> inputValue = atof(argv[<span class="hljs-number">1</span>]);<br><br>  <span class="hljs-comment">// calculate square root</span><br>  <span class="hljs-type">const</span> <span class="hljs-type">double</span> outputValue = <span class="hljs-built_in">sqrt</span>(inputValue);<br>  <span class="hljs-built_in">std</span>::<span class="hljs-built_in">cout</span> &lt;&lt; <span class="hljs-string">&quot;The square root of &quot;</span> &lt;&lt; inputValue &lt;&lt; <span class="hljs-string">&quot; is &quot;</span> &lt;&lt; outputValue<br>            &lt;&lt; <span class="hljs-built_in">std</span>::<span class="hljs-built_in">endl</span>;<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>使用 cmake 的核心是要编写 CMakeLists.txt 文件，所以在当前目录创建 CMakeLists.txt，输入以下三行内容：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">cmake_minimum_required(VERSION 3.10)<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">set</span> the project name</span><br>project(Tutorial)<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">add the executable</span><br>add_executable(Tutorial tutorial.cxx)<br></code></pre></div></td></tr></table></figure>
+<p>这三行代码使用的是小写风格，大写、小写和大小写混合对 cmake 来说都是支持的。</p>
+<ul>
+<li>
+<p>cmake_minimum_required() 指定使用 cmake 的最小版本。</p>
+</li>
+<li>
+<p>project() 设置项目名称。</p>
+</li>
+<li>
+<p>add_executable() 将资源编译成可执行文件。</p>
+</li>
+</ul>
+<p>为了将 cmake 编译产生的临时文件和源代码文件分开，在当前目录下创建一个 build 文件夹存放编译结果：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">mkdir build &amp;&amp; cd build<br></code></pre></div></td></tr></table></figure>
+<p>在 build 目录下执行 cmake，这一步是 cmake 根据当前环境生成 Makefile：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">cmake ..<br></code></pre></div></td></tr></table></figure>
+<p>执行后的目录结构：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">.<br>├── CMakeLists.txt<br>├── build<br>│   ├── CMakeCache.txt<br>│   ├── CMakeFiles<br>│   ├── Makefile<br>│   └── cmake_install.cmake<br>└── tutorial.cxx<br></code></pre></div></td></tr></table></figure>
+<p>有了 Makefile，接下来可以执行编译和链接了：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">cmake --build .<br></code></pre></div></td></tr></table></figure>
+<p>或者直接使用 make：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">make<br></code></pre></div></td></tr></table></figure>
+<p>执行完成后，当前 build 目录下生成了可执行文件 Tutorial，运行 Tutorial 并传入参数，控制台输出了预期的结果：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">./Tutorial 16<br>The square root of 16 is 4<br></code></pre></div></td></tr></table></figure>
+<h3 id="添加版本号和配置头文件">添加版本号和配置头文件</h3>
+<p>项目的版本号一般可以定义在源代码中，但使用 CMakeLists.txt 会更灵活一些，首先修改 CMakeLists.txt 文件使用 project() 命令设置项目名称和版本号：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">cmake_minimum_required(VERSION 3.10)<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">set</span> the project name and version</span><br>project(Tutorial VERSION 1.0)<br></code></pre></div></td></tr></table></figure>
+<p>然后使用 configure_file 命令将 cmake 配置转换成 .h 文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">configure_file(TutorialConfig.h.in TutorialConfig.h)<br></code></pre></div></td></tr></table></figure>
+<p>转换后的 .h 文件会被保存到可执行文件所在目录，为了使用它，需要将路径添加到索引目录中：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">target_include_directories(Tutorial PUBLIC<br>                           &quot;$&#123;PROJECT_BINARY_DIR&#125;&quot;<br>                           )<br></code></pre></div></td></tr></table></figure>
+<p>关键字 PUBLIC 的作用参考 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/82244559">这里</a>。PROJECT_BINARY_DIR 是 cmake 内置的一个宏定义，一般常用的有两个 PROJECT_SOURCE_DIR 和 PROJECT_BINARY_DIR。PROJECT_SOURCE_DIR 表示项目源文件所在目录，即根目录，PROJECT_BINARY_DIR 表示编译输出的二进制文件所在目录，即当前项目的 build 目录。</p>
+<p>接下来需要提供 cmake 用于转换 .h 的模板文件，在项目的根目录下创建 <a target="_blank" rel="noopener" href="http://TutorialConfig.h.in">TutorialConfig.h.in</a>，并输入如下内容：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">// the configured options and settings for Tutorial<br><span class="hljs-meta prompt_">#</span><span class="language-bash">define Tutorial_VERSION_MAJOR @Tutorial_VERSION_MAJOR@</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">define Tutorial_VERSION_MINOR @Tutorial_VERSION_MINOR@</span><br></code></pre></div></td></tr></table></figure>
+<p>最后一步，在 tutorial.cxx 中添加这两个宏的打印，查看是否生效：</p>
+<figure class="highlight c"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs c">...<br>  <span class="hljs-keyword">if</span> (argc &lt; <span class="hljs-number">2</span>) &#123;<br>    <span class="hljs-comment">// report version</span><br>    <span class="hljs-built_in">std</span>::<span class="hljs-built_in">cout</span> &lt;&lt; argv[<span class="hljs-number">0</span>] &lt;&lt; <span class="hljs-string">&quot; Version &quot;</span> &lt;&lt; Tutorial_VERSION_MAJOR &lt;&lt; <span class="hljs-string">&quot;.&quot;</span><br>              &lt;&lt; Tutorial_VERSION_MINOR &lt;&lt; <span class="hljs-built_in">std</span>::<span class="hljs-built_in">endl</span>;<br>    <span class="hljs-built_in">std</span>::<span class="hljs-built_in">cout</span> &lt;&lt; <span class="hljs-string">&quot;Usage: &quot;</span> &lt;&lt; argv[<span class="hljs-number">0</span>] &lt;&lt; <span class="hljs-string">&quot; number&quot;</span> &lt;&lt; <span class="hljs-built_in">std</span>::<span class="hljs-built_in">endl</span>;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>  &#125;<br>...<br></code></pre></div></td></tr></table></figure>
+<p>重新回到 build 文件夹执行 cmake 命令，可以看到控制台输出了在 CMakeLists.txt 中配置的版本信息：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">./Tutorial<br>./Tutorial Version 1.0<br>Usage: ./Tutorial number<br></code></pre></div></td></tr></table></figure>
+<p>我们对这个过程做下分析：</p>
+<p>首先在 CMakeLists.txt 配置 VERSION 1.0 后，cmake 会以版本号的小数点为边界生成两个宏定义，即 Tutorial_VERSION_MAJOR = 1、Tutorial_VERSION_MINOR = 0，在执行 configure 时，cmake 将 <a target="_blank" rel="noopener" href="http://TutorialConfig.h.in">TutorialConfig.h.in</a> 中的 @Tutorial_VERSION_MAJOR@ 和 @Tutorial_VERSION_MINOR@ 替换成具体的值并生成 TutorialConfig.h 保存在 build 目录下，我们的源文件中引入 TutorialConfig.h，在预编译时 Tutorial_VERSION_MAJOR 和 Tutorial_VERSION_MINOR 被替换成具体的数值，在运行时被打印出来。</p>
+<h3 id="定义-C-标准">定义 C++ 标准</h3>
+<p>现在让我们给源代码添加一些 C++11 的特性，使用 <code>std::stod</code> 替换 ‘atof’，同时，需要移除 <code>#include &lt;cstdlib&gt;</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs c"><span class="hljs-type">const</span> <span class="hljs-type">double</span> inputValue = <span class="hljs-built_in">std</span>::stod(argv[<span class="hljs-number">1</span>]);<br></code></pre></div></td></tr></table></figure>
+<p>接着在 CMakeLists.txt 中定义 C++ 标准：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">specify the C++ standard</span><br>set(CMAKE_CXX_STANDARD 11)<br>set(CMAKE_CXX_STANDARD_REQUIRED True)<br></code></pre></div></td></tr></table></figure>
+<div class="note note-warning">
+            <p>注意：需要保证 CMAKE_CXX_STANDARD 的声明在 add_executable()  执行之前。</p>
+          </div>
+<p>重新执行 cmake 并运行可执行程序，控制台输出预期结果：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">./Tutorial 16<br>The square root of 16 is 4<br></code></pre></div></td></tr></table></figure>
+<h2 id="step-2-尝试链接一个库">step 2 尝试链接一个库</h2>
+<p>现在尝试给程序链接一个库，这个库包含我们自定义的计算平方根的函数，可执行程序用这个自定义函数替换系统函数。</p>
+<p>首先在根目录下创建 MathFunctions 存放库的头文件 MathFunctions.h 和源文件 mysqrt.cxx，源文件中有一个函数 mysqrt 提供计算平方根的功能。</p>
+<p>MathFunctions.h：</p>
+<figure class="highlight c"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs c"><span class="hljs-type">double</span> <span class="hljs-title function_">mysqrt</span><span class="hljs-params">(<span class="hljs-type">double</span> x)</span>;<br></code></pre></div></td></tr></table></figure>
+<p>mysqrt.cxx:</p>
+<figure class="highlight c"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;MathFunctions.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><br><span class="hljs-comment">// a hack square root calculation using simple operations</span><br><span class="hljs-type">double</span> <span class="hljs-title function_">mysqrt</span><span class="hljs-params">(<span class="hljs-type">double</span> x)</span><br>&#123;<br>  <span class="hljs-keyword">if</span> (x &lt;= <span class="hljs-number">0</span>) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>  &#125;<br><br>  <span class="hljs-type">double</span> result;<br>  <span class="hljs-type">double</span> delta;<br>  result = x;<br><br>  <span class="hljs-comment">// do ten iterations</span><br>  <span class="hljs-type">int</span> i;<br>  <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10</span>; ++i) &#123;<br>    <span class="hljs-keyword">if</span> (result &lt;= <span class="hljs-number">0</span>) &#123;<br>      result = <span class="hljs-number">0.1</span>;<br>    &#125;<br>    delta = x - (result * result);<br>    result = result + <span class="hljs-number">0.5</span> * delta / result;<br>    <span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stdout</span>, <span class="hljs-string">&quot;Computing sqrt of %g to be %g\n&quot;</span>, x, result);<br>  &#125;<br>  <span class="hljs-keyword">return</span> result;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>在 MathFunctions 目录创建 CMakeLists.txt，并输入如下内容：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">add_library(MathFunctions mysqrt.cxx)<br></code></pre></div></td></tr></table></figure>
+<p>add_library() 命令用于将源文件编译成库文件，此例中是将 mysqrt.cxx 编译成 libMathFunctions.a 文件。</p>
+<p>接下来需要在根目录的 CMakeLists.txt 添加 MathFunctions 的子目录，并添加库函数头文件的索引：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">add the MathFunctions library</span><br>add_subdirectory(MathFunctions)<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">add the executable</span><br>add_executable(Tutorial tutorial.cxx)<br><br>target_link_libraries(Tutorial PUBLIC MathFunctions)<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">add the binary tree to the search path <span class="hljs-keyword">for</span> include files</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">so that we will find TutorialConfig.h</span><br>target_include_directories(Tutorial PUBLIC<br>                          &quot;$&#123;PROJECT_BINARY_DIR&#125;&quot;<br>                          &quot;$&#123;PROJECT_SOURCE_DIR&#125;/MathFunctions&quot;<br>                          )<br></code></pre></div></td></tr></table></figure>
+<ul>
+<li>add_subdirectory() 用于执行子目录的 CMakeLists.txt</li>
+<li>target_link_libraries() 用于链接库文件</li>
+<li>target_include_directories() 将库文件的头文件索引添加进来</li>
+</ul>
+<p>最后在 tutorial.cxx 中引入 MathFunctions.h 的头文件，并将系统函数 sqrt() 替换成自定义的 mysqrt()：</p>
+<figure class="highlight c"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs c"><span class="hljs-comment">// A simple program that computes the square root of a number</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;cmath&gt;</span></span><br><span class="hljs-comment">// #include &lt;cstdlib&gt;</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;TutorialConfig.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;MathFunctions.h&quot;</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span>* argv[])</span><br>&#123;<br>  <span class="hljs-keyword">if</span> (argc &lt; <span class="hljs-number">2</span>) &#123;<br>    <span class="hljs-comment">// report version</span><br>    <span class="hljs-built_in">std</span>::<span class="hljs-built_in">cout</span> &lt;&lt; argv[<span class="hljs-number">0</span>] &lt;&lt; <span class="hljs-string">&quot; Version &quot;</span> &lt;&lt; Tutorial_VERSION_MAJOR &lt;&lt; <span class="hljs-string">&quot;.&quot;</span><br>              &lt;&lt; Tutorial_VERSION_MINOR &lt;&lt; <span class="hljs-built_in">std</span>::<span class="hljs-built_in">endl</span>;<br>    <span class="hljs-built_in">std</span>::<span class="hljs-built_in">cout</span> &lt;&lt; <span class="hljs-string">&quot;Usage: &quot;</span> &lt;&lt; argv[<span class="hljs-number">0</span>] &lt;&lt; <span class="hljs-string">&quot; number&quot;</span> &lt;&lt; <span class="hljs-built_in">std</span>::<span class="hljs-built_in">endl</span>;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>  &#125;<br><br>  <span class="hljs-comment">// convert input to double</span><br>  <span class="hljs-comment">// const double inputValue = atof(argv[1]);</span><br>  <span class="hljs-type">const</span> <span class="hljs-type">double</span> inputValue = <span class="hljs-built_in">std</span>::stod(argv[<span class="hljs-number">1</span>]);<br><br>  <span class="hljs-comment">// calculate square root</span><br>  <span class="hljs-comment">// const double outputValue = sqrt(inputValue);</span><br>  <span class="hljs-type">const</span> <span class="hljs-type">double</span> outputValue = mysqrt(inputValue);<br>  <span class="hljs-built_in">std</span>::<span class="hljs-built_in">cout</span> &lt;&lt; <span class="hljs-string">&quot;The square root of &quot;</span> &lt;&lt; inputValue &lt;&lt; <span class="hljs-string">&quot; is &quot;</span> &lt;&lt; outputValue<br>            &lt;&lt; <span class="hljs-built_in">std</span>::<span class="hljs-built_in">endl</span>;<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>cmake 重新编译后执行 Tutorial 程序，控制台输出显示成功调用了自定义的库函数：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">./Tutorial 16<br>Computing sqrt of 16 to be 8.5<br>Computing sqrt of 16 to be 5.19118<br>Computing sqrt of 16 to be 4.13666<br>Computing sqrt of 16 to be 4.00226<br>Computing sqrt of 16 to be 4<br>Computing sqrt of 16 to be 4<br>Computing sqrt of 16 to be 4<br>Computing sqrt of 16 to be 4<br>Computing sqrt of 16 to be 4<br>Computing sqrt of 16 to be 4<br>The square root of 16 is 4<br></code></pre></div></td></tr></table></figure>
+<p>现在我们通过 cmake 的一个 option 配置来决定是否编译链接 MathFunctions 库，首先在根目录的 CMakeLists.txt 中添加 option 命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">option(USE_MYMATH &quot;Use tutorial provided math implementation&quot; ON)<br></code></pre></div></td></tr></table></figure>
+<p>接下来使用 if 判断 USE_MYMATH 如果是打开状态，则编译并链接 MathFunctions：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">if(USE_MYMATH)<br>  add_subdirectory(MathFunctions)<br>  list(APPEND EXTRA_LIBS MathFunctions)<br>  list(APPEND EXTRA_INCLUDES &quot;$&#123;PROJECT_SOURCE_DIR&#125;/MathFunctions&quot;)<br>endif()<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">add the executable</span><br>add_executable(Tutorial tutorial.cxx)<br><br>target_link_libraries(Tutorial PUBLIC $&#123;EXTRA_LIBS&#125;)<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">add the binary tree to the search path <span class="hljs-keyword">for</span> include files</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">so that we will find TutorialConfig.h</span><br>target_include_directories(Tutorial PUBLIC<br>                           &quot;$&#123;PROJECT_BINARY_DIR&#125;&quot;<br>                           $&#123;EXTRA_INCLUDES&#125;<br>                           )<br></code></pre></div></td></tr></table></figure>
+<p>list(APPEND …) 命令用于将新的 element 添加到 list 中，我们定义两个 list 变量 EXTRA_LIBS 和 EXTRA_INCLUDES 分别用于存放链接库和库的头文件索引路径，之后使用 target_link_libraries() 和 target_include_directories() 传入这两个变量即可链接库文件和库的头文件。</p>
+<p>OK目前到这里，我们已经在 cmake 中使用一个变量的开关来决定是否编译链接 MathFunctions 库，那如何在源代码中判断是否编译了 MathFunctions 呢？可以借助 step 1 中使用的 configure_file() 命令，在根目录下的 <a target="_blank" rel="noopener" href="http://TutorialConfig.h.in">TutorialConfig.h.in</a> 文件中添加如下代码：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">cmakedefine USE_MYMATH</span><br></code></pre></div></td></tr></table></figure>
+<p>借助 configure_file() 生成的 Tutorial.h 文件中会出现这样一行代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> USE_MYMATH</span><br></code></pre></div></td></tr></table></figure>
+<p>因此我们就可以在源文件中引用 Tutorial.h 并使用 USE_MYMATH 这个宏定义了，在 tutorial.cxx 中引入头文件的位置和计算平方根的位置通过宏来判断使用自定义函数还是系统函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs c">...<br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> USE_MYMATH</span><br>  <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;MathFunctions.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>...<br><br>...<br><span class="hljs-comment">// calculate square root</span><br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> USE_MYMATH</span><br>  <span class="hljs-type">const</span> <span class="hljs-type">double</span> outputValue = mysqrt(inputValue);<br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br>  <span class="hljs-type">const</span> <span class="hljs-type">double</span> outputValue = <span class="hljs-built_in">sqrt</span>(inputValue);<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>...<br></code></pre></div></td></tr></table></figure>
+<p>cmake 重新生成编译，执行 Tutorial 发现结果符合预期：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">./Tutorial 16<br>Computing sqrt of 16 to be 8.5<br>Computing sqrt of 16 to be 5.19118<br>Computing sqrt of 16 to be 4.13666<br>Computing sqrt of 16 to be 4.00226<br>Computing sqrt of 16 to be 4<br>Computing sqrt of 16 to be 4<br>Computing sqrt of 16 to be 4<br>Computing sqrt of 16 to be 4<br>Computing sqrt of 16 to be 4<br>Computing sqrt of 16 to be 4<br>The square root of 16 is 4<br></code></pre></div></td></tr></table></figure>
+<p>如果不想编译链接 MathFunctions，只需将 CMakeLists.txt 中 USE_MYMATH 的 option 设置为 OFF，重新 cmake 生成编译即可，或者在执行 cmake 生成时添加参数将 option 关闭：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">cmake .. -DUSE_MYMATH=OFF<br></code></pre></div></td></tr></table></figure>
+<p>此时查看生成的 Tutorial.h 文件，发现 USE_MYMATH 并没有被定义：</p>
+<figure class="highlight c"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs c">cat TutorialConfig.h<br><span class="hljs-comment">// the configured options and settings for Tutorial</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> Tutorial_VERSION_MAJOR 1</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> Tutorial_VERSION_MINOR 0</span><br><br><span class="hljs-comment">/* #undef USE_MYMATH */</span><br></code></pre></div></td></tr></table></figure>
+<h2 id="step-3-给链接库添加使用要求">step 3 给链接库添加使用要求</h2>
+<p>使用要求（Usage Requirements）可以更好地控制库或可执行文件的链接和头文件索引，也可以更好地控制 CMake 中目标的属性传递。利用“使用要求”的主要命令有：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://cmake.org/cmake/help/latest/command/target_compile_definitions.html#command:target_compile_definitions">target_compile_definitions()</a></li>
+<li><a target="_blank" rel="noopener" href="https://cmake.org/cmake/help/latest/command/target_compile_options.html#command:target_compile_options">target_compile_options()</a></li>
+<li><a target="_blank" rel="noopener" href="https://cmake.org/cmake/help/latest/command/target_include_directories.html#command:target_include_directories">target_include_directories()</a></li>
+<li><a target="_blank" rel="noopener" href="https://cmake.org/cmake/help/latest/command/target_link_libraries.html#command:target_link_libraries">target_link_libraries()</a></li>
+</ul>
+<p>观察我们之前写过的项目，MathFunctions 的头文件 MathFunctions.h 只有在主工程源文件 tutorial.cxx 中使用，而 MathFunctions 库本身并没有使用，所以这里可以定义一个“使用要求”，即 INTERFACE。</p>
+<p>INTERFACE 意味着消费者（customer）需要使用但生产者（producer）不需要使用的东西，因此我们在 MathFunctions 文件夹下的 CMakeLists.txt 文件中添加如下内容：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">target_include_directories(MathFunctions<br>          INTERFACE $&#123;CMAKE_CURRENT_SOURCE_DIR&#125;<br>          )<br></code></pre></div></td></tr></table></figure>
+<p>CMAKE_CURRENT_SOURCE_DIR 是当前层的 CMakeLists.txt 对应资源文件所在目录，这行命令告知 cmake 当前目录下的头文件我当前层的源代码不需要使用，上层需要使用。添加这一行后，就可以将根目录 CMakeLists.txt 文件中对 MathFunctions 头文件的引用去掉了：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">if(USE_MYMATH)<br>  add_subdirectory(MathFunctions)<br>  list(APPEND EXTRA_LIBS MathFunctions)<br><span class="hljs-meta prompt_">  # </span><span class="language-bash">list(APPEND EXTRA_INCLUDES <span class="hljs-string">&quot;<span class="hljs-variable">$&#123;PROJECT_SOURCE_DIR&#125;</span>/MathFunctions&quot;</span>)</span><br>endif()<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">add the executable</span><br>add_executable(Tutorial tutorial.cxx)<br><br>target_link_libraries(Tutorial PUBLIC $&#123;EXTRA_LIBS&#125;)<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">add the binary tree to the search path <span class="hljs-keyword">for</span> include files</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">so that we will find TutorialConfig.h</span><br>target_include_directories(Tutorial PUBLIC<br>                           &quot;$&#123;PROJECT_BINARY_DIR&#125;&quot;<br>                           # $&#123;EXTRA_INCLUDES&#125;<br>                           )<br></code></pre></div></td></tr></table></figure>
+<p>重新 cmake 生成编译，运行 Tutorial 查看输出正常：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">./Tutorial 16<br>Computing sqrt of 16 to be 8.5<br>Computing sqrt of 16 to be 5.19118<br>Computing sqrt of 16 to be 4.13666<br>Computing sqrt of 16 to be 4.00226<br>Computing sqrt of 16 to be 4<br>Computing sqrt of 16 to be 4<br>Computing sqrt of 16 to be 4<br>Computing sqrt of 16 to be 4<br>Computing sqrt of 16 to be 4<br>Computing sqrt of 16 to be 4<br>The square root of 16 is 4<br></code></pre></div></td></tr></table></figure>
+<h2 id="step-4-安装和测试">step 4 安装和测试</h2>
+<h3 id="安装规则">安装规则</h3>
+<p>安装这一步比较简单，对于我们之前的项目，应用程序需要安装可执行程序和配置的头文件，MathFunctions 库需要安装库的二进制文件和库的头文件，安装的本质其实就是将编译出的文件复制到安装目录下。</p>
+<p>首先我们在 MathFunctions 目录下的 CMakeLists.txt 中添加如下内容：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">install(TARGETS MathFunctions DESTINATION lib)<br>install(FILES MathFunctions.h DESTINATION include)<br></code></pre></div></td></tr></table></figure>
+<p>然后在根目录的 CMakeLists.txt 中添加如下内容：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">install(TARGETS Tutorial DESTINATION bin)<br>install(FILES &quot;$&#123;PROJECT_BINARY_DIR&#125;/TutorialConfig.h&quot;<br>  DESTINATION include<br>  )<br></code></pre></div></td></tr></table></figure>
+<p>最后我们进入 build 目录重新 cmake 生成编译，运行 install 命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">cmake --install .<br>-- Install configuration: &quot;&quot;<br>-- Installing: /usr/local/bin/Tutorial<br>-- Installing: /usr/local/include/TutorialConfig.h<br>-- Installing: /usr/local/lib/libMathFunctions.a<br>-- Installing: /usr/local/include/MathFunctions.h<br></code></pre></div></td></tr></table></figure>
+<p>Mac 系统默认的 DESTINATION 路径是 /usr/local/，cmake 在该路径下分别安装了二进制文件和头文件。</p>
+<p>cmake 也可以通过 prefix 参数指定安装目录：</p>
+<figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk">cmake --install . --prefix=<span class="hljs-string">&quot;/Users/joker/Desktop/install&quot;</span><br>-- Install configuration: <span class="hljs-string">&quot;&quot;</span><br>-- Installing: <span class="hljs-regexp">/Users/</span>joker<span class="hljs-regexp">/Desktop/i</span>nstall<span class="hljs-regexp">/bin/</span>Tutorial<br>-- Installing: <span class="hljs-regexp">/Users/</span>joker<span class="hljs-regexp">/Desktop/i</span>nstall<span class="hljs-regexp">/include/</span>TutorialConfig.h<br>-- Installing: <span class="hljs-regexp">/Users/</span>joker<span class="hljs-regexp">/Desktop/i</span>nstall<span class="hljs-regexp">/lib/</span>libMathFunctions.a<br>-- Installing: <span class="hljs-regexp">/Users/</span>joker<span class="hljs-regexp">/Desktop/i</span>nstall<span class="hljs-regexp">/include/</span>MathFunctions.h<br></code></pre></div></td></tr></table></figure>
+<h3 id="测试支持">测试支持</h3>
+<p>接下来让我们测试我们的应用程序。在顶级<code>CMakeLists.txt</code> 文件的末尾，我们可以启用测试，然后添加一些基本测试来验证应用程序是否正常工作。</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">enable_testing()<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">does the application run</span><br>add_test(NAME Runs COMMAND Tutorial 25)<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">does the usage message work?</span><br>add_test(NAME Usage COMMAND Tutorial)<br>set_tests_properties(Usage<br>  PROPERTIES PASS_REGULAR_EXPRESSION &quot;Usage:.*number&quot;<br>  )<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">define a <span class="hljs-keyword">function</span> to simplify adding tests</span><br>function(do_test target arg result)<br>  add_test(NAME Comp$&#123;arg&#125; COMMAND $&#123;target&#125; $&#123;arg&#125;)<br><span class="hljs-meta prompt_">  set_tests_properties(Comp$</span><span class="language-bash">&#123;arg&#125;</span><br>    PROPERTIES PASS_REGULAR_EXPRESSION $&#123;result&#125;<br>    )<br>endfunction()<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-keyword">do</span> a bunch of result based tests</span><br>do_test(Tutorial 4 &quot;4 is 2&quot;)<br>do_test(Tutorial 9 &quot;9 is 3&quot;)<br>do_test(Tutorial 5 &quot;5 is 2.236&quot;)<br>do_test(Tutorial 7 &quot;7 is 2.645&quot;)<br>do_test(Tutorial 25 &quot;25 is 5&quot;)<br>do_test(Tutorial -25 &quot;-25 is (-nan|nan|0)&quot;)<br>do_test(Tutorial 0.0001 &quot;0.0001 is 0.01&quot;)<br></code></pre></div></td></tr></table></figure>
+<p>第一个测试只是验证应用程序是否运行，没有段错误或以其他方式崩溃，并且返回值为零。这是 CTest 测试的基本形式。</p>
+<p>下一个测试使用 PASS_REGULAR_EXPRESSION 属性来验证测试的输出是否包含某些字符串。在这种情况下，验证在提供不正确数量的参数时是否打印了使用消息。</p>
+<p>最后，我们有一个调用函数 do_test 来运行应用程序并验证计算的平方根对于给定的输入是否正确。对于 的每次调用 do_test，都会将另一个测试添加到项目中，其中包含名称、输入和基于传递的参数的预期结果。</p>
+<p>重建应用程序，然后 cd 到二进制目录并运行 ctest 可执行文件：和。对于多配置生成器（例如 Visual Studio），必须使用标志指定配置类型。例如，要在 Debug 模式下运行测试，请使用二进制目录（而不是 Debug 子目录！）。发布模式将从同一位置执行，但使用. 或者，从 IDE构建目标。</p>
+<p><code>ctest -N``ctest -VV``-C &lt;mode&gt;``ctest -C Debug -VV``-C Release``RUN_TESTS</code></p>
+<h2 id="step-5-添加系统能力检测">step 5 添加系统能力检测</h2>
+<p>考虑在项目中添加一些代码，这些代码用于检测目标平台是否包含 log 和 exp 函数，如果平台有 log 和 exp，那么我们将使用它们来计算函数中的平方根。</p>
+<p>我们首先在 MathFunctions 目录下的 CMakeLists.txt 中引入 CheckCXXSourceCompiles 模块，并使用 check_cxx_source_compiles() 函数将检测结果写入到 HAVE_LOG 和 HAVE_EXP 两个宏定义中：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">target_include_directories(MathFunctions<br>          INTERFACE $&#123;CMAKE_CURRENT_SOURCE_DIR&#125;<br>          )<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">does this system provide the <span class="hljs-built_in">log</span> and exp <span class="hljs-built_in">functions</span>?</span><br>include(CheckCXXSourceCompiles)<br>check_cxx_source_compiles(&quot;<br><span class="hljs-meta prompt_">  #</span><span class="language-bash">include &lt;cmath&gt;</span><br>  int main() &#123;<br>    std::log(1.0);<br>    return 0;<br>  &#125;<br>&quot; HAVE_LOG)<br>check_cxx_source_compiles(&quot;<br><span class="hljs-meta prompt_">  #</span><span class="language-bash">include &lt;cmath&gt;</span><br>  int main() &#123;<br>    std::exp(1.0);<br>    return 0;<br>  &#125;<br>&quot; HAVE_EXP)<br></code></pre></div></td></tr></table></figure>
+<p>如果 log 和 exp 可用，使用 target_compile_definitions() 指定 HAVE_LOG 和 HAVE_EXP 作为 PRIVATE 编译定义：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">if(HAVE_LOG AND HAVE_EXP)<br>  target_compile_definitions(MathFunctions<br>                             PRIVATE &quot;HAVE_LOG&quot; &quot;HAVE_EXP&quot;)<br>endif()<br></code></pre></div></td></tr></table></figure>
+<p>在 mysqrt.cxx 中添加 HAVE_LOG 和 HAVE_EXP 的判断：</p>
+<figure class="highlight c"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">if</span> defined(HAVE_LOG) &amp;&amp; defined(HAVE_EXP)</span><br>  <span class="hljs-type">double</span> result = <span class="hljs-built_in">std</span>::<span class="hljs-built_in">exp</span>(<span class="hljs-built_in">std</span>::<span class="hljs-built_in">log</span>(x) * <span class="hljs-number">0.5</span>);<br>  <span class="hljs-built_in">std</span>::<span class="hljs-built_in">cout</span> &lt;&lt; <span class="hljs-string">&quot;Computing sqrt of &quot;</span> &lt;&lt; x &lt;&lt; <span class="hljs-string">&quot; to be &quot;</span> &lt;&lt; result<br>            &lt;&lt; <span class="hljs-string">&quot; using log and exp&quot;</span> &lt;&lt; <span class="hljs-built_in">std</span>::<span class="hljs-built_in">endl</span>;<br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br>  <span class="hljs-type">double</span> result = x;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br></code></pre></div></td></tr></table></figure>
+<p>重新编译运行 Tutorial，控制台输出符合预期，使用系统的 log 和 exp 函数计算平方根：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">./Tutorial 16<br>Computing sqrt of 16 to be 4 using log and exp<br>Computing sqrt of 16 to be 4<br>Computing sqrt of 16 to be 4<br>Computing sqrt of 16 to be 4<br>Computing sqrt of 16 to be 4<br>Computing sqrt of 16 to be 4<br>Computing sqrt of 16 to be 4<br>Computing sqrt of 16 to be 4<br>Computing sqrt of 16 to be 4<br>Computing sqrt of 16 to be 4<br>Computing sqrt of 16 to be 4<br>The square root of 16 is 4<br></code></pre></div></td></tr></table></figure>
+<h2 id="step-6-添加自定义命令和生成文件">step 6 添加自定义命令和生成文件</h2>
+<p>现在我们通过 cmake 的自定义命令动态生成一个包含计算平方根函数的文件，首先删除掉 step 5 中 log 和 exp 函数检查的相关代码，在 MathFunctions 目录下创建一个源文件 MakeTable.cxx 来生成文件，main函数中在传入路径上创建文件并注入计算平方根的数组代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs c"><span class="hljs-comment">// A simple program that builds a sqrt table</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;cmath&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;fstream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span>* argv[])</span><br>&#123;<br>  <span class="hljs-comment">// make sure we have enough arguments</span><br>  <span class="hljs-keyword">if</span> (argc &lt; <span class="hljs-number">2</span>) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>  &#125;<br><br>  <span class="hljs-built_in">std</span>::ofstream <span class="hljs-title function_">fout</span><span class="hljs-params">(argv[<span class="hljs-number">1</span>], <span class="hljs-built_in">std</span>::ios_base::out)</span>;<br>  <span class="hljs-type">const</span> <span class="hljs-type">bool</span> fileOpen = fout.is_open();<br>  <span class="hljs-keyword">if</span> (fileOpen) &#123;<br>    fout &lt;&lt; <span class="hljs-string">&quot;double sqrtTable[] = &#123;&quot;</span> &lt;&lt; <span class="hljs-built_in">std</span>::<span class="hljs-built_in">endl</span>;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10</span>; ++i) &#123;<br>      fout &lt;&lt; <span class="hljs-built_in">sqrt</span>(static_cast&lt;<span class="hljs-type">double</span>&gt;(i)) &lt;&lt; <span class="hljs-string">&quot;,&quot;</span> &lt;&lt; <span class="hljs-built_in">std</span>::<span class="hljs-built_in">endl</span>;<br>    &#125;<br>    <span class="hljs-comment">// close the table with a zero</span><br>    fout &lt;&lt; <span class="hljs-string">&quot;0&#125;;&quot;</span> &lt;&lt; <span class="hljs-built_in">std</span>::<span class="hljs-built_in">endl</span>;<br>    fout.close();<br>  &#125;<br>  <span class="hljs-keyword">return</span> fileOpen ? <span class="hljs-number">0</span> : <span class="hljs-number">1</span>; <span class="hljs-comment">// return 0 if wrote the file</span><br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>接着在 MathFunctions 目录 CMakeLists.txt 文件顶部添加如下内容，将 MakeTable.cxx 编译成可执行文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">add_executable(MakeTable MakeTable.cxx)<br></code></pre></div></td></tr></table></figure>
+<p>然后我们添加一个自定义命令，通过执行命令，借助 MakeTable 可执行文件生成 Table.h:</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">add_custom_command(<br>  OUTPUT $&#123;CMAKE_CURRENT_BINARY_DIR&#125;/Table.h<br>  COMMAND MakeTable $&#123;CMAKE_CURRENT_BINARY_DIR&#125;/Table.h<br>  DEPENDS MakeTable<br>  )<br></code></pre></div></td></tr></table></figure>
+<p>接下来我们要让 CMake 知道 mysqrt.cxx 依赖于生成的文件 Table.h，这是通过将生成的 Table.h 添加到库 MathFunctions 的源列表中来完成的：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">add_library(MathFunctions<br>            mysqrt.cxx<br>            $&#123;CMAKE_CURRENT_BINARY_DIR&#125;/Table.h<br>            )<br></code></pre></div></td></tr></table></figure>
+<p>我们还必须将当前二进制目录添加到包含目录列表中，以便 Table.h 可以被 mysqrt.cxx 索引到：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">target_include_directories(MathFunctions<br>          INTERFACE $&#123;CMAKE_CURRENT_SOURCE_DIR&#125;<br>          PRIVATE $&#123;CMAKE_CURRENT_BINARY_DIR&#125;<br>          )<br></code></pre></div></td></tr></table></figure>
+<p>最后需要修改 mysqrt 函数：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">double mysqrt(double x)<br>&#123;<br>  if (x &lt;= 0) &#123;<br>    return 0;<br>  &#125;<br><br>  // use the table to help find an initial value<br>  double result = x;<br>  if (x &gt;= 1 &amp;&amp; x &lt; 10) &#123;<br>    std::cout &lt;&lt; &quot;Use the table to help find an initial value &quot; &lt;&lt; std::endl;<br>    result = sqrtTable[static_cast&lt;int&gt;(x)];<br>  &#125;<br><br>  // do ten iterations<br>  for (int i = 0; i &lt; 10; ++i) &#123;<br>    if (result &lt;= 0) &#123;<br>      result = 0.1;<br>    &#125;<br>    double delta = x - (result * result);<br>    result = result + 0.5 * delta / result;<br>    std::cout &lt;&lt; &quot;Computing sqrt of &quot; &lt;&lt; x &lt;&lt; &quot; to be &quot; &lt;&lt; result &lt;&lt; std::endl;<br>  &#125;<br><br>  return result;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>重新 cmake 生成编译，在 MathFunctions 编译目录下生成了 Table.h，执行 Tutorial 程序，输出符合预期：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">./Tutorial 9<br>Use the table to help find an initial value<br>Computing sqrt of 9 to be 3<br>Computing sqrt of 9 to be 3<br>Computing sqrt of 9 to be 3<br>Computing sqrt of 9 to be 3<br>Computing sqrt of 9 to be 3<br>Computing sqrt of 9 to be 3<br>Computing sqrt of 9 to be 3<br>Computing sqrt of 9 to be 3<br>Computing sqrt of 9 to be 3<br>Computing sqrt of 9 to be 3<br>The square root of 9 is 3<br></code></pre></div></td></tr></table></figure>
+<h2 id="step-7-打包安装程序">step 7 打包安装程序</h2>
+<p>接下来假设我们想将项目分发给其他人，以便他们可以使用它。我们希望在各种平台上提供二进制和源代码分发。这与我们之前进行的安装有点不同，我们正在安装从源代码构建的二进制文件。在此示例中，我们将构建支持二进制安装和包管理功能的安装包。为此，我们将使用 CPack 创建特定于平台的安装程序。具体来说，我们需要在顶层 CMakeLists.txt 文件的底部添加几行:</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">include(InstallRequiredSystemLibraries)<br>set(CPACK_RESOURCE_FILE_LICENSE &quot;$&#123;CMAKE_CURRENT_SOURCE_DIR&#125;/License.txt&quot;)<br>set(CPACK_PACKAGE_VERSION_MAJOR &quot;$&#123;Tutorial_VERSION_MAJOR&#125;&quot;)<br>set(CPACK_PACKAGE_VERSION_MINOR &quot;$&#123;Tutorial_VERSION_MINOR&#125;&quot;)<br>set(CPACK_SOURCE_GENERATOR &quot;TGZ&quot;)<br>include(CPack)<br></code></pre></div></td></tr></table></figure>
+<p>这就是它的全部。我们首先引入 InstallRequiredSystemLibraries，该模块将包括当前平台项目所需的任何运行时库。接下来，我们将一些 CPack 变量设置为我们存储该项目的许可证和版本信息的位置。版本信息已在本教程前面设置，并且 License.txt 已包含在此步骤的顶级源目录中。这 CPACK_SOURCE_GENERATOR 变量选择源包的文件格式。</p>
+<p>最后我们引入 CPack 模块，它将使用这些变量和当前系统的一些其他属性来设置安装程序。</p>
+<p>下一步是以正常的方式构建项目，然后运行  cpack。要构建二进制发行版，请从二进制目录运行：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">cpack<br></code></pre></div></td></tr></table></figure>
+<p>要指定生成器，请使用 -G 选项。对于多配置构建，用于 -C 指定配置。例如：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">cpack -G ZIP -C Debug<br></code></pre></div></td></tr></table></figure>
+<h2 id="step-8-添加对测试仪表盘的支持">step 8 添加对测试仪表盘的支持</h2>
+<p>在之前的 step 已经定义过了一些项目的测试，现在我们只需要将测试跑起来然后提交到仪表盘，为了支持仪表盘我们需要在根目录的 CMakeLists.txt 中引入 CTest 模块：</p>
+<p>使用：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">include(CTest)<br></code></pre></div></td></tr></table></figure>
+<p>替换：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs stylus"><span class="hljs-function"><span class="hljs-title">enable_testing</span><span class="hljs-params">()</span></span><br></code></pre></div></td></tr></table></figure>
+<p>在根目录创建 CTestConfig.cmake 用来定义 CTest 的一些信息：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">set(CTEST_PROJECT_NAME &quot;CMakeTutorial&quot;)<br>set(CTEST_NIGHTLY_START_TIME &quot;00:00:00 EST&quot;)<br><br>set(CTEST_DROP_METHOD &quot;http&quot;)<br>set(CTEST_DROP_SITE &quot;my.cdash.org&quot;)<br>set(CTEST_DROP_LOCATION &quot;/submit.php?project=CMakeTutorial&quot;)<br>set(CTEST_DROP_SITE_CDASH TRUE)<br></code></pre></div></td></tr></table></figure>
+<p>ctest 可执行文件将在运行时读入此文件。要创建一个简单的仪表板，您可以运行 cmake 可执行文件或 cmake-gui 配置项目，但尚未构建它。相反，将目录更改为二叉树，然后运行：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">ctest [-VV] -D Experimental<br></code></pre></div></td></tr></table></figure>
+<p>请记住，对于多配置生成器（例如 Visual Studio），必须指定配置类型：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">ctest [-VV] -C Debug -D Experimental<br></code></pre></div></td></tr></table></figure>
+<p>或者，从 IDE 构建 Experimental 目标。</p>
+<p>ctest 可执行文件将构建和测试项目并将结果提交到 Kitware 的公共仪表板： <a target="_blank" rel="noopener" href="https://my.cdash.org/index.php?project=CMakeTutorial">https 😕/my.cdash.org/index.php?project=CMakeTutorial </a>。</p>
+<h2 id="step-9-选择静态或动态库">step 9 选择静态或动态库</h2>
+<p>在本节中将展示 BUILD_SHARED_LIBS 变量是如何影响 add_library() 的默认行为的，为此我们需要在根目录 CMakeList.txt 文件中添加 BUILD_SHARED_LIBS，我们使用 option() 命令，因为它允许用户有选择地控制 ON 和 OFF。</p>
+<p>接下来我们将重构 MathFunctions 使其成为一个真正封装 mysqrt 或 sqrt 的库，而不是要求调用代码来实现这个逻辑，这意味着 USE_MYMATH 不会影响 MathFunctions 库的正常编译，而是会控制这个库的行为。</p>
+<p>第一步是更新根目录的 CMakeLists.txt：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">cmake_minimum_required(VERSION 3.10)<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">set</span> the project name and version</span><br>project(Tutorial VERSION 1.0)<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">specify the C++ standard</span><br>set(CMAKE_CXX_STANDARD 11)<br>set(CMAKE_CXX_STANDARD_REQUIRED True)<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">control <span class="hljs-built_in">where</span> the static and shared libraries are built so that on windows</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">we don<span class="hljs-string">&#x27;t need to tinker with the path to run the executable</span></span><br>set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY &quot;$&#123;PROJECT_BINARY_DIR&#125;&quot;)<br>set(CMAKE_LIBRARY_OUTPUT_DIRECTORY &quot;$&#123;PROJECT_BINARY_DIR&#125;&quot;)<br>set(CMAKE_RUNTIME_OUTPUT_DIRECTORY &quot;$&#123;PROJECT_BINARY_DIR&#125;&quot;)<br><br>option(BUILD_SHARED_LIBS &quot;Build using shared libraries&quot; ON)<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-string">configure a header file to pass the version number only</span></span><br>configure_file(TutorialConfig.h.in TutorialConfig.h)<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-string">add the MathFunctions library</span></span><br>add_subdirectory(MathFunctions)<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-string">add the executable</span></span><br>add_executable(Tutorial tutorial.cxx)<br>target_link_libraries(Tutorial PUBLIC MathFunctions)<br></code></pre></div></td></tr></table></figure>
+<p>现在我们已经让 MathFunctions 这个库总是被编译，我们将需要更新该库的逻辑。因此，MathFunctions 目录下的 CMakeLists.txt 我们需要创建一个SqrtLibrary，它会在 USE_MYMATH 启用时有条件地构建和安装。现在，由于这是一个教程，我们将明确要求 SqrtLibrary 是静态构建的。</p>
+<p>最终 MathFunctions 目录下的 CMakeLists.txt 应该如下所示：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">add the library that runs</span><br>add_library(MathFunctions MathFunctions.cxx)<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">state that anybody linking to us needs to include the current <span class="hljs-built_in">source</span> <span class="hljs-built_in">dir</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">to find MathFunctions.h, <span class="hljs-keyword">while</span> we don<span class="hljs-string">&#x27;t.</span></span><br>target_include_directories(MathFunctions<br>                           INTERFACE $&#123;CMAKE_CURRENT_SOURCE_DIR&#125;<br>                           )<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-string">should we use our own math functions</span></span><br>option(USE_MYMATH &quot;Use tutorial provided math implementation&quot; ON)<br>if(USE_MYMATH)<br><br>  target_compile_definitions(MathFunctions PRIVATE &quot;USE_MYMATH&quot;)<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">  # </span><span class="language-bash"><span class="hljs-string">first we add the executable that generates the table</span></span><br>  add_executable(MakeTable MakeTable.cxx)<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">  # </span><span class="language-bash"><span class="hljs-string">add the command to generate the source code</span></span><br>  add_custom_command(<br>    OUTPUT $&#123;CMAKE_CURRENT_BINARY_DIR&#125;/Table.h<br>    COMMAND MakeTable $&#123;CMAKE_CURRENT_BINARY_DIR&#125;/Table.h<br>    DEPENDS MakeTable<br>    )<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">  # </span><span class="language-bash"><span class="hljs-string">library that just does sqrt</span></span><br>  add_library(SqrtLibrary STATIC<br>              mysqrt.cxx<br>              $&#123;CMAKE_CURRENT_BINARY_DIR&#125;/Table.h<br>              )<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">  # </span><span class="language-bash"><span class="hljs-string">state that we depend on our binary dir to find Table.h</span></span><br>  target_include_directories(SqrtLibrary PRIVATE<br>                             $&#123;CMAKE_CURRENT_BINARY_DIR&#125;<br>                             )<br><br>  target_link_libraries(MathFunctions PRIVATE SqrtLibrary)<br>endif()<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-string">define the symbol stating we are using the declspec(dllexport) when</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-string">building on windows</span></span><br>target_compile_definitions(MathFunctions PRIVATE &quot;EXPORTING_MYMATH&quot;)<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-string">install rules</span></span><br>set(installable_libs MathFunctions)<br>if(TARGET SqrtLibrary)<br>  list(APPEND installable_libs SqrtLibrary)<br>endif()<br>install(TARGETS $&#123;installable_libs&#125; DESTINATION lib)<br>install(FILES MathFunctions.h DESTINATION include)<br></code></pre></div></td></tr></table></figure>
+<p>接下来，更新 mysqrt.cxx 以使用 mathfunctions 和 detail 命名空间：</p>
+<figure class="highlight c"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;MathFunctions.h&quot;</span></span><br><br><span class="hljs-comment">// include the generated table</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;Table.h&quot;</span></span><br><br>namespace mathfunctions &#123;<br>namespace detail &#123;<br><span class="hljs-comment">// a hack square root calculation using simple operations</span><br><span class="hljs-type">double</span> <span class="hljs-title function_">mysqrt</span><span class="hljs-params">(<span class="hljs-type">double</span> x)</span><br>&#123;<br>  <span class="hljs-keyword">if</span> (x &lt;= <span class="hljs-number">0</span>) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>  &#125;<br><br>  <span class="hljs-comment">// use the table to help find an initial value</span><br>  <span class="hljs-type">double</span> result = x;<br>  <span class="hljs-keyword">if</span> (x &gt;= <span class="hljs-number">1</span> &amp;&amp; x &lt; <span class="hljs-number">10</span>) &#123;<br>    <span class="hljs-built_in">std</span>::<span class="hljs-built_in">cout</span> &lt;&lt; <span class="hljs-string">&quot;Use the table to help find an initial value &quot;</span> &lt;&lt; <span class="hljs-built_in">std</span>::<span class="hljs-built_in">endl</span>;<br>    result = sqrtTable[static_cast&lt;<span class="hljs-type">int</span>&gt;(x)];<br>  &#125;<br><br>  <span class="hljs-comment">// do ten iterations</span><br>  <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10</span>; ++i) &#123;<br>    <span class="hljs-keyword">if</span> (result &lt;= <span class="hljs-number">0</span>) &#123;<br>      result = <span class="hljs-number">0.1</span>;<br>    &#125;<br>    <span class="hljs-type">double</span> delta = x - (result * result);<br>    result = result + <span class="hljs-number">0.5</span> * delta / result;<br>    <span class="hljs-built_in">std</span>::<span class="hljs-built_in">cout</span> &lt;&lt; <span class="hljs-string">&quot;Computing sqrt of &quot;</span> &lt;&lt; x &lt;&lt; <span class="hljs-string">&quot; to be &quot;</span> &lt;&lt; result &lt;&lt; <span class="hljs-built_in">std</span>::<span class="hljs-built_in">endl</span>;<br>  &#125;<br><br>  <span class="hljs-keyword">return</span> result;<br>&#125;<br>&#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>我们还需要对 进行一些更改 tutorial.cxx，使其不再使用 USE_MYMATH：</p>
+<ol>
+<li>始终引用 MathFunctions.h</li>
+<li>始终使用 mathfunctions::sqrt</li>
+<li>不包括 cmath</li>
+</ol>
+<p>最后，更新 MathFunctions/MathFunctions.h 使用 dll 导出定义：</p>
+<figure class="highlight c"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">if</span> defined(_WIN32)</span><br><span class="hljs-meta">#  <span class="hljs-keyword">if</span> defined(EXPORTING_MYMATH)</span><br><span class="hljs-meta">#    <span class="hljs-keyword">define</span> DECLSPEC __declspec(dllexport)</span><br><span class="hljs-meta">#  <span class="hljs-keyword">else</span></span><br><span class="hljs-meta">#    <span class="hljs-keyword">define</span> DECLSPEC __declspec(dllimport)</span><br><span class="hljs-meta">#  <span class="hljs-keyword">endif</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">else</span> <span class="hljs-comment">// non windows</span></span><br><span class="hljs-meta">#  <span class="hljs-keyword">define</span> DECLSPEC</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br><br>namespace mathfunctions &#123;<br><span class="hljs-type">double</span> DECLSPEC <span class="hljs-title function_">sqrt</span><span class="hljs-params">(<span class="hljs-type">double</span> x)</span>;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>此时，如果您构建所有内容，您可能会注意到链接失败，因为我们将没有位置无关代码的静态库与具有位置无关代码的库组合在一起。解决方案是显式设置 SqrtLibrary 的目标属性 POSITION_INDEPENDENT_CODE 为 True，与构建类型无关。</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">state that SqrtLibrary need PIC when the default is shared libraries</span><br>set_target_properties(SqrtLibrary PROPERTIES<br>                      POSITION_INDEPENDENT_CODE $&#123;BUILD_SHARED_LIBS&#125;<br>                      )<br><br>target_link_libraries(MathFunctions PRIVATE SqrtLibrary)<br></code></pre></div></td></tr></table></figure>
+<h2 id="step-10-添加生成器表达式">step 10 添加生成器表达式</h2>
+<p>Generator expressions 在构建系统生成期间进行评估，以生成特定于每个构建配置的信息。</p>
+<p>Generator expressions 在许多目标属性的上下文中是允许的，例如 LINK_LIBRARIES, INCLUDE_DIRECTORIES，COMPILE_DEFINITIONS 和别的。它们也可以在使用命令填充这些属性时使用，例如 target_link_libraries()，target_include_directories(), target_compile_definitions() 和别的。</p>
+<p>Generator expressions 可用于启用条件链接、编译时使用的条件定义、条件包含目录等。条件可以基于构建配置、目标属性、平台信息或任何其他可查询信息。</p>
+<p>有不同类型的 generator expressions 包括逻辑、信息和输出表达式。</p>
+<p>generator expressions 的一个常见用法是有条件地添加编译器标志，例如语言级别或警告的标志。一个很好的模式是将此信息与 INTERFACE 允许此信息传播的目标相关联。让我们首先构造一个  INTERFACE 目标并指定所需的 C++ 标准级别，11 而不是使用 CMAKE_CXX_STANDARD.</p>
+<p>所以下面的代码：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">specify the C++ standard</span><br>set(CMAKE_CXX_STANDARD 11)<br>set(CMAKE_CXX_STANDARD_REQUIRED True)<br></code></pre></div></td></tr></table></figure>
+<p>将被替换为：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">add_library(tutorial_compiler_flags INTERFACE)<br>target_compile_features(tutorial_compiler_flags INTERFACE cxx_std_11)<br></code></pre></div></td></tr></table></figure>
+<p><strong>注意</strong>：接下来的部分将需要更改 cmake_minimum_required() 代码中的用法。即将使用的生成器表达式是在 3.15 中引入的。更新调用以要求更新版本：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">cmake_minimum_required(VERSION 3.15)<br></code></pre></div></td></tr></table></figure>
+<p>接下来，我们为项目添加所需的编译器警告标志。由于警告标志因编译器而异，我们使用 COMPILE_LANG_AND_ID 生成器表达式来控制在给定语言和一组编译器 ID 的情况下应用哪些标志，如下所示：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">set(gcc_like_cxx &quot;$&lt;COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang,GNU,LCC&gt;&quot;)<br>set(msvc_cxx &quot;$&lt;COMPILE_LANG_AND_ID:CXX,MSVC&gt;&quot;)<br>target_compile_options(tutorial_compiler_flags INTERFACE<br>  &quot;$&lt;$&#123;gcc_like_cxx&#125;:$&lt;BUILD_INTERFACE:-Wall;-Wextra;-Wshadow;-Wformat=2;-Wunused&gt;&gt;&quot;<br>  &quot;$&lt;$&#123;msvc_cxx&#125;:$&lt;BUILD_INTERFACE:-W3&gt;&gt;&quot;<br>)<br></code></pre></div></td></tr></table></figure>
+<p>看看这个，我们看到警告标志被封装在一个 BUILD_INTERFACE 条件中。这样做是为了使我们已安装项目的消费者不会继承我们的警告标志。</p>
+<h2 id="step-11-添加导出配置">step 11 添加导出配置</h2>
+<p>在本教程中，我们添加了 CMake 安装项目的库和标头的功能。在此期间 ，我们添加了打包此信息的功能，以便将其分发给其他人。</p>
+<p>下一步是添加必要的信息，以便其他 CMake 项目可以使用我们的项目，无论是从构建目录、本地安装还是打包时。</p>
+<p>第一步是更新我们的 install(TARGETS) 命令不仅可以指定 DESTINATION，还可以指定 EXPORT. 该 EXPORT 关键字生成一个 CMake 文件，其中包含从安装树导入 install 命令中列出的所有目标的代码。因此，让我们继续通过更新命令来明确 EXPORT 库，如下所示：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">set(installable_libs MathFunctions tutorial_compiler_flags)<br>if(TARGET SqrtLibrary)<br>  list(APPEND installable_libs SqrtLibrary)<br>endif()<br>install(TARGETS $&#123;installable_libs&#125;<br>        EXPORT MathFunctionsTargets<br>        DESTINATION lib)<br>install(FILES MathFunctions.h DESTINATION include)<br></code></pre></div></td></tr></table></figure>
+<p>现在我们已经 MathFunctions 被导出，我们还需要显式安装生成的 MathFunctionsTargets.cmake 文件。这是通过将以下内容添加到顶层的底部来完成的 CMakeLists.txt：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">install(EXPORT MathFunctionsTargets<br>  FILE MathFunctionsTargets.cmake<br>  DESTINATION lib/cmake/MathFunctions<br>)<br></code></pre></div></td></tr></table></figure>
+<p>此时您应该尝试运行 CMake。如果一切设置正确，您将看到 CMake 将生成如下错误：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">Target &quot;MathFunctions&quot; INTERFACE_INCLUDE_DIRECTORIES property contains<br>path:<br><br>  &quot;/Users/robert/Documents/CMakeClass/Tutorial/Step11/MathFunctions&quot;<br><br>which is prefixed in the source directory.<br></code></pre></div></td></tr></table></figure>
+<p>CMake 想说的是，在生成导出信息期间，它将导出一个本质上与当前机器相关联的路径，并且在其他机器上无效。解决方法是更新 MathFunctions target_include_directories()了解它 INTERFACE 在构建目录和安装/包中使用时需要不同的位置。这意味着转换  target_include_directories() 要求 MathFunctions 看起来像：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">target_include_directories(MathFunctions<br>                           INTERFACE<br>                            $&lt;BUILD_INTERFACE:$&#123;CMAKE_CURRENT_SOURCE_DIR&#125;&gt;<br>                            $&lt;INSTALL_INTERFACE:include&gt;<br>                           )<br></code></pre></div></td></tr></table></figure>
+<p>更新后，我们可以重新运行 CMake 并验证它不再发出警告。</p>
+<p>此时，我们已经让 CMake 正确打包了所需的目标信息，但我们仍然需要生成一个 MathFunctionsConfig.cmake，以便 CMake find_package() 命令可以找到我们的项目。所以让我们继续在项目的顶层添加一个新文件，其 <a target="_blank" rel="noopener" href="http://Config.cmake.in">Config.cmake.in</a> 内容如下：</p>
+<p><a target="_blank" rel="noopener" href="http://xn--os0ay97a.cmake.in">配置.cmake.in</a></p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">@PACKAGE_INIT@<br><br>include ( &quot;$&#123;CMAKE_CURRENT_LIST_DIR&#125;/MathFunctionsTargets.cmake&quot; )<br></code></pre></div></td></tr></table></figure>
+<p>然后，要正确配置和安装该文件，请将以下内容添加到顶层的底部 CMakeLists.txt：</p>
+<p>CMakeLists.txt</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">install(EXPORT MathFunctionsTargets<br>  FILE MathFunctionsTargets.cmake<br>  DESTINATION lib/cmake/MathFunctions<br>)<br><br>include(CMakePackageConfigHelpers)<br></code></pre></div></td></tr></table></figure>
+<p>接下来，我们执行 configure_package_config_file(). 此命令将配置提供的文件，但与标准有一些特定差异 configure_file() 方法。@PACKAGE_INIT@ 要正确使用此功能，输入文件除了所需内容外，还应包含一行文本。该变量将替换为将设置值转换为相对路径的代码块。这些新值可以用相同的名称引用，但前面带有 PACKAGE_ 前缀。</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">install(EXPORT MathFunctionsTargets<br>  FILE MathFunctionsTargets.cmake<br>  DESTINATION lib/cmake/MathFunctions<br>)<br><br>include(CMakePackageConfigHelpers)<br><span class="hljs-meta prompt_"># </span><span class="language-bash">generate the config file that is includes the exports</span><br><span class="hljs-meta prompt_">configure_package_config_file($</span><span class="language-bash">&#123;CMAKE_CURRENT_SOURCE_DIR&#125;/Config.cmake.in</span><br>  &quot;$&#123;CMAKE_CURRENT_BINARY_DIR&#125;/MathFunctionsConfig.cmake&quot;<br>  INSTALL_DESTINATION &quot;lib/cmake/example&quot;<br>  NO_SET_AND_CHECK_MACRO<br>  NO_CHECK_REQUIRED_COMPONENTS_MACRO<br>  )<br></code></pre></div></td></tr></table></figure>
+<p>这 write_basic_package_version_file() 接下来是。此命令写入“find_package”文件使用的文件，其中包含所需包的版本和兼容性。在这里，我们使用 Tutorial_VERSION_* 变量并说它与 兼容 AnyNewerVersion，这表示该版本或任何更高版本与请求的版本兼容。</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">write_basic_package_version_file(<br>  &quot;$&#123;CMAKE_CURRENT_BINARY_DIR&#125;/MathFunctionsConfigVersion.cmake&quot;<br>  VERSION &quot;$&#123;Tutorial_VERSION_MAJOR&#125;.$&#123;Tutorial_VERSION_MINOR&#125;&quot;<br>  COMPATIBILITY AnyNewerVersion<br>)<br></code></pre></div></td></tr></table></figure>
+<p>最后，设置要安装的两个生成的文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">install(FILES<br><span class="hljs-meta prompt_">  $</span><span class="language-bash">&#123;CMAKE_CURRENT_BINARY_DIR&#125;/MathFunctionsConfig.cmake</span><br><span class="hljs-meta prompt_">  $</span><span class="language-bash">&#123;CMAKE_CURRENT_BINARY_DIR&#125;/MathFunctionsConfigVersion.cmake</span><br>  DESTINATION lib/cmake/MathFunctions<br>  )<br></code></pre></div></td></tr></table></figure>
+<p>至此，我们已经为我们的项目生成了一个可重定位的 CMake 配置，可以在项目安装或打包后使用。如果我们希望我们的项目也可以从构建目录中使用，我们只需将以下内容添加到顶层的底部 CMakeLists.txt：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">export(EXPORT MathFunctionsTargets<br>  FILE &quot;$&#123;CMAKE_CURRENT_BINARY_DIR&#125;/MathFunctionsTargets.cmake&quot;<br>)<br></code></pre></div></td></tr></table></figure>
+<p>通过这个导出调用，我们现在生成一个 Targets.cmake，允许 MathFunctionsConfig.cmake 其他项目使用构建目录中的配置，而无需安装它。</p>
+<h2 id="step-12-打包调试和发布">step 12 打包调试和发布</h2>
+<p>**注意：**此示例对单配置生成器有效，不适用于多配置生成器（例如 Visual Studio）。</p>
+<p>默认情况下，CMake 的模型是构建目录只包含一个配置，无论是 Debug、Release、MinSizeRel 还是 RelWithDebInfo。但是，可以将 CPack 设置为捆绑多个构建目录并构建一个包含同一项目的多个配置的包。</p>
+<p>首先，我们要确保调试和发布版本对将要安装的可执行文件和库使用不同的名称。让我们使用d作为调试可执行文件和库的后缀。</p>
+<p>放 CMAKE_DEBUG_POSTFIX 在顶级 CMakeLists.txt 文件的开头附近：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">set(CMAKE_DEBUG_POSTFIX d)<br><br>add_library(tutorial_compiler_flags INTERFACE)<br></code></pre></div></td></tr></table></figure>
+<p>和 DEBUG_POSTFIX 教程可执行文件的属性：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">add_executable(Tutorial tutorial.cxx)<br>set_target_properties(Tutorial PROPERTIES DEBUG_POSTFIX $&#123;CMAKE_DEBUG_POSTFIX&#125;)<br><br>target_link_libraries(Tutorial PUBLIC MathFunctions)<br></code></pre></div></td></tr></table></figure>
+<p>让我们还将版本编号添加到 MathFunctions 库中。在 MathFunctions/CMakeLists.txt 中，设置 VERSION 和 SOVERSION 特性：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">set_property(TARGET MathFunctions PROPERTY VERSION &quot;1.0.0&quot;)<br>set_property(TARGET MathFunctions PROPERTY SOVERSION &quot;1&quot;)<br></code></pre></div></td></tr></table></figure>
+<p>从 Step12 目录中，创建 debug 和 release 子目录。布局将如下所示：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">- Step12<br>   - debug<br>   - release<br></code></pre></div></td></tr></table></figure>
+<p>现在我们需要设置调试和发布版本。我们可以用  CMAKE_BUILD_TYPE 设置配置类型：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">cd debug<br>cmake -DCMAKE_BUILD_TYPE=Debug ..<br>cmake --build .<br>cd ../release<br>cmake -DCMAKE_BUILD_TYPE=Release ..<br>cmake --build .<br></code></pre></div></td></tr></table></figure>
+<p>现在调试和发布版本都已完成，我们可以使用自定义配置文件将两个版本打包到一个版本中。在  Step12 目录中，创建一个名为 MultiCPackConfig.cmake. 在此文件中，首先包含由  cmake 可执行。</p>
+<p>接下来，使用 CPACK_INSTALL_CMAKE_PROJECTS 变量指定要安装的项目。在这种情况下，我们要同时安装调试和发布。</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">include(&quot;release/CPackConfig.cmake&quot;)<br><br>set(CPACK_INSTALL_CMAKE_PROJECTS<br>    &quot;debug;Tutorial;ALL;/&quot;<br>    &quot;release;Tutorial;ALL;/&quot;<br>    )<br></code></pre></div></td></tr></table></figure>
+<p>从 Step12 目录中，运行 cpack 使用以下选项指定我们的自定义配置文件 config：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">cpack --config MultiCPackConfig.cmake<br></code></pre></div></td></tr></table></figure>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E7%BC%96%E8%AF%91/">编译</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/cmake/">cmake</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/08/06/iOS-%E4%BD%BF%E7%94%A8-AVAssetWriter-%E5%AE%9E%E6%97%B6%E5%86%99%E5%85%A5%E8%A7%86%E9%A2%91%E6%B5%81/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">iOS 使用 AVAssetWriter 实时写入视频流</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/06/28/%E3%80%8A%E8%B4%B9%E6%9B%BC%E5%AD%A6%E4%B9%A0%E6%B3%95-%E7%94%A8%E8%BE%93%E5%87%BA%E5%80%92%E9%80%BC%E8%BE%93%E5%85%A5%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">
+                        <span class="hidden-mobile">《费曼学习法 - 用输出倒逼输入》读书笔记</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="gitalk-container"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#gitalk-container', function() {
+      Fluid.utils.createCssLink('/css/gitalk.css')
+      Fluid.utils.createScript('https://lib.baomitu.com/gitalk/1.7.2/gitalk.min.js', function() {
+        var options = Object.assign(
+          {"clientID":"f9864fbe3f26bf3e3fda","clientSecret":"340b5fef89b3fed001756139cf60d36fd4a8a599","repo":"XiaopingSun.github.io","owner":"XiaopingSun","admin":["XiaopingSun"],"language":"zh-CN","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token"},
+          {
+            id: '4d5b282cb47eeee009a42798b94f83ff'
+          }
+        )
+        var gitalk = new Gitalk(options);
+        gitalk.render('gitalk-container');
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+      <div class="col-lg-7 mx-auto nopadding-x-md">
+        <div class="container custom mx-auto">
+           <link rel="stylesheet" href="/css/APlayer.min.css"> <div id="aplayer"></div> <script type="text/javascript" src="/js/APlayer.min.js"></script> <script type="text/javascript" src="/js/music.js"></script> 
+        </div>
+      </div>
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+  <!-- 备案信息 -->
+  <div class="beian">
+    <span>
+      <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+        沪ICP备2023015573号-1
+      </a>
+    </span>
+    
+  </div>
+
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

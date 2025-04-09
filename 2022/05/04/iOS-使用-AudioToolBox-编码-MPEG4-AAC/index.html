@@ -1,0 +1,579 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://hexo.qiniu.pursue.top/%E9%9F%B3%E4%B9%90.png">
+  <link rel="icon" href="https://hexo.qiniu.pursue.top/%E9%9F%B3%E4%B9%90.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="XpSun">
+  <meta name="keywords" content="IT技术博客 电吉他 生活">
+  
+    <meta name="description" content="前言 上一篇使用 Audio Unit 实现了麦克风数据的采集，下一步需要将音频数据送到编码器编码，一般 RTMP 协议使用的音频编码格式是 AAC，而恰好苹果的 Core Audio 下有提供给我们音频格式转换的工具 - AudioConvertRef。 实现思路 AudioConvertRef 接口比较简单，AudioConverterNewSpecific 函数指定编码器类型和输入输出的 A">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS 使用 AudioToolBox 编码 MPEG4-AAC">
+<meta property="og:url" content="https://blog.pursue.top/2022/05/04/iOS-%E4%BD%BF%E7%94%A8-AudioToolBox-%E7%BC%96%E7%A0%81-MPEG4-AAC/index.html">
+<meta property="og:site_name" content="XpSun&#39;s Blog">
+<meta property="og:description" content="前言 上一篇使用 Audio Unit 实现了麦克风数据的采集，下一步需要将音频数据送到编码器编码，一般 RTMP 协议使用的音频编码格式是 AAC，而恰好苹果的 Core Audio 下有提供给我们音频格式转换的工具 - AudioConvertRef。 实现思路 AudioConvertRef 接口比较简单，AudioConverterNewSpecific 函数指定编码器类型和输入输出的 A">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hexo.qiniu.pursue.top/coreaudio.png">
+<meta property="article:published_time" content="2022-05-04T06:29:18.000Z">
+<meta property="article:modified_time" content="2025-04-09T05:08:37.322Z">
+<meta property="article:author" content="XpSun">
+<meta property="article:tag" content="Core Audio">
+<meta property="article:tag" content="编码">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://hexo.qiniu.pursue.top/coreaudio.png">
+  
+  
+  <title>iOS 使用 AudioToolBox 编码 MPEG4-AAC - XpSun&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://fastly.jsdelivr.net/npm/highlight.js@10/styles/github-dark-dimmed.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.pursue.top","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":80,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://hexo.qiniu.pursue.top/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>XpSun&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('https://hexo.qiniu.pursue.top/SC01C11.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="iOS 使用 AudioToolBox 编码 MPEG4-AAC">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-05-04 14:29" pubdate>
+        2022年5月4日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      12k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      97 分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">iOS 使用 AudioToolBox 编码 MPEG4-AAC</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：2025年4月9日 下午
+                
+              </p>
+            
+            <div class="markdown-body">
+              <h1>前言</h1>
+<p>上一篇使用 Audio Unit 实现了麦克风数据的采集，下一步需要将音频数据送到编码器编码，一般 RTMP 协议使用的音频编码格式是 AAC，而恰好苹果的 Core Audio 下有提供给我们音频格式转换的工具 - AudioConvertRef。</p>
+<h1>实现思路</h1>
+<p>AudioConvertRef 接口比较简单，AudioConverterNewSpecific 函数指定编码器类型和输入输出的 ASBD 创建实例：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-comment">//-----------------------------------------------------------------------------</span><br><span class="hljs-comment">/*!</span><br><span class="hljs-comment">    @function   AudioConverterNewSpecific</span><br><span class="hljs-comment">    @abstract   Create a new AudioConverter using specific codecs.</span><br><span class="hljs-comment"></span><br><span class="hljs-comment">    @param      inSourceFormat</span><br><span class="hljs-comment">                    The format of the source audio to be converted.</span><br><span class="hljs-comment">    @param      inDestinationFormat</span><br><span class="hljs-comment">                    The destination format to which the audio is to be converted.</span><br><span class="hljs-comment">    @param      inNumberClassDescriptions</span><br><span class="hljs-comment">                    The number of class descriptions.</span><br><span class="hljs-comment">    @param      inClassDescriptions</span><br><span class="hljs-comment">                    AudioClassDescriptions specifiying the codec to instantiate.</span><br><span class="hljs-comment">    @param      outAudioConverter</span><br><span class="hljs-comment">                    On successful return, points to a new AudioConverter instance.</span><br><span class="hljs-comment">    @result     An OSStatus result code.</span><br><span class="hljs-comment">    </span><br><span class="hljs-comment">	This function is identical to AudioConverterNew(), except that the client may</span><br><span class="hljs-comment">	explicitly choose which codec to instantiate if there is more than one choice.</span><br><span class="hljs-comment">*/</span><br><span class="hljs-keyword">extern</span> OSStatus<br>AudioConverterNewSpecific(  <span class="hljs-keyword">const</span> AudioStreamBasicDescription * inSourceFormat,<br>                            <span class="hljs-keyword">const</span> AudioStreamBasicDescription * inDestinationFormat,<br>                            <span class="hljs-built_in">UInt32</span>                              inNumberClassDescriptions,<br>                            <span class="hljs-keyword">const</span> AudioClassDescription *       inClassDescriptions,<br>                            AudioConverterRef __<span class="hljs-keyword">nullable</span> * __<span class="hljs-keyword">nonnull</span> outAudioConverter)<br>                                                                                API_AVAILABLE(macos(<span class="hljs-number">10.4</span>), ios(<span class="hljs-number">2.0</span>), watchos(<span class="hljs-number">2.0</span>), tvos(<span class="hljs-number">9.0</span>));<br></code></pre></div></td></tr></table></figure>
+<p>AudioConverterFillComplexBuffer 函数传入目标 AudioBufferList 和回调函数 inInputDataProc，之后 AudioConvertRef 会同步调用该回调函数 inInputDataProc 问我们要 PCM 原始数据，在检查数据没有问题之后编码器将开始编码：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-comment">//-----------------------------------------------------------------------------</span><br><span class="hljs-comment">/*!</span><br><span class="hljs-comment">    @function   AudioConverterFillComplexBuffer</span><br><span class="hljs-comment">    @abstract   Converts data supplied by an input callback function, supporting non-interleaved</span><br><span class="hljs-comment">                and packetized formats.</span><br><span class="hljs-comment"></span><br><span class="hljs-comment">    @param      inAudioConverter</span><br><span class="hljs-comment">                    The AudioConverter to use.</span><br><span class="hljs-comment">    @param      inInputDataProc</span><br><span class="hljs-comment">                    A callback function which supplies the input data.</span><br><span class="hljs-comment">    @param      inInputDataProcUserData</span><br><span class="hljs-comment">                    A value for the use of the callback function.</span><br><span class="hljs-comment">    @param      ioOutputDataPacketSize</span><br><span class="hljs-comment">                    On entry, the capacity of outOutputData expressed in packets in the</span><br><span class="hljs-comment">                    converter&#x27;s output format. On exit, the number of packets of converted</span><br><span class="hljs-comment">                    data that were written to outOutputData.</span><br><span class="hljs-comment">    @param      outOutputData</span><br><span class="hljs-comment">                    The converted output data is written to this buffer. On entry, the buffers&#x27;</span><br><span class="hljs-comment">                    mDataByteSize fields (which must all be the same) reflect buffer capacity.</span><br><span class="hljs-comment">                    On exit, mDataByteSize is set to the number of bytes written.</span><br><span class="hljs-comment">    @param      outPacketDescription</span><br><span class="hljs-comment">                    If non-null, and the converter&#x27;s output uses packet descriptions, then</span><br><span class="hljs-comment">                    packet descriptions are written to this array. It must point to a memory</span><br><span class="hljs-comment">                    block capable of holding *ioOutputDataPacketSize packet descriptions.</span><br><span class="hljs-comment">                    (See AudioFormat.h for ways to determine whether an audio format</span><br><span class="hljs-comment">                    uses packet descriptions).</span><br><span class="hljs-comment">    @result     An OSStatus result code.</span><br><span class="hljs-comment"></span><br><span class="hljs-comment">	Produces a buffer list of output data from an AudioConverter. The supplied input</span><br><span class="hljs-comment">	callback function is called whenever necessary.</span><br><span class="hljs-comment">*/</span><br><span class="hljs-keyword">extern</span> OSStatus<br>AudioConverterFillComplexBuffer(    AudioConverterRef                   inAudioConverter,<br>                                    AudioConverterComplexInputDataProc  inInputDataProc,<br>                                    <span class="hljs-type">void</span> * __<span class="hljs-keyword">nullable</span>                   inInputDataProcUserData,<br>                                    <span class="hljs-built_in">UInt32</span> *                            ioOutputDataPacketSize,<br>                                    AudioBufferList *                   outOutputData,<br>                                    AudioStreamPacketDescription * __<span class="hljs-keyword">nullable</span> outPacketDescription)<br>                                                                                API_AVAILABLE(macos(<span class="hljs-number">10.2</span>), ios(<span class="hljs-number">2.0</span>), watchos(<span class="hljs-number">2.0</span>), tvos(<span class="hljs-number">9.0</span>));<br></code></pre></div></td></tr></table></figure>
+<p>使用完调用 AudioConverterDispose 释放资源：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-comment">//-----------------------------------------------------------------------------</span><br><span class="hljs-comment">/*!</span><br><span class="hljs-comment">    @function   AudioConverterDispose</span><br><span class="hljs-comment">    @abstract   Destroy an AudioConverter.</span><br><span class="hljs-comment"></span><br><span class="hljs-comment">    @param      inAudioConverter</span><br><span class="hljs-comment">                    The AudioConverter to dispose.</span><br><span class="hljs-comment">    @result     An OSStatus result code.</span><br><span class="hljs-comment">*/</span><br><span class="hljs-keyword">extern</span> OSStatus<br>AudioConverterDispose(  AudioConverterRef   inAudioConverter)                   API_AVAILABLE(macos(<span class="hljs-number">10.1</span>), ios(<span class="hljs-number">2.0</span>), watchos(<span class="hljs-number">2.0</span>), tvos(<span class="hljs-number">9.0</span>));<br></code></pre></div></td></tr></table></figure>
+<p>有两个问题需要额外注意下：</p>
+<p>一是送入编码器的数据量。AudioConverterFillComplexBuffer 的 ioOutputDataPacketSize 参数需要指定编码器此次编码的 aac packet 数量，通常 AAC-LC 一个 packet 包含 1024 个 pcm frame，所以每次送入编码器的 pcm frame 个数需要是 1024 * 通道数 的整数倍。但使用 Audio Unit 采集音频每次回调的 frame 个数是不确定的，可能会比 1024 小，所以音频数据在送到编码器之前需要先加入一个 Buffer Data 队列里，满足数量要求再从队列取出送进编码器。</p>
+<p>另一个是时间戳的计算，在后续封装 Flv 时需要在 Tag Header 里指定这一帧起始位置的时间戳，为了保证音画同步，需要计算原始数据产生时的时间戳，我们在 Audio Unit 回调时打了一个时间戳，但这个时间戳至少是在此 Buffer 最后一个采样点产生时生成的，需要校准成第一个采样点产生时的时间，这个偏移量很好计算，用采样点个数除以采样率。由于 Buffer Data 需要先加入队列后取出，所以 Meta Data 也需要同样的操作，取出时需要再计算一个偏移量，保证给编码器的 Buffer 首个采样点的时间是对的。</p>
+<div class="note note-warning">
+            <p>实际测试过程中发现，在送入第一个 1024 frame 的 Buffer Data 给编码器后，输出的 Packet Size 只有 4 个字节，这显然是不足以压缩 1024 个 frame 的，由于目前还不太清楚编码器底层的实现，盲猜一下可能是编码器内部也有缓存，如果是这样的话，那上边计算时间戳的方式也是有偏差的，但实际影响不大，测试效果是 OK 的。</p>
+          </div>
+<h1>代码实现</h1>
+<p>输出的 ASBD 指定 mFormatID 为 kAudioFormatMPEG4AAC，mChannelsPerFrame 为通道数，其他参数设置为 0 即可：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc">_destASBD = calloc(<span class="hljs-number">1</span>, <span class="hljs-keyword">sizeof</span>(AudioStreamBasicDescription));<br>_destASBD-&gt;mFormatID = kAudioFormatMPEG4AAC;<br>_destASBD-&gt;mFormatFlags = <span class="hljs-number">0</span>;<br>_destASBD-&gt;mBytesPerFrame = <span class="hljs-number">0</span>;<br>_destASBD-&gt;mBytesPerPacket = <span class="hljs-number">0</span>;<br>_destASBD-&gt;mChannelsPerFrame = <span class="hljs-number">1</span>;<br></code></pre></div></td></tr></table></figure>
+<p>AudioConverterRef 初始化：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc">...<br>  	<span class="hljs-comment">// 定义软解、硬解编码器</span><br>    AudioClassDescription codecs[<span class="hljs-number">2</span>] = &#123;<br>        &#123;<br>            kAudioEncoderComponentType,<br>            kAudioFormatMPEG4AAC,<br>            kAppleSoftwareAudioCodecManufacturer<br>        &#125;,<br>        &#123;<br>            kAudioEncoderComponentType,<br>            kAudioFormatMPEG4AAC,<br>            kAppleHardwareAudioCodecManufacturer<br>        &#125;<br>    &#125;;<br>    <br>  	<span class="hljs-comment">// 初始化 AudioConverterRef  输入源的 ASBD 可以从采集类拿到</span><br>    <span class="hljs-keyword">if</span> (XPAudioUnitCheckError(AudioConverterNewSpecific(<span class="hljs-keyword">self</span>.sourceASBD, <span class="hljs-keyword">self</span>.destASBD, <span class="hljs-number">2</span>, codecs, &amp;_context.audioConverter), <span class="hljs-string">&quot;AudioConverterNewSpecific error&quot;</span>)) &#123;<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <br>  	<span class="hljs-comment">// 设置输出码率  一般 AAC 可设置的码率为 64Kbps、96Kbps、128Kbps</span><br>    <span class="hljs-built_in">UInt32</span> encodeBitrate = <span class="hljs-number">128000</span>;<br>    <span class="hljs-keyword">if</span> (XPAudioUnitCheckError(AudioConverterSetProperty(_context.audioConverter, kAudioConverterEncodeBitRate, <span class="hljs-keyword">sizeof</span>(encodeBitrate), &amp;encodeBitrate), <span class="hljs-string">&quot;set encode bitrate error&quot;</span>)) &#123;<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <br>  	<span class="hljs-comment">// 获取编码输出的最大 packet size，用于初始化接收编码数据的 AudioBuffer</span><br>    <span class="hljs-built_in">UInt32</span> maxOutputPacketSize = <span class="hljs-number">0</span>;<br>    <span class="hljs-built_in">UInt32</span> propertySize = <span class="hljs-keyword">sizeof</span>(maxOutputPacketSize);<br>    <span class="hljs-keyword">if</span> (XPAudioUnitCheckError(AudioConverterGetProperty(_context.audioConverter, kAudioConverterPropertyMaximumOutputPacketSize, &amp;propertySize, &amp;maxOutputPacketSize), <span class="hljs-string">&quot;get max output packet size error&quot;</span>)) &#123;<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <br>  	<span class="hljs-comment">// 这里初始化 PCM Buffer Data 和 Meta Data 的队列</span><br>    _PCMDataQueue = [[XPPCMDataQueue alloc] initWithPCMFramesPerAACPacket:kPCMFramesPerAACPacket bytesPerPCMFrame:<span class="hljs-keyword">self</span>.sourceASBD-&gt;mBytesPerFrame sampleRate:<span class="hljs-keyword">self</span>.sourceASBD-&gt;mSampleRate];<br>  <br>  	<span class="hljs-comment">// 将一些参数设置给 context</span><br>    _context.maxOutputPacketSize = maxOutputPacketSize;<br>    _context.channelCount = <span class="hljs-keyword">self</span>.sourceASBD-&gt;mChannelsPerFrame;<br>    _context.bytesPerFrame = <span class="hljs-keyword">self</span>.sourceASBD-&gt;mBytesPerFrame;<br>...<br></code></pre></div></td></tr></table></figure>
+<p>最后几行用到的 context 是一个结构体，用来在调用 AudioConverterFillComplexBuffer 方法时给回调函数传入一个 user data，便于在回调函数里使用这些参数：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> &#123;<br>    AudioConverterRef audioConverter;<br>    <span class="hljs-built_in">UInt32</span> maxOutputPacketSize;<br>    <span class="hljs-built_in">UInt32</span> channelCount;<br>    <span class="hljs-built_in">UInt32</span> bytesPerFrame;<br>    <span class="hljs-built_in">NSMutableArray</span>&lt;<span class="hljs-built_in">NSData</span> *&gt; *PCMBufferDataList;<br>    <span class="hljs-built_in">NSData</span> *currentBufferData;<br>&#125; AudioConverterContext;<br></code></pre></div></td></tr></table></figure>
+<p>接收到音频数据和时间戳后，将它们 push 进队列里，满足一定数量帧个数时从队列里取出并计算起始帧的时间戳，最后送入编码器。等待编码器编码完成，将 AAC Frame 回调给上层做封装处理：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc">...<br>  	<span class="hljs-comment">// 计算 audioBuffer 包含的 frame 个数</span><br>    <span class="hljs-built_in">UInt32</span> frameCount = audioBuffer-&gt;mDataByteSize / <span class="hljs-keyword">self</span>.sourceASBD-&gt;mBytesPerFrame;<br>    <br>    <span class="hljs-comment">// 将 pts 对齐到 buffer 的首个采样点  音频 dts 和 pts 保持一致即可</span><br>    <span class="hljs-keyword">if</span> (metaData.pts &gt; <span class="hljs-number">1000</span> * frameCount / <span class="hljs-keyword">self</span>.sourceASBD-&gt;mSampleRate) &#123;<br>        metaData.pts -= <span class="hljs-number">1000</span> * frameCount / <span class="hljs-keyword">self</span>.sourceASBD-&gt;mSampleRate;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        metaData.pts = <span class="hljs-number">0</span>;<br>    &#125;<br>    metaData.dts = metaData.pts;<br>    <br>    <span class="hljs-comment">// bufferData 和 metaData 加入到队列（audioBuffer 由上层释放 这里 freeWhenDone 为 NO）</span><br>    <span class="hljs-built_in">NSData</span> *bufferData = [<span class="hljs-built_in">NSData</span> dataWithBytesNoCopy:audioBuffer-&gt;mData length:audioBuffer-&gt;mDataByteSize freeWhenDone:<span class="hljs-literal">NO</span>];<br>  <br>  	<span class="hljs-comment">// bufferData 和 metaData 送入队列</span><br>    [_PCMDataQueue enqueueBufferData:bufferData];<br>    [_PCMDataQueue enqueueMetaData:metaData frameCount:frameCount];<br>    <br>    <span class="hljs-comment">// 尝试从队列中取出 bufferData</span><br>    <span class="hljs-built_in">NSData</span> *dequeueBufferData = <span class="hljs-literal">nil</span>;<br>    <span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>) &#123;<br>        dequeueBufferData = [_PCMDataQueue dequeueBufferData];<br>        <span class="hljs-keyword">if</span> (!dequeueBufferData) &#123;<br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br>        [_context.PCMBufferDataList addObject:dequeueBufferData];<br>    &#125;<br>    <br>    <span class="hljs-comment">// 计算此次送入编码器的 Buffer 总长度</span><br>    size_t totalBufferBytes = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-built_in">NSData</span> *data <span class="hljs-keyword">in</span> _context.PCMBufferDataList) &#123;<br>        totalBufferBytes += data.length;<br>    &#125;<br>    <br>    <span class="hljs-comment">// 计算编码前的 frame 个数、编码后的 facket 个数</span><br>    size_t totalFrameCount = totalBufferBytes / <span class="hljs-keyword">self</span>.sourceASBD-&gt;mBytesPerFrame;<br>    size_t totalPacketCount = totalFrameCount / kPCMFramesPerAACPacket;<br>    <br>    <span class="hljs-comment">// 如果不足一个 packet 直接返回</span><br>    <span class="hljs-keyword">if</span> (!totalPacketCount) &#123;<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <br>    <span class="hljs-comment">// 循环编码每个 AAC Packet</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; totalPacketCount; i++) &#123;<br>        <span class="hljs-keyword">@autoreleasepool</span> &#123;<br>            uint8_t *outputBuffer = (uint8_t *)calloc(<span class="hljs-number">1</span>, _context.maxOutputPacketSize);<br>            <span class="hljs-built_in">UInt32</span> numberOfPackets = <span class="hljs-number">1</span>;<br>            <br>          	<span class="hljs-comment">// 初始化用于接收 AAC Packet 的 AudioBufferList，每次问编码器要 1 个 Packet</span><br>            AudioBufferList l;<br>            l.mNumberBuffers = <span class="hljs-number">1</span>;<br>            l.mBuffers[<span class="hljs-number">0</span>].mNumberChannels = _context.channelCount;<br>            l.mBuffers[<span class="hljs-number">0</span>].mDataByteSize = _context.maxOutputPacketSize;<br>            l.mBuffers[<span class="hljs-number">0</span>].mData = outputBuffer;<br>            <br>          	<span class="hljs-comment">// 开始编码，设置回调函数 ioProcess，设置 user data 为之前定义的 context</span><br>            <span class="hljs-keyword">if</span> (XPAudioUnitCheckError(AudioConverterFillComplexBuffer(_context.audioConverter,<br>                                                                      ioProcess,<br>                                                                      &amp;_context,<br>                                                                      &amp;numberOfPackets,<br>                                                                      &amp;l,<br>                                                                      <span class="hljs-literal">NULL</span>),<br>                                      <span class="hljs-string">&quot;AudioConverterFillComplexBuffer error&quot;</span>)) &#123;<br>                <br>                free(outputBuffer);<br>                <span class="hljs-keyword">return</span>;<br>            &#125;<br>            <br>          	<span class="hljs-comment">// 到这一步已经可以获取编码结果了，AudioConverterRef 会将实际编码的 Packet 数量写回 numberOfPackets</span><br>            <span class="hljs-keyword">if</span> (numberOfPackets) &#123;<br>              	<span class="hljs-comment">// 走到这里说明已经成功拿到编码数据</span><br>              	<span class="hljs-comment">// 计算时间戳偏移，从队列中取出</span><br>                XPMetaData *dequeuedMetaData = [_PCMDataQueue dequeueMetaData];<br>                <span class="hljs-built_in">NSAssert</span>(dequeuedMetaData, <span class="hljs-string">@&quot;Something wrong with meta data queue&quot;</span>);<br>                <br>                <span class="hljs-comment">// send aac raw</span><br>                XPAACFrame *aacFrame = [XPAACFrame frameWithType:XPAACFrameType_Raw data:outputBuffer dataSize:l.mBuffers[<span class="hljs-number">0</span>].mDataByteSize];<br>                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">self</span>.delegate &amp;&amp; [<span class="hljs-keyword">self</span>.delegate respondsToSelector:<span class="hljs-keyword">@selector</span>(aacEncoder:didGetAACFrame:metaData:channelCount:sampleRate:)]) &#123;<br>                    [<span class="hljs-keyword">self</span>.delegate aacEncoder:<span class="hljs-keyword">self</span> didGetAACFrame:aacFrame metaData:dequeuedMetaData channelCount:<span class="hljs-keyword">self</span>.audioEncodeConfig.encodeChannelCount sampleRate:(<span class="hljs-built_in">UInt32</span>)<span class="hljs-keyword">self</span>.audioEncodeConfig.encodeSampleRate];<br>                &#125;<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>              	<span class="hljs-comment">// 此次没有编码数据输出  释放资源  等待下一次</span><br>                free(outputBuffer);<br>            &#125;<br>        &#125;<br>    &#125;<br>...<br></code></pre></div></td></tr></table></figure>
+<p>调用 AudioConverterFillComplexBuffer 方法后，如果传入的参数都没问题，AudioConverterRef 会去调用回调函数 ioProcess：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-keyword">static</span> OSStatus ioProcess(AudioConverterRef inAudioConverter,<br>                          <span class="hljs-built_in">UInt32</span> *ioNumberDataPackets,<br>                          AudioBufferList *ioData,<br>                          AudioStreamPacketDescription * __<span class="hljs-keyword">nullable</span> * __<span class="hljs-keyword">nullable</span> outDataPacketDescription,<br>                          <span class="hljs-type">void</span> * __<span class="hljs-keyword">nullable</span> inUserData) &#123;<br>    <br>  	<span class="hljs-comment">// user data 转成 AudioConverterContext</span><br>    AudioConverterContext *context = (AudioConverterContext *)inUserData;<br>    <span class="hljs-keyword">if</span> (!context || !context-&gt;PCMBufferDataList.count) &#123;<br>        *ioNumberDataPackets = <span class="hljs-number">0</span>;<br>        <span class="hljs-keyword">return</span> kConverterShouldContinueCode;<br>    &#125;<br>    <br>  	<span class="hljs-comment">// 从 PCMBufferDataList 取出第一个 Buffer Data</span><br>    context-&gt;currentBufferData = context-&gt;PCMBufferDataList[<span class="hljs-number">0</span>];<br>    [context-&gt;PCMBufferDataList removeObjectAtIndex:<span class="hljs-number">0</span>];<br>    <br>  	<span class="hljs-comment">// 计算 Buffer Data 中包含的 frame 个数</span><br>    <span class="hljs-built_in">UInt32</span> sampleCount = (<span class="hljs-built_in">UInt32</span>)context-&gt;currentBufferData.length / context-&gt;bytesPerFrame;<br>    <br>  	<span class="hljs-comment">// *ioNumberDataPackets 是 AudioConverterRef 告知我们此次编码需要的 frame 个数</span><br>    <span class="hljs-keyword">if</span> (*ioNumberDataPackets &lt; sampleCount) &#123;<br>      	<span class="hljs-comment">// 如果需要的个数比 Buffer Data 中的个数少，需要将剩余部分重新插入到 PCMBufferDataList</span><br>        <span class="hljs-built_in">NSData</span> *dataToUse = [<span class="hljs-built_in">NSData</span> dataWithBytes:context-&gt;currentBufferData.bytes length:*ioNumberDataPackets * context-&gt;bytesPerFrame];<br>        <span class="hljs-built_in">NSData</span> *dataRemain = [<span class="hljs-built_in">NSData</span> dataWithBytes:context-&gt;currentBufferData.bytes + *ioNumberDataPackets * context-&gt;bytesPerFrame length:(sampleCount - *ioNumberDataPackets) * context-&gt;bytesPerFrame];<br>        <br>        context-&gt;currentBufferData = dataToUse;<br>        [context-&gt;PCMBufferDataList insertObject:dataRemain atIndex:<span class="hljs-number">0</span>];<br>      <br>      	<span class="hljs-comment">// 实际送入的 frame 个数以 *ioNumberDataPackets 为准</span><br>        sampleCount = *ioNumberDataPackets;<br>    &#125;<br>    <br>  	<span class="hljs-comment">// *ioNumberDataPackets 需要赋值实际送入的 frame 个数</span><br>    *ioNumberDataPackets = sampleCount;<br>  <br>  	<span class="hljs-comment">// 给 ioData 赋值</span><br>    ioData-&gt;mBuffers[<span class="hljs-number">0</span>].mData = context-&gt;currentBufferData.bytes;<br>    ioData-&gt;mBuffers[<span class="hljs-number">0</span>].mDataByteSize = (<span class="hljs-built_in">UInt32</span>)context-&gt;currentBufferData.length;<br>    ioData-&gt;mBuffers[<span class="hljs-number">0</span>].mNumberChannels = context-&gt;channelCount;<br>    <br>    <span class="hljs-keyword">return</span> noErr;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>在 ioProcess 回调函数的两个参数 ioNumberDataPackets 和 ioData 都是 io 开头，说明这两个参数不光作为输入，也要作为输出，也就是需要在回调函数里给它们赋值，如果传参没有问题就可以直接运行程序进行编码了。</p>
+<div class="note note-info">
+            <p>编码出的 AAC 裸数据不能直接拿来播放，一般有两种用途：</p><p>1.在裸数据前加一个 ADTS 或者 ADIF 写入本地，用于本地播放。</p><p>2.作为流媒体数据分发。如 Flv 格式，需要额外写入一个 Audio Specific Config 来描述 AAC 的信息。</p>
+          </div>
+<h1>后记</h1>
+<p>整体代码量是比较少的，实际调试过程中，内存的问题比较常见，比如一些 c 和 object-c 内存管理方式转换导致的 double free 问题，调试起来是比较麻烦的，不过调试的过程对理解苹果的设计模式和音视频数据的特性是很有帮助的。编码完成后，下一步就是封装了，不过在此之前还需要把 VideoToolbox 视频编码的部分写完，大概还得两周的时间吧。算一算自己在家已经宅了 1 个多月了，日子过的真滴舒服也真滴可怕，希望上海早日解封吧！</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E9%9F%B3%E8%A7%86%E9%A2%91%E5%BC%80%E5%8F%91/">音视频开发</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Core-Audio/">Core Audio</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E7%BC%96%E7%A0%81/">编码</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/05/06/iOS-%E4%BD%BF%E7%94%A8-VideoToolBox-%E7%BC%96%E7%A0%81-H-264/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">iOS 使用 VideoToolBox 编码 H.264</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/04/29/iOS-%E4%BD%BF%E7%94%A8-AudioUnit-%E9%87%87%E9%9B%86%E9%BA%A6%E5%85%8B%E9%A3%8E%E9%9F%B3%E9%A2%91%E6%95%B0%E6%8D%AE/">
+                        <span class="hidden-mobile">iOS 使用 AudioUnit 采集麦克风音频数据</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="gitalk-container"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#gitalk-container', function() {
+      Fluid.utils.createCssLink('/css/gitalk.css')
+      Fluid.utils.createScript('https://lib.baomitu.com/gitalk/1.7.2/gitalk.min.js', function() {
+        var options = Object.assign(
+          {"clientID":"f9864fbe3f26bf3e3fda","clientSecret":"340b5fef89b3fed001756139cf60d36fd4a8a599","repo":"XiaopingSun.github.io","owner":"XiaopingSun","admin":["XiaopingSun"],"language":"zh-CN","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token"},
+          {
+            id: '5b098ada62d44ed225a918fb616ff88b'
+          }
+        )
+        var gitalk = new Gitalk(options);
+        gitalk.render('gitalk-container');
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+      <div class="col-lg-7 mx-auto nopadding-x-md">
+        <div class="container custom mx-auto">
+           <link rel="stylesheet" href="/css/APlayer.min.css"> <div id="aplayer"></div> <script type="text/javascript" src="/js/APlayer.min.js"></script> <script type="text/javascript" src="/js/music.js"></script> 
+        </div>
+      </div>
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+  <!-- 备案信息 -->
+  <div class="beian">
+    <span>
+      <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+        沪ICP备2023015573号-1
+      </a>
+    </span>
+    
+  </div>
+
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

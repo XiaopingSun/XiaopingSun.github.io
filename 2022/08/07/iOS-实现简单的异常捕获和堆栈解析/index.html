@@ -1,0 +1,583 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://hexo.qiniu.pursue.top/%E9%9F%B3%E4%B9%90.png">
+  <link rel="icon" href="https://hexo.qiniu.pursue.top/%E9%9F%B3%E4%B9%90.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="XpSun">
+  <meta name="keywords" content="IT技术博客 电吉他 生活">
+  
+    <meta name="description" content="前言 这两周的一个需求，给引擎添加 crash 捕获和上传功能。如果正常一个 iOS App 需要添加 crash 捕获，一般会接入 Bugly 这种一体化 crash 分析平台，或者如果有自己的后台来搜集 crash 日志，也可以使用 KSCrash 或 PLCrashReporter 来实现崩溃日志的捕获。但本身作为一个引擎 SDK 来说，还是要尽可能少的接入三方库，即使是开源的。好在需求仅要">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS 实现简单的异常捕获和堆栈解析">
+<meta property="og:url" content="https://blog.pursue.top/2022/08/07/iOS-%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84%E5%BC%82%E5%B8%B8%E6%8D%95%E8%8E%B7%E5%92%8C%E5%A0%86%E6%A0%88%E8%A7%A3%E6%9E%90/index.html">
+<meta property="og:site_name" content="XpSun&#39;s Blog">
+<meta property="og:description" content="前言 这两周的一个需求，给引擎添加 crash 捕获和上传功能。如果正常一个 iOS App 需要添加 crash 捕获，一般会接入 Bugly 这种一体化 crash 分析平台，或者如果有自己的后台来搜集 crash 日志，也可以使用 KSCrash 或 PLCrashReporter 来实现崩溃日志的捕获。但本身作为一个引擎 SDK 来说，还是要尽可能少的接入三方库，即使是开源的。好在需求仅要">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hexo.qiniu.pursue.top/xcode_banner.png">
+<meta property="article:published_time" content="2022-08-07T05:09:40.000Z">
+<meta property="article:modified_time" content="2025-04-09T05:08:37.324Z">
+<meta property="article:author" content="XpSun">
+<meta property="article:tag" content="异常捕获">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://hexo.qiniu.pursue.top/xcode_banner.png">
+  
+  
+  <title>iOS 实现简单的异常捕获和堆栈解析 - XpSun&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://fastly.jsdelivr.net/npm/highlight.js@10/styles/github-dark-dimmed.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.pursue.top","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":80,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://hexo.qiniu.pursue.top/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>XpSun&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('https://hexo.qiniu.pursue.top/SC01C11.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="iOS 实现简单的异常捕获和堆栈解析">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-08-07 13:09" pubdate>
+        2022年8月7日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      6.2k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      52 分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">iOS 实现简单的异常捕获和堆栈解析</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：2025年4月9日 下午
+                
+              </p>
+            
+            <div class="markdown-body">
+              <h1>前言</h1>
+<p>这两周的一个需求，给引擎添加 crash 捕获和上传功能。如果正常一个 iOS App 需要添加 crash 捕获，一般会接入 Bugly 这种一体化 crash 分析平台，或者如果有自己的后台来搜集 crash 日志，也可以使用 KSCrash 或 PLCrashReporter 来实现崩溃日志的捕获。但本身作为一个引擎 SDK 来说，还是要尽可能少的接入三方库，即使是开源的。好在需求仅要求记录崩溃的大体堆栈信息，地址可解析即可，不需要太复杂的逻辑。</p>
+<h1>Crash 的分类和处理顺序</h1>
+<p>根据 Crash 的不同来源，一般分为 Mach 异常、Unix 信号 和 NSException。Mach 异常也称内核级异常，可以通过创建监控线程的方式监听 Mach 异常并处理异常信息，如果开发者没有捕获 Mach 异常，则异常将被转换为对应的 Unix 信号投递到出错线程。NSException 也称为应用级异常，可以通过 try catch 来捕获，也可以通过 NSSetUncaughtExceptionHandler 机制来捕获，最终未被处理的 NSException 会向自身程序发送 SIGABRT 信号使程序崩溃。三种异常处理的顺序可以参考这张图：</p>
+<p><img src="https://hexo.qiniu.pursue.top/5219632-04e43775dfba56f8.webp" srcset="https://hexo.qiniu.pursue.top/loading.gif" lazyload alt="异常处理的顺序"></p>
+<h1>实现方式</h1>
+<p>Mach 异常 和 Unix 信号由于来源都是底层内核级异常，只是回调方式不同，因此在项目中选择监听 Unix 信号。应用级异常 NSException 是需要监听的，捕获的 exception 中有对排查问题很有帮助的 reason 信息，需要将这部分信息保存起来，再将 crash 信息传递给 Mach 和 Unix 层来捕获。</p>
+<h1>代码</h1>
+<h2 id="捕获-NSException">捕获 NSException</h2>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-type">void</span> IPhoneCrashHandler::initNSExceptionHandler() &#123;<br>    <span class="hljs-keyword">if</span> (sPreviousUncaughtExceptionHandler == nullptr) &#123;<br>        <span class="hljs-comment">// hold origin handler</span><br>        sPreviousUncaughtExceptionHandler = <span class="hljs-built_in">NSGetUncaughtExceptionHandler</span>();<br>    &#125;<br>    <span class="hljs-comment">// setup new handler</span><br>    <span class="hljs-built_in">NSSetUncaughtExceptionHandler</span>(&amp;uncaughtNSExceptionHandler);<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>初始化监听只需要调用 <code>NSSetUncaughtExceptionHandler</code> 传入回调函数指针即可，函数签名是 <code>typedef void NSUncaughtExceptionHandler(NSException *exception);</code> ，需要注意的是这个回调函数在 App 生命周期是唯一的，也就是说如果 App 有其他 crash 捕获模块，可能会有冲突。为了避免多个 crash 捕获失效的问题，需要先调用 <code>NSGetUncaughtExceptionHandler</code> 函数保存前任的函数指针，并在处理完 exception 之后主动调用这个函数传递 exception。</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-keyword">static</span> <span class="hljs-type">void</span> uncaughtNSExceptionHandler(<span class="hljs-built_in">NSException</span> *exception) &#123;<br>    <span class="hljs-comment">// Handle current exception</span><br>    sUncaughtException = exception;<br>    <br>    <span class="hljs-comment">// Handle previous</span><br>    <span class="hljs-keyword">if</span> (sPreviousUncaughtExceptionHandler != nullptr) &#123;<br>        sPreviousUncaughtExceptionHandler(exception);<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>在回调函数里只需要保存保存 exception 指针，调用前任回调函数指针即可。NSException 如果没有被 try catch 或 NSSetUncaughtExceptionHandler 捕获处理，则会调用 c 的 abort()，kernal 针对 app 发出 _pthread_kill 的信号，转为 Mach 异常，如果 Mach 异常没有被捕获，则会转换成 Unix 信号。</p>
+<h2 id="捕获-Unix-信号">捕获 Unix 信号</h2>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-keyword">const</span> uint8_t handledBSDSignals[] = &#123;<br>    SIGSEGV, <span class="hljs-comment">// signal   11  segmentation violation</span><br>    SIGABRT, <span class="hljs-comment">// signal   6   abort</span><br>    SIGFPE,     <span class="hljs-comment">// signal   8   floating-point exception</span><br>    SIGILL,     <span class="hljs-comment">// signal   4   illegal instruction</span><br>    SIGBUS,     <span class="hljs-comment">// signal   7   BUS</span><br>    SIGALRM     <span class="hljs-comment">// signal   14  alarm</span><br>&#125;;<br><br><span class="hljs-type">void</span> IPhoneCrashHandler::initBSDSignalHandler() &#123;<br>    <span class="hljs-keyword">struct</span> sigaction act;<br>    act.sa_flags = SA_SIGINFO;<br>    act.sa_sigaction = BSDSignalHandler;<br>    sigemptyset(&amp;act.sa_mask);<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; handledBSDSignalsNum; ++i) &#123;<br>        sigaction(handledBSDSignals[i], &amp;act, &amp;sPreviousBSDSignalHandler[i]);<br>        sPreviousBSDSignalHandlerMap.insert( &#123; handledBSDSignals[i], &amp;sPreviousBSDSignalHandler[i] &#125; );<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>handledBSDSignals 数组是监听的 signal 列表，调用 sigaction 函数给 signal 设置监听函数 BSDSignalHandler，并将之前设置过的前任监听函数指针保存到 sPreviousBSDSignalHandler，在处理完 Unix 信号后要调用前任函数指针。</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-keyword">static</span> <span class="hljs-type">void</span> BSDSignalHandler(<span class="hljs-type">int</span> sig, siginfo_t* siginfo, <span class="hljs-type">void</span>* ctx) &#123;<br>    <span class="hljs-comment">// Handle current signal</span><br>  	<span class="hljs-comment">// 获取 Unix 信号描述</span><br>    <span class="hljs-built_in">NSString</span> *signal = [<span class="hljs-built_in">NSString</span> stringWithFormat:<span class="hljs-string">@&quot;%d (%s)&quot;</span>, sig, getBSDSignalDescription(sig).data()];<br>  	<span class="hljs-comment">// 如果 sUncaughtException 不为 nil，说明是 NSException 抛出的异常</span><br>    <span class="hljs-built_in">NSString</span> *exception = sUncaughtException ? [<span class="hljs-built_in">NSString</span> stringWithFormat:<span class="hljs-string">@&quot;%@ (%@)&quot;</span>, [sUncaughtException name], [sUncaughtException reason]] : <span class="hljs-literal">nil</span>;<br>  	<span class="hljs-comment">// 获取系统时间</span><br>    <span class="hljs-built_in">NSString</span> *timestamp = [<span class="hljs-built_in">NSString</span> stringWithCString:GetSystemTimeFormatString().data() encoding:<span class="hljs-built_in">NSUTF8StringEncoding</span>];<br>  	<span class="hljs-comment">// 如果是 NSException 异常，则从 sUncaughtException 指针获取堆栈信息，否则从 NSThread 获取，并将堆栈信息格式化处理</span><br>    <span class="hljs-built_in">NSArray</span> *stackArray = formatCallbackSymbols(sUncaughtException ? sUncaughtException.callStackSymbols : <span class="hljs-built_in">NSThread</span>.callStackSymbols);<br>    <br>    <span class="hljs-built_in">NSMutableString</span> *content = [<span class="hljs-built_in">NSMutableString</span> string];<br>    [content appendFormat:<span class="hljs-string">@&quot;Pid: %d\n&quot;</span>, getpid()];<br>    [content appendFormat:<span class="hljs-string">@&quot;Signal: %@\n&quot;</span>, signal];<br>    <span class="hljs-keyword">if</span> (exception) [content appendFormat:<span class="hljs-string">@&quot;Exception: %@\n&quot;</span>, exception];<br>    [content appendFormat:<span class="hljs-string">@&quot;Timestamp: %@\n&quot;</span>, timestamp];<br>    <span class="hljs-keyword">for</span> (<span class="hljs-built_in">NSString</span> *stack <span class="hljs-keyword">in</span> stackArray) &#123;<br>        [content appendFormat:<span class="hljs-string">@&quot;%@\n&quot;</span>, stack];<br>    &#125;<br>    <br>    <span class="hljs-built_in">NSString</span> *saveDir = [<span class="hljs-built_in">NSString</span> stringWithCString:IPhoneCrashHandler::GetInstance()-&gt;GetCrashLogFileSaveDir().data() encoding:<span class="hljs-built_in">NSUTF8StringEncoding</span>];<br>    <span class="hljs-built_in">NSString</span> *fileName = [<span class="hljs-built_in">NSString</span> stringWithFormat:<span class="hljs-string">@&quot;%@.crash&quot;</span>, timestamp];<br>    <span class="hljs-built_in">NSString</span> *filePath = [<span class="hljs-built_in">NSString</span> stringWithFormat:<span class="hljs-string">@&quot;%@%@&quot;</span>, saveDir, fileName];<br>    [content writeToFile:filePath atomically:<span class="hljs-literal">YES</span> encoding:<span class="hljs-built_in">NSUTF8StringEncoding</span> error:<span class="hljs-literal">nil</span>];<br>    <br>    <span class="hljs-comment">// Handle previous</span><br>    <span class="hljs-keyword">struct</span> sigaction* previousSigaction = sPreviousBSDSignalHandlerMap[sig];<br>    <span class="hljs-keyword">if</span> (previousSigaction != nullptr &amp;&amp; previousSigaction-&gt;sa_sigaction != nullptr) &#123;<br>        previousSigaction-&gt;sa_sigaction(sig, siginfo, ctx);<br>    &#125;<br>    <br>    <span class="hljs-comment">// Kill with signal SIGKILL</span><br>    kill(getpid(), SIGKILL);<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>在 Unix 信号的监听函数中，首先可以拿到信号类型，并判断是否是 NSException 抛出的异常，将堆栈信息格式化后写入本地文件，最后调用前任回调函数指针，给程序发送 SIGKILL 信号终止程序。</p>
+<h2 id="C-堆栈信息优化">C++ 堆栈信息优化</h2>
+<p>调试过程中发现记录的 c++ 堆栈是经过 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/359466948">name mangling</a> 机制处理过的，写入到日志里可读性比较差，需要做 demangle 处理：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;cxxabi.h&gt;</span></span><br>...<br><span class="hljs-keyword">static</span> <span class="hljs-built_in">NSString</span>* getDemangledSymbol(<span class="hljs-built_in">NSString</span> *symbol) &#123;<br>    size_t maxLength = <span class="hljs-number">1024</span>;<br>    <span class="hljs-type">int</span> demangleStatus;<br>    <span class="hljs-type">char</span>* demangledSymbol = (<span class="hljs-type">char</span>*)malloc(maxLength);<br>    <br>    <span class="hljs-keyword">if</span> ((demangledSymbol = abi::__cxa_demangle([symbol UTF8String],<br>                                               demangledSymbol,<br>                                               &amp;maxLength,<br>                                             &amp;demangleStatus))<br>        &amp;&amp; demangleStatus == <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-keyword">return</span> [<span class="hljs-built_in">NSString</span> stringWithCString:demangledSymbol encoding:<span class="hljs-built_in">NSUTF8StringEncoding</span>];<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>;<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<h2 id="函数堆栈地址优化">函数堆栈地址优化</h2>
+<p>通常在 crash 堆栈信息中会有一列是崩溃函数在虚拟内存空间的地址，如果是线上 Release 版本的 crash，日志里一般不会有详细的堆栈函数信息，需要通过程序打包时的符号表 dSYM 文件协助解析崩溃堆栈的地址。dSYM 中记录了程序中函数符号的内存地址，原理上来说 crash 堆栈里的崩溃函数地址应该与 dSYM 里的符号表是一一对应的，但由于苹果的 ASLR 机制的存在，程序在加载时会在前面插入一段随机的 offset，导致 crash 中的堆栈地址和 dSYM 的符号地址会有一个随机的差值。这个 offset 可以在程序运行时获取到，在捕获到 crash 后将堆栈地址减去 offset 保存到文件中，这样就可以直接使用 dSYM 解析出具体的符号。</p>
+<blockquote>
+<p>ASLR（Address space layout randomization）是一种针对缓冲区溢出的安全保护技术，通过对堆、栈、共享库映射等线性区布局的随机化，通过增加攻击者预测目的地址的难度，防止攻击者直接定位攻击代码位置，达到阻止溢出攻击的目的。据研究表明ASLR可以有效的降低缓冲区溢出攻击的成功率，如今Linux、FreeBSD、Windows等主流操作系统都已采用了该技术。</p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;mach-o/dyld.h&gt;</span></span><br>...<br><span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">uint64_t</span> <span class="hljs-title">getOffsetOfASLR</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">uint64_t</span> offset = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">uint32_t</span> i = <span class="hljs-number">0</span>; i &lt; _dyld_image_count(); i++) &#123;<br>            <span class="hljs-keyword">if</span> (_dyld_get_image_header(i)-&gt;filetype == MH_EXECUTE) &#123;<br>                offset = _dyld_get_image_vmaddr_slide(i);<br>                <span class="hljs-keyword">break</span>;<br>            &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> offset;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>以这条堆栈信息为例：</p>
+<p><code>CrashStack[5]:&lt;0x0000000106487418&gt;  xxx (-[IPhoneBridgeObjc showWebView:]+10) </code></p>
+<p>虽然已经知道它对应的符号，但还只是通过 dSYM 解析看下计算的地址是否正确，需要借助命令行工具 atos：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">atos -o xxx.app.dSYM/Contents/Resources/DWARF/xxx 0x0000000106487418<br>-[IPhoneBridgeObjc showWebView:] (in xxx) (IPhoneBridge.mm:313)<br></code></pre></div></td></tr></table></figure>
+<h1>参考资料</h1>
+<blockquote>
+<p>iOS Crash/崩溃/异常 捕获 <a target="_blank" rel="noopener" href="https://www.jianshu.com/p/3f6775c02257">https://www.jianshu.com/p/3f6775c02257</a></p>
+<p>iOS Crash收集,符号化分析看我就够了 <a target="_blank" rel="noopener" href="https://bucengyongyou.github.io/2016/08/03/iOS-Crash%E6%94%B6%E9%9B%86-%E7%AC%A6%E5%8F%B7%E5%8C%96%E5%88%86%E6%9E%90%E7%9C%8B%E6%88%91%E5%B0%B1%E5%A4%9F%E4%BA%86/">https://bucengyongyou.github.io/2016/08/03/iOS-Crash收集-符号化分析看我就够了/</a></p>
+<p>C++函数重载的实现机制之name mangling <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/359466948">https://zhuanlan.zhihu.com/p/359466948</a></p>
+</blockquote>
+<h1>后记</h1>
+<p>最近状态有点差，周末在家就只想睡觉了，想学的东西很多，但时间少效率低，要好好调整下了。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/iOS/">iOS</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%BC%82%E5%B8%B8%E6%8D%95%E8%8E%B7/">异常捕获</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/02/14/%E3%80%8A%E8%AE%A4%E7%9F%A5%E8%A7%89%E9%86%92%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">《认知觉醒》读书笔记</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/08/06/iOS-%E4%BD%BF%E7%94%A8-AVAssetWriter-%E5%AE%9E%E6%97%B6%E5%86%99%E5%85%A5%E8%A7%86%E9%A2%91%E6%B5%81/">
+                        <span class="hidden-mobile">iOS 使用 AVAssetWriter 实时写入视频流</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="gitalk-container"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#gitalk-container', function() {
+      Fluid.utils.createCssLink('/css/gitalk.css')
+      Fluid.utils.createScript('https://lib.baomitu.com/gitalk/1.7.2/gitalk.min.js', function() {
+        var options = Object.assign(
+          {"clientID":"f9864fbe3f26bf3e3fda","clientSecret":"340b5fef89b3fed001756139cf60d36fd4a8a599","repo":"XiaopingSun.github.io","owner":"XiaopingSun","admin":["XiaopingSun"],"language":"zh-CN","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token"},
+          {
+            id: '49f5b3ef40faf9d77aee955b6512fe93'
+          }
+        )
+        var gitalk = new Gitalk(options);
+        gitalk.render('gitalk-container');
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+      <div class="col-lg-7 mx-auto nopadding-x-md">
+        <div class="container custom mx-auto">
+           <link rel="stylesheet" href="/css/APlayer.min.css"> <div id="aplayer"></div> <script type="text/javascript" src="/js/APlayer.min.js"></script> <script type="text/javascript" src="/js/music.js"></script> 
+        </div>
+      </div>
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+  <!-- 备案信息 -->
+  <div class="beian">
+    <span>
+      <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+        沪ICP备2023015573号-1
+      </a>
+    </span>
+    
+  </div>
+
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

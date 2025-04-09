@@ -1,0 +1,566 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://hexo.qiniu.pursue.top/%E9%9F%B3%E4%B9%90.png">
+  <link rel="icon" href="https://hexo.qiniu.pursue.top/%E9%9F%B3%E4%B9%90.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="XpSun">
+  <meta name="keywords" content="IT技术博客 电吉他 生活">
+  
+    <meta name="description" content="前言 好久没写博客了，这段时间几乎所有的精力都用在适应新工作上了，今天难得有些时间可以把这段时间做的需求整理一下，记一记写一写，加深下记忆吧。这个需求是在渲染引擎里加入录屏功能，将引擎渲染的纹理和麦克风采集的声音写入到本地 mp4 文件。 实现方法 可以将视频、音频分开录制，AVAssetWriter 将底层引擎回调的 RGB 数据写成 mp4 文件，使用 VideoToolBox 录制一路音频">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS 使用 AVAssetWriter 实时写入视频流">
+<meta property="og:url" content="https://blog.pursue.top/2022/08/06/iOS-%E4%BD%BF%E7%94%A8-AVAssetWriter-%E5%AE%9E%E6%97%B6%E5%86%99%E5%85%A5%E8%A7%86%E9%A2%91%E6%B5%81/index.html">
+<meta property="og:site_name" content="XpSun&#39;s Blog">
+<meta property="og:description" content="前言 好久没写博客了，这段时间几乎所有的精力都用在适应新工作上了，今天难得有些时间可以把这段时间做的需求整理一下，记一记写一写，加深下记忆吧。这个需求是在渲染引擎里加入录屏功能，将引擎渲染的纹理和麦克风采集的声音写入到本地 mp4 文件。 实现方法 可以将视频、音频分开录制，AVAssetWriter 将底层引擎回调的 RGB 数据写成 mp4 文件，使用 VideoToolBox 录制一路音频">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hexo.qiniu.pursue.top/xcode_banner.png">
+<meta property="article:published_time" content="2022-08-06T14:09:30.000Z">
+<meta property="article:modified_time" content="2025-04-09T05:08:37.321Z">
+<meta property="article:author" content="XpSun">
+<meta property="article:tag" content="AVFoundation">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://hexo.qiniu.pursue.top/xcode_banner.png">
+  
+  
+  <title>iOS 使用 AVAssetWriter 实时写入视频流 - XpSun&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://fastly.jsdelivr.net/npm/highlight.js@10/styles/github-dark-dimmed.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.pursue.top","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":80,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://hexo.qiniu.pursue.top/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>XpSun&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('https://hexo.qiniu.pursue.top/SC01C11.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="iOS 使用 AVAssetWriter 实时写入视频流">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-08-06 22:09" pubdate>
+        2022年8月6日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      9.1k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      77 分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">iOS 使用 AVAssetWriter 实时写入视频流</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：2025年4月9日 下午
+                
+              </p>
+            
+            <div class="markdown-body">
+              <h1>前言</h1>
+<p>好久没写博客了，这段时间几乎所有的精力都用在适应新工作上了，今天难得有些时间可以把这段时间做的需求整理一下，记一记写一写，加深下记忆吧。这个需求是在渲染引擎里加入录屏功能，将引擎渲染的纹理和麦克风采集的声音写入到本地 mp4 文件。</p>
+<h1>实现方法</h1>
+<p>可以将视频、音频分开录制，AVAssetWriter 将底层引擎回调的 RGB 数据写成 mp4 文件，使用 VideoToolBox 录制一路音频 m4a 保存本地，然后使用 AVAssetExportSession 将音频视频合成。这种方式实现是肯定没问题的，但过程有些繁琐，并且音频视频被多次编解码，效率很低。</p>
+<p>AVAssetWriter 是支持实时写入音频和视频的，唯一要费点心思的是音视频同步。音频的采集使用 AVCaptureSession，比较简单，接口回调的音频数据类型是 CMSampleBufferRef，其中包含了时间戳信息，这个时间戳并不是从 0 开始的，所以收到音频首帧时需要记录下时间戳作为视频帧时间戳的 base time，此后的视频帧在此 base time 基础上叠加系统时间差值即可。</p>
+<h1>代码</h1>
+<p>首先是 AVAssetWriter 的初始化，这里分成两种情况，如果用户没有授权麦克风权限，则只录制引擎的视频纹理，如果授权，则录制纹理和声音：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc">- (<span class="hljs-type">BOOL</span>)setupAssetWriter:(RecorderSourceType)sourceType &#123;<br>    _sourceType = sourceType;<br>    <span class="hljs-built_in">NSError</span> *error;<br><br>  	<span class="hljs-comment">// 如果录制文件已存在，先移除</span><br>    <span class="hljs-keyword">if</span> ([[<span class="hljs-built_in">NSFileManager</span> defaultManager] fileExistsAtPath:_outputFilePath]) &#123;<br>        [[<span class="hljs-built_in">NSFileManager</span> defaultManager] removeItemAtPath:_outputFilePath error:&amp;error];<br>        <span class="hljs-keyword">if</span> (error) &#123;<br>            <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;Remove item at outputFilePath failed: %@&quot;</span>, error.localizedDescription);<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">NO</span>;<br>        &#125;<br>    &#125;<br>    <br>  	<span class="hljs-comment">// 初始化 AVAssetWriter，指定封装格式为 AVFileTypeMPEG4</span><br>    _assetWriter = [[<span class="hljs-built_in">AVAssetWriter</span> alloc] initWithURL:[<span class="hljs-built_in">NSURL</span> fileURLWithPath:_outputFilePath] fileType:<span class="hljs-built_in">AVFileTypeMPEG4</span> error:&amp;error];<br>    <span class="hljs-keyword">if</span> (error) &#123;<br>        <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;AVAssetWriter create failed: %@&quot;</span>, error.localizedDescription);<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">NO</span>;<br>    &#125;<br>    <br>  	<span class="hljs-comment">// 初始化视频写入相关</span><br>    <span class="hljs-keyword">if</span> (sourceType &amp; RecorderSourceType_Video) &#123;<br>      	<span class="hljs-comment">// 分辨率</span><br>        <span class="hljs-built_in">CGSize</span> outputSize = <span class="hljs-built_in">CGSizeMake</span>(GetWidth(), GetHeight());<br>      	<span class="hljs-comment">// 单帧像素点个数</span><br>        <span class="hljs-built_in">NSInteger</span> numPixels = outputSize.width * outputSize.height;<br>      	<span class="hljs-comment">// 码率因子</span><br>        <span class="hljs-built_in">CGFloat</span> bitrateFactorPerPixel = <span class="hljs-number">3.0</span>;<br>      	<span class="hljs-comment">// 估算一个码率</span><br>        <span class="hljs-built_in">NSInteger</span> bitrate = numPixels * bitrateFactorPerPixel;<br>      	<span class="hljs-comment">// 帧率</span><br>        <span class="hljs-built_in">NSInteger</span> fps = <span class="hljs-number">30</span>;<br>      	<span class="hljs-comment">// 关键帧间隔</span><br>        <span class="hljs-built_in">NSInteger</span> keyFrameInterval = fps * <span class="hljs-number">3</span>;<br>        <br>        <span class="hljs-built_in">NSDictionary</span> *videoCompressionProperties = @&#123;<span class="hljs-built_in">AVVideoAverageBitRateKey</span> : @(bitrate),<br>                                                     <span class="hljs-built_in">AVVideoExpectedSourceFrameRateKey</span> : @(fps),<br>                                                     <span class="hljs-built_in">AVVideoMaxKeyFrameIntervalKey</span> : @(keyFrameInterval),<br>                                                     <span class="hljs-built_in">AVVideoProfileLevelKey</span> : <span class="hljs-built_in">AVVideoProfileLevelH264BaselineAutoLevel</span>&#125;;<br>        <br>        <span class="hljs-built_in">NSDictionary</span> *videoCompressionSettings = @&#123;<span class="hljs-built_in">AVVideoCodecKey</span> : <span class="hljs-built_in">AVVideoCodecTypeH264</span>,<br>                                                   <span class="hljs-built_in">AVVideoScalingModeKey</span> : <span class="hljs-built_in">AVVideoScalingModeResizeAspectFill</span>,<br>                                                   <span class="hljs-built_in">AVVideoWidthKey</span>  : @(outputSize.width),<br>                                                   <span class="hljs-built_in">AVVideoHeightKey</span> : @(outputSize.height),<br>                                                   <span class="hljs-built_in">AVVideoCompressionPropertiesKey</span> : videoCompressionProperties&#125;;<br>        <br>        <span class="hljs-keyword">if</span> ([_assetWriter canApplyOutputSettings:videoCompressionSettings forMediaType:<span class="hljs-built_in">AVMediaTypeVideo</span>]) &#123;、<br>          	<span class="hljs-comment">// 创建 AVAssetWriterInput</span><br>            _videoInput = [<span class="hljs-built_in">AVAssetWriterInput</span> assetWriterInputWithMediaType:<span class="hljs-built_in">AVMediaTypeVideo</span> outputSettings:videoCompressionSettings];<br>            _videoInput.expectsMediaDataInRealTime = <span class="hljs-literal">YES</span>;<br>            <br>            <span class="hljs-built_in">NSDictionary</span> *sourcePixelBufferAttributes = @&#123;(<span class="hljs-built_in">NSString</span> *)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA),<br>                                                          (<span class="hljs-built_in">NSString</span> *)kCVPixelBufferWidthKey: @(outputSize.width),<br>                                                          (<span class="hljs-built_in">NSString</span> *)kCVPixelBufferHeightKey: @(outputSize.height)&#125;;<br>            <span class="hljs-comment">// 创建 AVAssetWriterInputPixelBufferAdaptor</span><br>            _videoAdaptor = [<span class="hljs-built_in">AVAssetWriterInputPixelBufferAdaptor</span> assetWriterInputPixelBufferAdaptorWithAssetWriterInput:_videoInput sourcePixelBufferAttributes:sourcePixelBufferAttributes];<br>       <br>            <span class="hljs-comment">// AVAssetWriter 添加视频输入                                                                                               </span><br>            <span class="hljs-keyword">if</span> ([_assetWriter canAddInput:_videoInput]) &#123;<br>                [_assetWriter addInput:_videoInput];<br>            &#125;<br>        &#125;<br>    &#125;<br>    <br>  	<span class="hljs-comment">// 初始化音频写入相关</span><br>    <span class="hljs-keyword">if</span> (sourceType &amp; RecorderSourceType_Audio) &#123;<br>      	<span class="hljs-comment">// 采样率</span><br>        <span class="hljs-built_in">NSInteger</span> sampleRate = <span class="hljs-number">48000</span>;<br>      	<span class="hljs-comment">// 通道数</span><br>        <span class="hljs-built_in">NSInteger</span> channelCount = <span class="hljs-number">1</span>;<br>      	<span class="hljs-comment">// 码率</span><br>        <span class="hljs-built_in">NSInteger</span> bitrate = <span class="hljs-number">64000</span>;<br>      	<span class="hljs-comment">// 位深</span><br>        <span class="hljs-built_in">NSInteger</span> bitDepth = <span class="hljs-number">16</span>;<br>        <br>        <span class="hljs-built_in">NSDictionary</span> *audioCompressionSettings = @&#123;<span class="hljs-built_in">AVFormatIDKey</span> : @(kAudioFormatMPEG4AAC),<br>                                                   <span class="hljs-built_in">AVEncoderBitRatePerChannelKey</span> : @(bitrate),<br>                                                   <span class="hljs-built_in">AVSampleRateKey</span> : @(sampleRate),<br>                                                   <span class="hljs-built_in">AVNumberOfChannelsKey</span> : @(channelCount)&#125;;<br>        <br>        <span class="hljs-keyword">if</span> ([_assetWriter canApplyOutputSettings:audioCompressionSettings forMediaType:<span class="hljs-built_in">AVMediaTypeAudio</span>]) &#123;<br>          	<span class="hljs-comment">// 创建 AVAssetWriterInput</span><br>            _audioInput = [<span class="hljs-built_in">AVAssetWriterInput</span> assetWriterInputWithMediaType:<span class="hljs-built_in">AVMediaTypeAudio</span> outputSettings:audioCompressionSettings];<br>            _audioInput.expectsMediaDataInRealTime = <span class="hljs-literal">YES</span>;<br>            <br>          	<span class="hljs-comment">// AVAssetWriter 添加音频输入</span><br>            <span class="hljs-keyword">if</span> ([_assetWriter canAddInput:_audioInput]) &#123;<br>                [_assetWriter addInput:_audioInput];<br>            &#125;<br>        &#125;<br>    &#125;<br>    <br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">YES</span>;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>以上代码初始化 AVAssetWriter 并根据不同场景配置了音频和视频的输入，如果是授权了麦克风权限，还需要初始化 AVCaptureSession：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc">- (<span class="hljs-type">BOOL</span>)setupAudioRecorder &#123;<br>    <span class="hljs-built_in">NSError</span> *error;<br>    [[<span class="hljs-built_in">AVAudioSession</span> sharedInstance] setCategory:<span class="hljs-built_in">AVAudioSessionCategoryPlayAndRecord</span> error:&amp;error];<br>    [[<span class="hljs-built_in">AVAudioSession</span> sharedInstance] setActive:<span class="hljs-literal">YES</span> error:&amp;error];<br>    <span class="hljs-keyword">if</span> (error) &#123;<br>        <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;AVAudioSession set category &amp; action error: %@&quot;</span>, error.localizedDescription);<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">NO</span>;<br>    &#125;<br>    <br>    _audioBufferQueue = dispatch_queue_create(<span class="hljs-string">&quot;com.audioBuffer.IPhoneScreenRecorder&quot;</span>, DISPATCH_QUEUE_SERIAL);<br>    _captureSession = [[<span class="hljs-built_in">AVCaptureSession</span> alloc] init];<br>    <span class="hljs-built_in">AVCaptureDevice</span> *audioDevice = [<span class="hljs-built_in">AVCaptureDevice</span> defaultDeviceWithMediaType:<span class="hljs-built_in">AVMediaTypeAudio</span>];<br>    _audioDeviceInput = [<span class="hljs-built_in">AVCaptureDeviceInput</span> deviceInputWithDevice:audioDevice error:&amp;error];<br>    <span class="hljs-keyword">if</span> (error) &#123;<br>        <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;AVCaptureDeviceInput create failed: %@&quot;</span>, error.localizedDescription);<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">NO</span>;<br>    &#125;<br>    _audioDataOutput = [[<span class="hljs-built_in">AVCaptureAudioDataOutput</span> alloc] init];<br>    [_audioDataOutput setSampleBufferDelegate:<span class="hljs-keyword">self</span> queue:_audioBufferQueue];<br>    <br>    <span class="hljs-keyword">if</span> ([_captureSession canAddInput:_audioDeviceInput]) &#123;<br>        [_captureSession addInput:_audioDeviceInput];<br>    &#125;<br>    <span class="hljs-keyword">if</span> ([_captureSession canAddOutput:_audioDataOutput]) &#123;<br>        [_captureSession addOutput:_audioDataOutput];<br>    &#125;<br>    <br>    [_captureSession startRunning];<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">YES</span>;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>初始化完成后，需要处理开始写入的时机和音视频时间戳的同步，processVideoBuffer 方法是引擎回调纹理数据的接口，这里同样也分两种场景来处理：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc">- (<span class="hljs-type">void</span>)processVideoBuffer:(<span class="hljs-type">void</span> *)data width:(<span class="hljs-type">int</span>)width height:(<span class="hljs-type">int</span>)height &#123;<br>    <span class="hljs-keyword">if</span> (!_isRecording) <span class="hljs-keyword">return</span>;<br>    <span class="hljs-keyword">if</span> (!_canWrite) <span class="hljs-keyword">return</span>;<br>    <span class="hljs-built_in">dispatch_async</span>(_operationQueue, ^&#123;<br>        <span class="hljs-keyword">if</span> (_sourceType &amp; RecorderSourceType_Audio) &#123;<br>            <span class="hljs-keyword">if</span> (_timeBase == <span class="hljs-number">0</span>) &#123;<br>                <span class="hljs-comment">// Need to wait for the audio buffer callback to update the timebase</span><br>                <span class="hljs-keyword">return</span>;<br>            &#125;<br>            <br>            TimeFormat currentTimeStamp = GetTimeStampOffset(_timeBase) + _timeBase;<br>            <span class="hljs-built_in">CMTime</span> pts = <span class="hljs-built_in">CMTimeMake</span>(currentTimeStamp, <span class="hljs-number">1000</span>);<br>            CVPixelBufferRef pixelBuffer = CreatePixelBuffer(data, width, height);<br>            <span class="hljs-keyword">if</span> (pixelBuffer == <span class="hljs-literal">NULL</span>) <span class="hljs-keyword">return</span>;<br><br>            [<span class="hljs-keyword">self</span> appendVideoPixelBuffer:pixelBuffer pts:pts];<br>            <br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">if</span> (_timeBase == <span class="hljs-number">0</span>) &#123;<br>                <span class="hljs-comment">// Update timebase（ms）</span><br>                _timeBase = GetTimeStampInMS();<br>                <span class="hljs-comment">// Start asset writer</span><br>                [_assetWriter startWriting];<br>              	<span class="hljs-comment">// 视频帧的时间戳基数是从 0 开始的，所以这里是 kCMTimeZero</span><br>                [_assetWriter startSessionAtSourceTime:kCMTimeZero];<br>            &#125;<br>            <br>            TimeFormat currentTimeStamp = GetTimeStampOffset(_timeBase);<br>            <span class="hljs-built_in">CMTime</span> pts = <span class="hljs-built_in">CMTimeMake</span>(currentTimeStamp, <span class="hljs-number">1000</span>);<br>            CVPixelBufferRef pixelBuffer = CreatePixelBuffer(data, width, height);<br>            <span class="hljs-keyword">if</span> (pixelBuffer == <span class="hljs-literal">NULL</span>) <span class="hljs-keyword">return</span>;<br><br>            [<span class="hljs-keyword">self</span> appendVideoPixelBuffer:pixelBuffer pts:pts];<br>        &#125;<br>    &#125;);<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>如果只录制视频，就不需要考虑时间戳对齐，在 AVAssetWriter 初始化完成后的第一帧即可记录时间基并开始写入。如果需要写入音频，就要保证音视频的时间基是相同的。既然音频回调的 CMSampleBufferRef 里有时间戳信息，那不如就用第一帧音频的时间戳作为视频的时间基，此后依次叠加系统时间的差值即可，所以这里 _timeBase 如果是 0，需要等待第一帧音频帧的到来，再看下音频帧回调里的处理：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> mark - <span class="hljs-string">&lt;AVCaptureAudioDataOutputSampleBufferDelegate&gt;</span></span><br>- (<span class="hljs-type">void</span>)captureOutput:(<span class="hljs-built_in">AVCaptureOutput</span> *)output didOutputSampleBuffer:(<span class="hljs-built_in">CMSampleBufferRef</span>)sampleBuffer fromConnection:(<span class="hljs-built_in">AVCaptureConnection</span> *)connection &#123;<br>    <span class="hljs-keyword">if</span> (!_canWrite) <span class="hljs-keyword">return</span>;<br>    <span class="hljs-built_in">dispatch_sync</span>(_operationQueue, ^&#123;<br>        <span class="hljs-keyword">if</span> (_timeBase == <span class="hljs-number">0</span>) &#123;<br>            <span class="hljs-built_in">CMTime</span> pts = <span class="hljs-built_in">CMSampleBufferGetPresentationTimeStamp</span>(sampleBuffer);<br>            <span class="hljs-comment">// Update time base</span><br>            _timeBase = (TimeFormat)(<span class="hljs-built_in">CMTimeGetSeconds</span>(pts) * <span class="hljs-number">1000</span>);<br>            <span class="hljs-comment">// Start asset writer</span><br>            [_assetWriter startWriting];<br>            [_assetWriter startSessionAtSourceTime:<span class="hljs-built_in">CMSampleBufferGetPresentationTimeStamp</span>(sampleBuffer)];<br>        &#125;<br>        [<span class="hljs-keyword">self</span> appendAudioSampleBuffer:sampleBuffer];<br>    &#125;);<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>在 AVAssetWriter 初始化完成后，收到的音频首帧里包含的时间戳会作为时间基赋值给 _timeBase，并开始 AVAssetWriter 的写入任务，startSessionAtSourceTime 要传入第一帧音频的时间戳信息。processVideoBuffer 方法中视频帧也会基于音频首帧的时间戳来写入，这样就实现了一个简单的，比较粗略的时间戳同步。</p>
+<p>最后是音频和视频 buffer 的写入：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc">- (<span class="hljs-type">void</span>)appendVideoPixelBuffer:(CVPixelBufferRef)pixelBuffer pts:(<span class="hljs-built_in">CMTime</span>)pts &#123;<br>    <span class="hljs-keyword">if</span> (!_isRecording || _assetWriter.status != <span class="hljs-built_in">AVAssetWriterStatusWriting</span>) &#123;<br>        <span class="hljs-built_in">CFRelease</span>(pixelBuffer);<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <br>    <span class="hljs-built_in">dispatch_async</span>(_writingQueue, ^&#123;<br>        <span class="hljs-built_in">AVAssetWriterInput</span> *input = _videoInput;<br>        <span class="hljs-keyword">if</span> (input.readyForMoreMediaData) &#123;<br>            <span class="hljs-type">BOOL</span> success = [_videoAdaptor appendPixelBuffer:pixelBuffer withPresentationTime:pts];<br>            <span class="hljs-keyword">if</span> (!success) &#123;<br>                [<span class="hljs-keyword">self</span> stopRecordingWithCompletion:<span class="hljs-literal">nil</span>];<br>                <span class="hljs-built_in">NSError</span> *error = _assetWriter.error;<br>                <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;AVAssetWriterInputPixelBufferAdaptor appendPixelBuffer failed with error: %@&quot;</span>, error.localizedDescription);<br>            &#125;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-built_in">NSLog</span>( <span class="hljs-string">@&quot;Video input not ready for more media data, dropping buffer&quot;</span>);<br>        &#125;<br>        <span class="hljs-built_in">CFRelease</span>(pixelBuffer);<br>    &#125;);<br>&#125;<br><br>- (<span class="hljs-type">void</span>)appendAudioSampleBuffer:(<span class="hljs-built_in">CMSampleBufferRef</span>)sampleBuffer &#123;<br>    <span class="hljs-keyword">if</span> (!_isRecording || _assetWriter.status != <span class="hljs-built_in">AVAssetWriterStatusWriting</span>) &#123;<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <br>    <span class="hljs-built_in">CFRetain</span>(sampleBuffer);<br>    <span class="hljs-built_in">dispatch_async</span>(_writingQueue, ^&#123;<br>        <span class="hljs-keyword">if</span> (_audioInput.readyForMoreMediaData) &#123;<br>            <span class="hljs-type">BOOL</span> success = [_audioInput appendSampleBuffer:sampleBuffer];<br>            <span class="hljs-keyword">if</span> (!success) &#123;<br>                [<span class="hljs-keyword">self</span> stopRecordingWithCompletion:<span class="hljs-literal">nil</span>];<br>                <span class="hljs-built_in">NSError</span> *error = _assetWriter.error;<br>                <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;AVAssetWriterInput appendSampleBuffer failed with error: %@&quot;</span>, error.localizedDescription);<br>            &#125;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-built_in">NSLog</span>( <span class="hljs-string">@&quot;Audio input not ready for more media data, dropping buffer&quot;</span>);<br>        &#125;<br>        <span class="hljs-built_in">CFRelease</span>(sampleBuffer);<br>    &#125;);<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>在写入视频帧时，起初跟音频一样，也是使用 AVAssetWriterInput 的 appendSampleBuffer 来写入，但发现一直写入失败，苹果的报错只是说 unknown error，没有给出具体原因，之后在 Stack Overflow 上看有人遇到同样的问题，改用 AVAssetWriterInputPixelBufferAdaptor 写入 CVPixelBufferRef 可以解决，亲测是有效的，但具体原因就没有深究了。</p>
+<h1>参考资料</h1>
+<p>主要是苹果的接口文档了，还有一个网上找的 AVFoundation 的使用 Demo 用来参考：<a target="_blank" rel="noopener" href="https://github.com/geniusZhangXu/AVFoundation">Demo</a></p>
+<h1>后记</h1>
+<p>现在是 23:26 分，本来想着再写一篇关于 crash 处理的，好像时间有点晚了，还有日记要写，就留到明天吧。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E9%9F%B3%E8%A7%86%E9%A2%91%E5%BC%80%E5%8F%91/">音视频开发</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/AVFoundation/">AVFoundation</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/08/07/iOS-%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84%E5%BC%82%E5%B8%B8%E6%8D%95%E8%8E%B7%E5%92%8C%E5%A0%86%E6%A0%88%E8%A7%A3%E6%9E%90/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">iOS 实现简单的异常捕获和堆栈解析</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/07/09/cmake-%E5%9F%BA%E7%A1%80%E4%BD%BF%E7%94%A8/">
+                        <span class="hidden-mobile">cmake 基础使用</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="gitalk-container"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#gitalk-container', function() {
+      Fluid.utils.createCssLink('/css/gitalk.css')
+      Fluid.utils.createScript('https://lib.baomitu.com/gitalk/1.7.2/gitalk.min.js', function() {
+        var options = Object.assign(
+          {"clientID":"f9864fbe3f26bf3e3fda","clientSecret":"340b5fef89b3fed001756139cf60d36fd4a8a599","repo":"XiaopingSun.github.io","owner":"XiaopingSun","admin":["XiaopingSun"],"language":"zh-CN","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token"},
+          {
+            id: '520837841ff849d4b63502947e9d3cd5'
+          }
+        )
+        var gitalk = new Gitalk(options);
+        gitalk.render('gitalk-container');
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+      <div class="col-lg-7 mx-auto nopadding-x-md">
+        <div class="container custom mx-auto">
+           <link rel="stylesheet" href="/css/APlayer.min.css"> <div id="aplayer"></div> <script type="text/javascript" src="/js/APlayer.min.js"></script> <script type="text/javascript" src="/js/music.js"></script> 
+        </div>
+      </div>
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+  <!-- 备案信息 -->
+  <div class="beian">
+    <span>
+      <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+        沪ICP备2023015573号-1
+      </a>
+    </span>
+    
+  </div>
+
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

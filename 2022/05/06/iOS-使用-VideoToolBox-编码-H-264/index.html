@@ -1,0 +1,578 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://hexo.qiniu.pursue.top/%E9%9F%B3%E4%B9%90.png">
+  <link rel="icon" href="https://hexo.qiniu.pursue.top/%E9%9F%B3%E4%B9%90.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="XpSun">
+  <meta name="keywords" content="IT技术博客 电吉他 生活">
+  
+    <meta name="description" content="前言 上一篇使用了 AudioToolBox 将音频数据编码成 AAC，这次的需求是将视频帧编码成 H264。在 iOS 8.0 之前，如果要在 iOS 平台上硬编码 H264 只能使用 AVAssetWriter 的野路子&quot;曲线救国&quot;，先利用系统硬编将视频帧写到本地 mp4 文件里，然后需要自己写逻辑去 mp4 的 Box 里读取 sps、pps 和 NALU 数据，会有频繁">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS 使用 VideoToolBox 编码 H.264">
+<meta property="og:url" content="https://blog.pursue.top/2022/05/06/iOS-%E4%BD%BF%E7%94%A8-VideoToolBox-%E7%BC%96%E7%A0%81-H-264/index.html">
+<meta property="og:site_name" content="XpSun&#39;s Blog">
+<meta property="og:description" content="前言 上一篇使用了 AudioToolBox 将音频数据编码成 AAC，这次的需求是将视频帧编码成 H264。在 iOS 8.0 之前，如果要在 iOS 平台上硬编码 H264 只能使用 AVAssetWriter 的野路子&quot;曲线救国&quot;，先利用系统硬编将视频帧写到本地 mp4 文件里，然后需要自己写逻辑去 mp4 的 Box 里读取 sps、pps 和 NALU 数据，会有频繁">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hexo.qiniu.pursue.top/WX20220506-154108%402x.png">
+<meta property="article:published_time" content="2022-05-06T07:37:09.000Z">
+<meta property="article:modified_time" content="2025-04-09T05:08:37.324Z">
+<meta property="article:author" content="XpSun">
+<meta property="article:tag" content="编码">
+<meta property="article:tag" content="VideoToolBox">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://hexo.qiniu.pursue.top/WX20220506-154108%402x.png">
+  
+  
+  <title>iOS 使用 VideoToolBox 编码 H.264 - XpSun&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://fastly.jsdelivr.net/npm/highlight.js@10/styles/github-dark-dimmed.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.pursue.top","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":80,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://hexo.qiniu.pursue.top/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>XpSun&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('https://hexo.qiniu.pursue.top/SC01C11.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="iOS 使用 VideoToolBox 编码 H.264">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-05-06 15:37" pubdate>
+        2022年5月6日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      12k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      99 分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">iOS 使用 VideoToolBox 编码 H.264</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：2025年4月9日 下午
+                
+              </p>
+            
+            <div class="markdown-body">
+              <h1>前言</h1>
+<p>上一篇使用了 AudioToolBox 将音频数据编码成 AAC，这次的需求是将视频帧编码成 H264。在 iOS 8.0 之前，如果要在 iOS 平台上硬编码 H264 只能使用 AVAssetWriter 的野路子&quot;曲线救国&quot;，先利用系统硬编将视频帧写到本地 mp4 文件里，然后需要自己写逻辑去 mp4 的 Box 里读取 sps、pps 和 NALU 数据，会有频繁的文件读写操作。iOS 8.0 苹果提供了 VideoToolBox 来支持硬件的编解码，大大提升了开发效率，让开发者可以直接拿到编码后的数据，因此我们视频编码基于 VideoToolBox 来实现。</p>
+<h1>实现思路</h1>
+<p>使用 VideoToolBox 一般会用到 VTCompressionSessionRef 这个类，使用方式比较简单，首先调用 VTCompressionSessionCreate 创建编码器实例：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc">VT_EXPORT OSStatus<br>VTCompressionSessionCreate(<br>	<span class="hljs-built_in">CM_NULLABLE</span> <span class="hljs-built_in">CFAllocatorRef</span>							allocator, <span class="hljs-comment">// 内存分配器，传 NULL 即可</span><br>	int32_t												width,  <span class="hljs-comment">// 编码分辨率宽</span><br>	int32_t												height, <span class="hljs-comment">// 编码分辨率高</span><br>	<span class="hljs-built_in">CMVideoCodecType</span>									codecType,  <span class="hljs-comment">// 编码器类型 kCMVideoCodecType_H264</span><br>	<span class="hljs-built_in">CM_NULLABLE</span> <span class="hljs-built_in">CFDictionaryRef</span>							encoderSpecification, <span class="hljs-comment">// NULL 使用默认编码器</span><br>	<span class="hljs-built_in">CM_NULLABLE</span> <span class="hljs-built_in">CFDictionaryRef</span>							sourceImageBufferAttributes, <span class="hljs-comment">// pixelBuffer 属性</span><br>	<span class="hljs-built_in">CM_NULLABLE</span> <span class="hljs-built_in">CFAllocatorRef</span>							compressedDataAllocator, <span class="hljs-comment">// 内存分配器，传 NULL 即可</span><br>	<span class="hljs-built_in">CM_NULLABLE</span> VTCompressionOutputCallback				outputCallback, <span class="hljs-comment">// 编码完成的回调函数</span><br>	<span class="hljs-type">void</span> * <span class="hljs-built_in">CM_NULLABLE</span>									outputCallbackRefCon,  <span class="hljs-comment">// 回调函数上下文指针</span><br>	<span class="hljs-built_in">CM_RETURNS_RETAINED_PARAMETER</span> <span class="hljs-built_in">CM_NULLABLE</span> VTCompressionSessionRef * <span class="hljs-built_in">CM_NONNULL</span> <span class="hljs-comment">// 实例</span><br>  compressionSessionOut) API_AVAILABLE(macosx(<span class="hljs-number">10.8</span>), ios(<span class="hljs-number">8.0</span>), tvos(<span class="hljs-number">10.2</span>));<br></code></pre></div></td></tr></table></figure>
+<p>实例创建好后，可以给编码器配置输出参数，一般常用的属性有帧率、码率、GOP大小、profileLevel，注意 propertyValue 是 CoreFoundation 类型，需要手动管理指针的释放：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc">VT_EXPORT OSStatus<br>VTSessionSetProperty(<br>  <span class="hljs-built_in">CM_NONNULL</span> VTSessionRef       session,  <span class="hljs-comment">// 实例</span><br>  <span class="hljs-built_in">CM_NONNULL</span> <span class="hljs-built_in">CFStringRef</span>        propertyKey,  <span class="hljs-comment">// key</span><br>  <span class="hljs-built_in">CM_NULLABLE</span> <span class="hljs-built_in">CFTypeRef</span>         propertyValue  <span class="hljs-comment">// value</span><br>) API_AVAILABLE(macosx(<span class="hljs-number">10.8</span>), ios(<span class="hljs-number">8.0</span>), tvos(<span class="hljs-number">10.2</span>));<br></code></pre></div></td></tr></table></figure>
+<p>配置好属性，调用方法让编码器分配足够内存准备编码（可选）：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc">VT_EXPORT OSStatus<br>VTCompressionSessionPrepareToEncodeFrames( <span class="hljs-built_in">CM_NONNULL</span> VTCompressionSessionRef session ) API_AVAILABLE(macosx(<span class="hljs-number">10.9</span>), ios(<span class="hljs-number">8.0</span>), tvos(<span class="hljs-number">10.2</span>));<br></code></pre></div></td></tr></table></figure>
+<p>准备工作完成，就可以将采集到的视频数据送入编码器了：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc">VT_EXPORT OSStatus<br>VTCompressionSessionEncodeFrame(<br>	<span class="hljs-built_in">CM_NONNULL</span> VTCompressionSessionRef	session,  <span class="hljs-comment">// 实例</span><br>	<span class="hljs-built_in">CM_NONNULL</span> CVImageBufferRef			imageBuffer,	<span class="hljs-comment">// 采集的视频帧</span><br>	<span class="hljs-built_in">CMTime</span>								presentationTimeStamp,	<span class="hljs-comment">// pts</span><br>	<span class="hljs-built_in">CMTime</span>								duration, <span class="hljs-comment">// may be kCMTimeInvalid </span><br>	<span class="hljs-built_in">CM_NULLABLE</span> <span class="hljs-built_in">CFDictionaryRef</span>			frameProperties, <span class="hljs-comment">// 视频帧属性  没有变化传 NULL 即可</span><br>	<span class="hljs-type">void</span> * <span class="hljs-built_in">CM_NULLABLE</span>					sourceFrameRefcon,  <span class="hljs-comment">// 这一帧的上下文  会在 callback 里回调</span><br>	VTEncodeInfoFlags * <span class="hljs-built_in">CM_NULLABLE</span>		infoFlagsOut  <span class="hljs-comment">// 用来获取编码器状态  传 NULL 即可</span><br>) API_AVAILABLE(macosx(<span class="hljs-number">10.8</span>), ios(<span class="hljs-number">8.0</span>), tvos(<span class="hljs-number">10.2</span>));<br></code></pre></div></td></tr></table></figure>
+<p>编码器在编码一帧后会回调在 VTCompressionSessionCreate 传入的 outputCallback 函数，将编码后的数据和上下文指针回调出来：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-keyword">typedef</span> <span class="hljs-type">void</span> (*VTCompressionOutputCallback)(<br>		<span class="hljs-type">void</span> * <span class="hljs-built_in">CM_NULLABLE</span> outputCallbackRefCon,  <span class="hljs-comment">// 创建编码器时指定的上下文指针</span><br>		<span class="hljs-type">void</span> * <span class="hljs-built_in">CM_NULLABLE</span> sourceFrameRefCon,   <span class="hljs-comment">// 编码每一帧时指定的上下文指针</span><br>		OSStatus status, 		<span class="hljs-comment">// 该帧编码状态</span><br>		VTEncodeInfoFlags infoFlags,   <span class="hljs-comment">// 编码器状态信息</span><br>		<span class="hljs-built_in">CM_NULLABLE</span> <span class="hljs-built_in">CMSampleBufferRef</span> sampleBuffer );  <span class="hljs-comment">// 编码后的数据</span><br></code></pre></div></td></tr></table></figure>
+<p>拿到 sampleBuffer 就可以解析出视频帧编码后的数据和一些其他信息了。</p>
+<h1>代码实现</h1>
+<p>首先创建编码器实例，配置属性：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc">- (<span class="hljs-type">void</span>)setupCompressionSession &#123;<br>    [_lock lock];<br>  	<span class="hljs-comment">// 用户定义的编码参数信息</span><br>    XPVideoEncodeConfig *configuration = _videoEncodeConfig;<br>    OSStatus err = noErr;<br>    <br>    VTCompressionSessionRef session = <span class="hljs-literal">NULL</span>;<br>    <span class="hljs-built_in">NSDictionary</span> *pixelBufferOptions = @&#123; (<span class="hljs-built_in">NSString</span>*) kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA),<br>                                          (<span class="hljs-built_in">NSString</span>*) kCVPixelBufferWidthKey : @([configuration videoSize].width),<br>                                          (<span class="hljs-built_in">NSString</span>*) kCVPixelBufferHeightKey : @([configuration videoSize].height),<br>                                          (<span class="hljs-built_in">NSString</span>*) kCVPixelBufferOpenGLESCompatibilityKey : @YES&#125;;<br>    <br>  	<span class="hljs-comment">// 创建编码器实例，将当前编码器的类对象传入上下文参数</span><br>    err = VTCompressionSessionCreate(kCFAllocatorDefault,<br>                                     [configuration videoSize].width,<br>                                     [configuration videoSize].height,<br>                                     kCMVideoCodecType_H264,<br>                                     <span class="hljs-literal">NULL</span>,<br>                                     (__bridge <span class="hljs-built_in">CFDictionaryRef</span>)pixelBufferOptions,<br>                                     kCFAllocatorDefault,<br>                                     &amp;vtCallback,<br>                                     (__bridge <span class="hljs-type">void</span> *)<span class="hljs-keyword">self</span>, &amp;session);<br>        <br>    <span class="hljs-keyword">if</span> (err != noErr) &#123;<br>        <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;error: failed to setup VTCompressionSession. %d&quot;</span>, err);<br>    &#125;<br>    <br>    _compressionSession = session;<br>    <br>    <span class="hljs-comment">// 设置 GOP 长度、帧率</span><br>    <span class="hljs-keyword">if</span> (err == noErr) &#123;<br>        <span class="hljs-keyword">const</span> int32_t interval = (int32_t)[configuration videoMaxKeyFrameInterval];<br>        <span class="hljs-keyword">const</span> int32_t frameRate = (int32_t)[configuration expectedSourceVideoFrameRate];<br>        int32_t duration = (int32_t)(interval / frameRate);<br>        <br>      	<span class="hljs-comment">// gop 长度：多少帧出现一个关键帧</span><br>        err = SetVTSessionIntProperty(session, kVTCompressionPropertyKey_MaxKeyFrameInterval, interval);<br>        <span class="hljs-keyword">if</span>(err != noErr) &#123;<br>            <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;error: failed to setup VTCompressionSession. %d&quot;</span>, err);<br>        &#125;<br>      	<span class="hljs-comment">// 关键帧间隔时间 = gop 长度 / 帧率</span><br>        err = SetVTSessionIntProperty(session, kVTCompressionPropertyKey_MaxKeyFrameIntervalDuration, duration);<br>        <span class="hljs-keyword">if</span>(err != noErr) &#123;<br>            <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;error: failed to setup VTCompressionSession. %d&quot;</span>, err);<br>        &#125;<br>      	<span class="hljs-comment">// 期望帧率</span><br>        err = SetVTSessionIntProperty(session, kVTCompressionPropertyKey_ExpectedFrameRate, frameRate);<br>        <span class="hljs-keyword">if</span>(err != noErr) &#123;<br>            <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;error: failed to setup VTCompressionSession. %d&quot;</span>, err);<br>        &#125;<br>    &#125;<br>    <br>    <span class="hljs-comment">// 禁止 B 帧</span><br>    <span class="hljs-keyword">if</span>(err == noErr) &#123;<br>        err = SetVTSessionBoolProperty(session, kVTCompressionPropertyKey_AllowFrameReordering, <span class="hljs-literal">false</span>);<br>        <span class="hljs-keyword">if</span>(err != noErr) &#123;<br>            <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;error: failed to setup VTCompressionSession. %d&quot;</span>, err);<br>        &#125;<br>    &#125;<br>    <br>    <span class="hljs-comment">// 设置码率（后面会详细写）</span><br>    <span class="hljs-keyword">if</span>(err == noErr) &#123;<br>        err = [<span class="hljs-keyword">self</span> setExpectedBitrate:[configuration averageVideoBitrate]];<br>        <span class="hljs-keyword">if</span>(err != noErr) &#123;<br>            <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;error: failed to setup VTCompressionSession. %d&quot;</span>, err);<br>        &#125;<br>    &#125;<br>    <br>  	<span class="hljs-comment">// 设置编码模式为 RealTime  保证直播场景的低延迟</span><br>    <span class="hljs-keyword">if</span>(err == noErr) &#123;<br>        err = SetVTSessionBoolProperty(session, kVTCompressionPropertyKey_RealTime, <span class="hljs-literal">true</span>);<br>        <span class="hljs-keyword">if</span>(err != noErr) &#123;<br>            <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;error: failed to setup VTCompressionSession. %d&quot;</span>, err);<br>        &#125;<br>    &#125;<br>    <br>  	<span class="hljs-comment">// 设置 profile Level</span><br>    <span class="hljs-keyword">if</span>(err == noErr) &#123;<br>        err = SetVTSessionStringProperty(session, kVTCompressionPropertyKey_ProfileLevel, (__bridge <span class="hljs-built_in">CFTypeRef</span>)[configuration videoProfileLevel]);<br>        <span class="hljs-keyword">if</span>(err != noErr) &#123;<br>            <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot; error:failed to setup VTCompressionSession. %d&quot;</span>, err);<br>        &#125;<br>    &#125;<br>    <br>  	<span class="hljs-comment">// 准备开始编码</span><br>    <span class="hljs-keyword">if</span> (err == noErr) &#123;<br>        err = VTCompressionSessionPrepareToEncodeFrames(session);<br>        <span class="hljs-keyword">if</span> (err != noErr) &#123;<br>            <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;error: failed to setup VTCompressionSession. %d&quot;</span>, err);<br>        &#125;<br>    &#125;<br>    <br>    <span class="hljs-keyword">if</span>(err != noErr) &#123;<br>        <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;error: failed to setup VTCompressionSession. %d&quot;</span>, err);<br>        <br>        [_lock unlock];<br>        <span class="hljs-keyword">@throw</span> [<span class="hljs-built_in">NSException</span> exceptionWithName:kXPH264VTEncoderErrorInit<br>                                       reason:<span class="hljs-string">@&quot;failed to setup VTCompressionSession&quot;</span><br>                                     userInfo:<span class="hljs-literal">nil</span>];<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    [_lock unlock];<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>初始化方法里用到的 SetVTSession***Property 是封装的自定义函数，避免代码里频繁出现 CF 框架对象的创建和释放：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-comment">// Convenience function for setting a VT int32 property.</span><br><span class="hljs-keyword">static</span> OSStatus SetVTSessionIntProperty(VTSessionRef session,<br>                                        <span class="hljs-built_in">CFStringRef</span> key,<br>                                        int32_t value) &#123;<br>    <span class="hljs-built_in">CFNumberRef</span> cfNum =<br>    <span class="hljs-built_in">CFNumberCreate</span>(kCFAllocatorDefault, kCFNumberSInt32Type, &amp;value);<br>    OSStatus status = VTSessionSetProperty(session, key, cfNum);<br>    <span class="hljs-built_in">CFRelease</span>(cfNum);<br>    <span class="hljs-keyword">if</span> (status != noErr) &#123;<br>        <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;VTSessionSetProperty failed to set key: %@ with value: %d&quot;</span>,<br>               (__bridge <span class="hljs-built_in">NSString</span>*)key,<br>               value);<br>    &#125;<br>    <span class="hljs-keyword">return</span> status;<br>&#125;<br><br><span class="hljs-comment">// Convenience function for setting a VT bool property.</span><br><span class="hljs-keyword">static</span> OSStatus SetVTSessionBoolProperty(VTSessionRef session,<br>                                         <span class="hljs-built_in">CFStringRef</span> key,<br>                                         <span class="hljs-type">bool</span> value) &#123;<br>    <span class="hljs-built_in">CFBooleanRef</span> cf_bool = (value) ? kCFBooleanTrue : kCFBooleanFalse;<br>    OSStatus status = VTSessionSetProperty(session, key, cf_bool);<br>    <span class="hljs-keyword">if</span> (status != noErr) &#123;<br>        <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;VTSessionSetProperty failed to set key: %@ with value: %@&quot;</span>,<br>               (__bridge <span class="hljs-built_in">NSString</span>*)key,<br>               value ? <span class="hljs-string">@&quot;YES&quot;</span>:<span class="hljs-string">@&quot;NO&quot;</span>);<br>    &#125;<br>    <br>    <span class="hljs-keyword">return</span> status;<br>&#125;<br><br><span class="hljs-comment">// Convenience function for setting a VT string property.</span><br><span class="hljs-keyword">static</span> OSStatus SetVTSessionStringProperty(VTSessionRef session,<br>                          <span class="hljs-built_in">CFStringRef</span> key,<br>                          <span class="hljs-built_in">CFStringRef</span> value) &#123;<br>    OSStatus status = VTSessionSetProperty(session, key, value);<br>    <span class="hljs-keyword">if</span> (status != noErr) &#123;<br>        <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;VTSessionSetProperty failed to set key: %@ with value: %@&quot;</span>,<br>               (__bridge <span class="hljs-built_in">NSString</span>*)key,<br>               (__bridge <span class="hljs-built_in">NSString</span>*)value);<br>    &#125;<br>    <span class="hljs-keyword">return</span> status;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>码率的设置会相对复杂一些，kVTCompressionPropertyKey_AverageBitRate 用来设置平均码率，实际的码率会围绕平均码率浮动，所以还需要设置一个浮动的范围：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc">- (OSStatus)setExpectedBitrate:(<span class="hljs-built_in">NSUInteger</span>)averageBitrate &#123;<br>    <span class="hljs-keyword">if</span> (!_compressionSession) &#123;<br>        <span class="hljs-keyword">return</span> kNilOptions;<br>    &#125;<br>    <span class="hljs-type">int</span> bitrate = (<span class="hljs-type">int</span>)averageBitrate;<br><br>  	<span class="hljs-comment">// 设置平均码率</span><br>    OSStatus status;<br>    status = SetVTSessionIntProperty(_compressionSession,<br>                                     kVTCompressionPropertyKey_AverageBitRate,<br>                                     (int32_t)bitrate);<br>    <span class="hljs-keyword">if</span> (status != noErr) &#123;<br>        <span class="hljs-keyword">return</span> status;<br>    &#125;<br>    <br>  	<span class="hljs-comment">// 设置码率浮动范围  kLimitToAverageBitRateFactor 是 1.5</span><br>    int64_t dataLimitBytesPerSecond = (int64_t)(bitrate * kLimitToAverageBitRateFactor / <span class="hljs-number">8</span>);<br>    <span class="hljs-built_in">CFNumberRef</span> bytesPerSecondRef = <span class="hljs-built_in">CFNumberCreate</span>(kCFAllocatorDefault,<br>                                                   kCFNumberSInt64Type,<br>                                                   &amp;dataLimitBytesPerSecond);<br>    int64_t aSecond = <span class="hljs-number">1</span>;<br>    <span class="hljs-built_in">CFNumberRef</span> aSecondRef = <span class="hljs-built_in">CFNumberCreate</span>(kCFAllocatorDefault,<br>                                            kCFNumberSInt64Type,<br>                                            &amp;aSecond);<br>    <span class="hljs-keyword">const</span> <span class="hljs-type">void</span>* nums[<span class="hljs-number">2</span>] = &#123; bytesPerSecondRef, aSecondRef &#125;;<br>    <span class="hljs-built_in">CFArrayRef</span> dataRateLimitsRef = <span class="hljs-built_in">CFArrayCreate</span>(<span class="hljs-literal">NULL</span>, nums, <span class="hljs-number">2</span>, &amp;kCFTypeArrayCallBacks);<br>    status = VTSessionSetProperty(_compressionSession,<br>                                  kVTCompressionPropertyKey_DataRateLimits,<br>                                  dataRateLimitsRef);<br>    <br>    <span class="hljs-keyword">if</span> (bytesPerSecondRef) &#123;<br>        <span class="hljs-built_in">CFRelease</span>(bytesPerSecondRef);<br>    &#125;<br>    <span class="hljs-keyword">if</span> (aSecondRef) &#123;<br>        <span class="hljs-built_in">CFRelease</span>(aSecondRef);<br>    &#125;<br>    <span class="hljs-keyword">if</span> (dataRateLimitsRef) &#123;<br>        <span class="hljs-built_in">CFRelease</span>(dataRateLimitsRef);<br>    &#125;<br>    <br>    <span class="hljs-keyword">return</span> status;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>准备工作完成后，当采集到视频数据时就可以将其送进编码器了：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc">- (<span class="hljs-type">void</span>)pushBuffer:(CVPixelBufferRef)pixelBuffer metaData:(XPMetaData *)metaData &#123;<br>    <span class="hljs-keyword">if</span> (_compressionSession == <span class="hljs-literal">NULL</span>) &#123;<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <br>    <span class="hljs-keyword">if</span> (pixelBuffer == <span class="hljs-literal">NULL</span>) &#123;<br>        <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;error: pixel buffer is NULL&quot;</span>);<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <br>    size_t width = CVPixelBufferGetWidth(pixelBuffer);<br>    size_t height = CVPixelBufferGetHeight(pixelBuffer);<br>    <br>    <span class="hljs-keyword">if</span> (width == <span class="hljs-number">0</span> || height == <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <br>  	<span class="hljs-comment">// 用户定义的编码参数</span><br>    XPVideoEncodeConfig *configuration = _videoEncodeConfig;<br>  <br>    <span class="hljs-comment">/*</span><br><span class="hljs-comment">    	这里还需要对 pixelBuffer 的宽高做校验，保证与编码宽高的比例是一致的</span><br><span class="hljs-comment">    */</span><br>    <br>  	<span class="hljs-comment">// 创建时间戳，timescale 需要指定为 1000，metaData.pts 是采集视频帧时打的时间戳，单位 ms</span><br>    <span class="hljs-built_in">CMTime</span> presentationTime = &#123;<span class="hljs-number">0</span>&#125;;<br>    presentationTime.timescale = <span class="hljs-number">1000</span>;   <span class="hljs-comment">// has to be 1000 !</span><br>    presentationTime.value = metaData.pts;<br>    presentationTime.flags = kCMTimeFlags_Valid;<br>    <br>  	<span class="hljs-comment">// pixelBuffer 送入编码器</span><br>    [_lock lock];<br>    VTEncodeInfoFlags flags;<br>    VTCompressionSessionEncodeFrame(_compressionSession, pixelBuffer, presentationTime, kCMTimeInvalid, <span class="hljs-literal">NULL</span>, <span class="hljs-literal">NULL</span>, &amp;flags);<br>    [_lock unlock];<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>VideoToolBox 编码完成后会回调先前定义的回调函数：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc"><span class="hljs-keyword">static</span> <span class="hljs-type">void</span> vtCallback(<br>                       <span class="hljs-type">void</span> * <span class="hljs-built_in">CM_NULLABLE</span> outputCallbackRefCon,<br>                       <span class="hljs-type">void</span> * <span class="hljs-built_in">CM_NULLABLE</span> sourceFrameRefCon,<br>                       OSStatus status,<br>                       VTEncodeInfoFlags infoFlags,<br>                       <span class="hljs-built_in">CM_NULLABLE</span> <span class="hljs-built_in">CMSampleBufferRef</span> sampleBuffer ) &#123;<br>    <br>  	<span class="hljs-comment">// 获取当前编码器类的实例对象</span><br>    XPVTH264Encoder *encoder = (__bridge XPVTH264Encoder *)outputCallbackRefCon;<br>    <span class="hljs-keyword">if</span> (!encoder) &#123;<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <br>  	<span class="hljs-comment">// CMBlockBufferRef 封装了编码后的数据块</span><br>    <span class="hljs-built_in">CMBlockBufferRef</span> block = <span class="hljs-built_in">CMSampleBufferGetDataBuffer</span>(sampleBuffer);<br>  	<span class="hljs-comment">// attachments 包含一些编码的额外信息  比如当前是否是关键帧</span><br>    <span class="hljs-built_in">CFArrayRef</span> attachments = <span class="hljs-built_in">CMSampleBufferGetSampleAttachmentsArray</span>(sampleBuffer, <span class="hljs-literal">false</span>);<br>  	<span class="hljs-comment">// 获取当前编码数据块的时间戳</span><br>    <span class="hljs-built_in">CMTime</span> pts = <span class="hljs-built_in">CMSampleBufferGetPresentationTimeStamp</span>(sampleBuffer);<br>    <br>  	<span class="hljs-comment">// 判断是否为关键帧</span><br>    <span class="hljs-type">bool</span> isKeyframe = <span class="hljs-literal">false</span>;<br>    <span class="hljs-keyword">if</span> (attachments !=  <span class="hljs-literal">NULL</span>) &#123;<br>        <span class="hljs-built_in">CFDictionaryRef</span> attachment;<br>        <span class="hljs-built_in">CFBooleanRef</span> dependsOnOthers;<br>        attachment = (<span class="hljs-built_in">CFDictionaryRef</span>)<span class="hljs-built_in">CFArrayGetValueAtIndex</span>(attachments, <span class="hljs-number">0</span>);<br>        dependsOnOthers = (<span class="hljs-built_in">CFBooleanRef</span>)<span class="hljs-built_in">CFDictionaryGetValue</span>(attachment, kCMSampleAttachmentKey_DependsOnOthers);<br>        isKeyframe = (dependsOnOthers == kCFBooleanFalse);<br>    &#125;<br>    <br>  	<span class="hljs-comment">// 如果是第一个关键帧，需要获取 sps、pps 打包成 flv 的首个 video tag</span><br>    <span class="hljs-keyword">if</span> (isKeyframe &amp;&amp; !encoder.isConfigSent) &#123;<br>        size_t spsSize = <span class="hljs-number">0</span>, ppsSize = <span class="hljs-number">0</span>;<br>        <span class="hljs-keyword">const</span> uint8_t* sps = <span class="hljs-literal">NULL</span>, *pps = <span class="hljs-literal">NULL</span>;<br>        <br>        <span class="hljs-comment">// Send the SPS and PPS.</span><br>        <span class="hljs-built_in">CMFormatDescriptionRef</span> format = <span class="hljs-built_in">CMSampleBufferGetFormatDescription</span>(sampleBuffer);<br>        size_t paramCount;<br>        <br>      	<span class="hljs-comment">// 获取 sps 及其长度</span><br>        <span class="hljs-built_in">CMVideoFormatDescriptionGetH264ParameterSetAtIndex</span>(format, <span class="hljs-number">0</span>, &amp;sps, &amp;spsSize, &amp;paramCount, <span class="hljs-literal">NULL</span>);<br>      	<span class="hljs-comment">// 获取 pps 及其长度</span><br>        <span class="hljs-built_in">CMVideoFormatDescriptionGetH264ParameterSetAtIndex</span>(format, <span class="hljs-number">1</span>, &amp;pps, &amp;ppsSize, &amp;paramCount, <span class="hljs-literal">NULL</span>);<br>        <br>        <span class="hljs-comment">/*</span><br><span class="hljs-comment">        	这里将 sps 和 pps 回调给上层封装处理</span><br><span class="hljs-comment">        */</span><br>        <br>        encoder.configSent = <span class="hljs-literal">YES</span>;<br>    &#125;<br>    <br>    <span class="hljs-type">char</span>* bufferData;<br>    size_t size;<br>    uint8_t *naluData;<br>    <br>  	<span class="hljs-comment">// 从 CMBlockBufferRef 中获取编码后的数据块的指针地址和数据长度</span><br>    status = <span class="hljs-built_in">CMBlockBufferGetDataPointer</span>(block, <span class="hljs-number">0</span>, <span class="hljs-literal">NULL</span>, &amp;size, &amp;bufferData);<br>    <br>    <span class="hljs-keyword">if</span> (status == noErr) &#123;<br>        naluData = (uint8_t *)malloc(size);<br>        memcpy(naluData, (uint8_t *)bufferData, size);<br>        <br>      	<span class="hljs-comment">/*</span><br><span class="hljs-comment">        	这里将编码数据回调给上层封装处理</span><br><span class="hljs-comment">        */</span><br>        <br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;error: video toolbox encoder error: %d&quot;</span>, status);<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>在收到第一个编码后的关键帧时，先从 SampleBuffer 里解析出 sps 和 pps，将其封装成 AVCC 的 extradata ，打包成 flv tag，并作为第一个 video tag 发送给服务端。通过 CMBlockBufferGetDataPointer 方法拿到的编码数据块中可能包含多个 NALU，苹果有时会将 SEI 和 IDR 帧放到同一个 CMBlockBuffer 中，如果需要把每个 NALU 单独解析出来，可以判断前 4 个字节的 NALU 长度，将 NALU 一个一个解析出来。</p>
+<p>iOS 平台的 h264 硬编码使用的都是 AVCC，而非 Annex B，在实际使用编码数据的过程中，需要根据不同的场景对 NALU 做转换。RTMP 协议使用 flv 的封装格式，而恰好 flv 也是用 AVCC，所以封装的时候就很方便了。</p>
+<p>使用结束之后，别忘了释放编码器实例：</p>
+<figure class="highlight objc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs objc">- (<span class="hljs-type">void</span>)teardownCompressionSession &#123;<br>    [_lock lock];<br>    <span class="hljs-keyword">if</span> (_compressionSession) &#123;<br>        VTCompressionSessionInvalidate(_compressionSession);<br>        <span class="hljs-built_in">CFRelease</span>(_compressionSession); <br>        _compressionSession = <span class="hljs-literal">NULL</span>;<br>    &#125;<br>    [_lock unlock];<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<h1>后记</h1>
+<p>下一步，flv 封装！</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E9%9F%B3%E8%A7%86%E9%A2%91%E5%BC%80%E5%8F%91/">音视频开发</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E7%BC%96%E7%A0%81/">编码</a>
+                    
+                      <a class="hover-with-bg" href="/tags/VideoToolBox/">VideoToolBox</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/05/10/FLV-%E5%8D%8F%E8%AE%AE%E5%B0%81%E8%A3%85/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">FLV 协议封装</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/05/04/iOS-%E4%BD%BF%E7%94%A8-AudioToolBox-%E7%BC%96%E7%A0%81-MPEG4-AAC/">
+                        <span class="hidden-mobile">iOS 使用 AudioToolBox 编码 MPEG4-AAC</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="gitalk-container"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#gitalk-container', function() {
+      Fluid.utils.createCssLink('/css/gitalk.css')
+      Fluid.utils.createScript('https://lib.baomitu.com/gitalk/1.7.2/gitalk.min.js', function() {
+        var options = Object.assign(
+          {"clientID":"f9864fbe3f26bf3e3fda","clientSecret":"340b5fef89b3fed001756139cf60d36fd4a8a599","repo":"XiaopingSun.github.io","owner":"XiaopingSun","admin":["XiaopingSun"],"language":"zh-CN","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token"},
+          {
+            id: 'a280040cd7d97296e51170a555f781f6'
+          }
+        )
+        var gitalk = new Gitalk(options);
+        gitalk.render('gitalk-container');
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+      <div class="col-lg-7 mx-auto nopadding-x-md">
+        <div class="container custom mx-auto">
+           <link rel="stylesheet" href="/css/APlayer.min.css"> <div id="aplayer"></div> <script type="text/javascript" src="/js/APlayer.min.js"></script> <script type="text/javascript" src="/js/music.js"></script> 
+        </div>
+      </div>
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+  <!-- 备案信息 -->
+  <div class="beian">
+    <span>
+      <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+        沪ICP备2023015573号-1
+      </a>
+    </span>
+    
+  </div>
+
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
