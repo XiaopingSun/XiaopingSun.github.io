@@ -4,8 +4,6 @@ date: 2021-09-16 22:06:56
 index_img: https://hexo.qiniu.pursue.top/rtmpdump.png
 categories: 
   - 音视频开发
-tags: 
-  - rtmp
 ---
 
 # 前言

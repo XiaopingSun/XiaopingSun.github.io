@@ -4,7 +4,6 @@ date: 2022-04-07 10:27:02
 index_img: https://hexo.qiniu.pursue.top/xcode_banner.png
 banner_img:
 categories: 音视频开发
-tags: [AVFoundation, 采集]
 sticky:
 ---
 

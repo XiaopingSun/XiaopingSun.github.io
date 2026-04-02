@@ -4,9 +4,7 @@ date: 2021-09-15 18:04:07
 index_img: https://hexo.qiniu.pursue.top/1200px-Markdown-mark.svg.png
 categories:
     - 工具
-tags:
-    - Markdown
-sticky: 100
+sticky:
 ---
 
 # 基础语法

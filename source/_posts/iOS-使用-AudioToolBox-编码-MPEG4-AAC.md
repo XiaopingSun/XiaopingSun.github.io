@@ -4,7 +4,6 @@ date: 2022-05-04 14:29:18
 index_img: https://hexo.qiniu.pursue.top/coreaudio.png
 banner_img:
 categories: 音视频开发
-tags: [Core Audio, 编码]
 sticky:
 ---
 

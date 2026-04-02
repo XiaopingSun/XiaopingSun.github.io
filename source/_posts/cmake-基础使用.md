@@ -4,7 +4,6 @@ date: 2022-07-09 23:58:46
 index_img: https://hexo.qiniu.pursue.top/cmake.jpeg
 banner_img:
 categories: 编译
-tags: cmake
 sticky:
 ---
 

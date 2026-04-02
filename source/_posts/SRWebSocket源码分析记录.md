@@ -3,7 +3,6 @@ title: SRWebSocket源码分析记录
 date: 2022-04-03 11:21:07
 index_img: https://hexo.qiniu.pursue.top/websocket.png
 categories: 网络协议
-tags: [webSocket, 网络协议]
 ---
 
 # 前言

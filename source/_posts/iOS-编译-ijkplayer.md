@@ -4,7 +4,6 @@ date: 2022-05-13 09:14:38
 index_img: https://hexo.qiniu.pursue.top/ijkplayer.png
 banner_img:
 categories: 音视频开发
-tags: [播放器, ijkplayer]
 sticky:
 ---
 
