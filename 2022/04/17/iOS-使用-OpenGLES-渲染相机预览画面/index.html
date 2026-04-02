@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon_music.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon_music.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon_music.png">
+  <link rel="mask-icon" href="/images/favicon_music.png" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.pursue.top","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-2}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="前言 上一篇有提到 使用 AVFoundation 采集相机画面，并渲染到苹果内置的 AVCaptureVideoPreviewLayer 图层上，代码很简单，但使用上有很大局限性。AVCaptureSession 采集到的原始视频帧直接给到了 AVCaptureVideoPreviewLayer 用于渲染，我们没办法在中间环节处理视频帧数据，美颜滤镜也就没办法实现，所以我们需要借助 OpenGL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS 使用 OpenGLES 渲染相机预览画面">
+<meta property="og:url" content="https://blog.pursue.top/2022/04/17/iOS-%E4%BD%BF%E7%94%A8-OpenGLES-%E6%B8%B2%E6%9F%93%E7%9B%B8%E6%9C%BA%E9%A2%84%E8%A7%88%E7%94%BB%E9%9D%A2/index.html">
+<meta property="og:site_name" content="XpSun&#39;s Blog">
+<meta property="og:description" content="前言 上一篇有提到 使用 AVFoundation 采集相机画面，并渲染到苹果内置的 AVCaptureVideoPreviewLayer 图层上，代码很简单，但使用上有很大局限性。AVCaptureSession 采集到的原始视频帧直接给到了 AVCaptureVideoPreviewLayer 用于渲染，我们没办法在中间环节处理视频帧数据，美颜滤镜也就没办法实现，所以我们需要借助 OpenGL">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-04-17T06:37:32.000Z">
+<meta property="article:modified_time" content="2026-04-02T02:24:59.977Z">
+<meta property="article:author" content="XpSun">
+<meta property="article:tag" content="互联网 音乐 人生感悟">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://blog.pursue.top/2022/04/17/iOS-%E4%BD%BF%E7%94%A8-OpenGLES-%E6%B8%B2%E6%9F%93%E7%9B%B8%E6%9C%BA%E9%A2%84%E8%A7%88%E7%94%BB%E9%9D%A2/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://blog.pursue.top/2022/04/17/iOS-%E4%BD%BF%E7%94%A8-OpenGLES-%E6%B8%B2%E6%9F%93%E7%9B%B8%E6%9C%BA%E9%A2%84%E8%A7%88%E7%94%BB%E9%9D%A2/","path":"2022/04/17/iOS-使用-OpenGLES-渲染相机预览画面/","title":"iOS 使用 OpenGLES 渲染相机预览画面"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>iOS 使用 OpenGLES 渲染相机预览画面 | XpSun's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">XpSun's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">来不及讲，故事多跌宕。</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">代码实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="nav-number">2.1.</span> <span class="nav-text">准备工作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-CAEAGLLayer"><span class="nav-number">2.1.1.</span> <span class="nav-text">使用 CAEAGLLayer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A1%B6%E7%82%B9%E6%95%B0%E6%8D%AE%E8%AE%A1%E7%AE%97"><span class="nav-number">2.1.2.</span> <span class="nav-text">顶点数据计算</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9D%80%E8%89%B2%E5%99%A8%E7%A8%8B%E5%BA%8F"><span class="nav-number">2.1.3.</span> <span class="nav-text">着色器程序</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96-v2"><span class="nav-number">2.2.</span> <span class="nav-text">初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B8%B2%E6%9F%93"><span class="nav-number">2.3.</span> <span class="nav-text">渲染</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%82%E9%85%8D%E5%A1%AB%E5%85%85%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.4.</span> <span class="nav-text">适配填充模式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">后记</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="XpSun"
+      src="/images/wechat_avatar.jpg">
+  <p class="site-author-name" itemprop="name">XpSun</p>
+  <div class="site-description" itemprop="description">世上只有一种英雄主义，就是认清了生活的真相后还依然热爱它。</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/XiaopingSun" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;XiaopingSun" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://pursue.sun.xp@gmail.com/" title="E-Mail → https:&#x2F;&#x2F;pursue.sun.xp@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/u/2270909331" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;u&#x2F;2270909331" rel="noopener me" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.pursue.top/2022/04/17/iOS-%E4%BD%BF%E7%94%A8-OpenGLES-%E6%B8%B2%E6%9F%93%E7%9B%B8%E6%9C%BA%E9%A2%84%E8%A7%88%E7%94%BB%E9%9D%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/wechat_avatar.jpg">
+      <meta itemprop="name" content="XpSun">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="XpSun's Blog">
+      <meta itemprop="description" content="世上只有一种英雄主义，就是认清了生活的真相后还依然热爱它。">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="iOS 使用 OpenGLES 渲染相机预览画面 | XpSun's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          iOS 使用 OpenGLES 渲染相机预览画面
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-04-17 14:37:32" itemprop="dateCreated datePublished" datetime="2022-04-17T14:37:32+08:00">2022-04-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-02 10:24:59" itemprop="dateModified" datetime="2026-04-02T10:24:59+08:00">2026-04-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E9%9F%B3%E8%A7%86%E9%A2%91%E5%BC%80%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">音视频开发</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>15k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>14 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1>前言</h1>
+<p>上一篇有提到 <a target="_blank" rel="noopener" href="https://pursue.top/2022/04/07/%E4%BD%BF%E7%94%A8-AVFoundation-%E9%87%87%E9%9B%86%E7%9B%B8%E6%9C%BA%E7%94%BB%E9%9D%A2/">使用 AVFoundation 采集相机画面</a>，并渲染到苹果内置的 AVCaptureVideoPreviewLayer 图层上，代码很简单，但使用上有很大局限性。AVCaptureSession 采集到的原始视频帧直接给到了 AVCaptureVideoPreviewLayer 用于渲染，我们没办法在中间环节处理视频帧数据，美颜滤镜也就没办法实现，所以我们需要借助 OpenGLES 自己实现画面渲染。</p>
+<p>苹果的 GLKit 框架对 OpenGLES 的部分接口调用做了封装，使用起来非常方便。我们的需求可以直接使用 GLKView 实现，开发的代码量是比较少的，但为了熟悉 OpenGLES 的接口调用和管线渲染流程，我们还是使用最原始的方法，基于 CAEAGLLayer，自己来实现着色器代码。</p>
+<h1>代码实现</h1>
+<h2 id="准备工作">准备工作</h2>
+<h3 id="使用-CAEAGLLayer">使用 CAEAGLLayer</h3>
+<p>首先在项目中创建一个继承 UIView 的 XPGLKView，如果需要在图层上自定义 OpenGL 渲染，需要将 UIView 的 layerClass 设置为 CAEAGLLayer：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">XPGLKView</span></span></span><br><span class="line"></span><br><span class="line">+(Class)layerClass &#123;</span><br><span class="line">    <span class="keyword">return</span> [<span class="built_in">CAEAGLLayer</span> <span class="keyword">class</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="顶点数据计算">顶点数据计算</h3>
+<p>我们需要计算两类坐标，一类是 OpenGL 顶点坐标，一类是纹理贴图的坐标，先定义一个结构体类型，包含两类坐标：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> &#123;</span><br><span class="line">    GLKVector2 positionCoordinates;</span><br><span class="line">    GLKVector2 textureCoordinates;</span><br><span class="line">&#125; VerticesCoordinates;</span><br></pre></td></tr></table></figure>
+<p>我们的场景只需要 4 个顶点，使用  <code>glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);</code> 即可绘制两个三角形，按照顶点坐标和纹理坐标一一对应的关系，可以得到一个初步的顶点数据：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">VerticesCoordinates vertices[] = &#123;</span><br><span class="line">    &#123;&#123;<span class="number">-1.0</span>f, <span class="number">-1.0</span>f&#125;, &#123;<span class="number">0.0</span>f, <span class="number">0.0</span>f&#125;&#125;, <span class="comment">// 左下</span></span><br><span class="line">    &#123;&#123; <span class="number">1.0</span>f, <span class="number">-1.0</span>f&#125;, &#123;<span class="number">1.0</span>f, <span class="number">0.0</span>f&#125;&#125;, <span class="comment">// 右下</span></span><br><span class="line">    &#123;&#123;<span class="number">-1.0</span>f,  <span class="number">1.0</span>f&#125;, &#123;<span class="number">0.0</span>f, <span class="number">1.0</span>f&#125;&#125;, <span class="comment">// 左上</span></span><br><span class="line">    &#123;&#123; <span class="number">1.0</span>f,  <span class="number">1.0</span>f&#125;, &#123;<span class="number">1.0</span>f, <span class="number">1.0</span>f&#125;&#125;  <span class="comment">// 右上</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>上面看着没什么问题，但实际渲染发现图像上下颠倒了，原因是使用 CoreVideo 框架读取 Pixel Buffer 数据时是按照屏幕坐标原点（左上角）开始的，而纹理坐标正好相反，所以我们需要翻转一下纹理坐标的 Y 轴，得到最终的顶点数据：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">VerticesCoordinates vertices[] = &#123;</span><br><span class="line">    &#123;&#123;<span class="number">-1.0</span>f, <span class="number">-1.0</span>f&#125;, &#123;<span class="number">0.0</span>f, <span class="number">1.0</span>f&#125;&#125;, <span class="comment">// 左下</span></span><br><span class="line">    &#123;&#123; <span class="number">1.0</span>f, <span class="number">-1.0</span>f&#125;, &#123;<span class="number">1.0</span>f, <span class="number">1.0</span>f&#125;&#125;, <span class="comment">// 右下</span></span><br><span class="line">    &#123;&#123;<span class="number">-1.0</span>f,  <span class="number">1.0</span>f&#125;, &#123;<span class="number">0.0</span>f, <span class="number">0.0</span>f&#125;&#125;, <span class="comment">// 左上</span></span><br><span class="line">    &#123;&#123; <span class="number">1.0</span>f,  <span class="number">1.0</span>f&#125;, &#123;<span class="number">1.0</span>f, <span class="number">0.0</span>f&#125;&#125;  <span class="comment">// 右上</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="着色器程序">着色器程序</h3>
+<p>为了代码整洁，我们封装一个着色器程序，包含着色器的初始化、编译和链接功能：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 初始化方法接受顶点着色器和片段着色器的代码字符串，创建着色器程序后，调用 compileShader 编译着色器，最后将着色器绑定在当前着色器程序上</span></span><br><span class="line">- (<span class="keyword">instancetype</span>)initWithVertexShaderString:(<span class="built_in">NSString</span> *)vShaderString fragmentShaderString:(<span class="built_in">NSString</span> *)fShaderString &#123;</span><br><span class="line">    <span class="keyword">self</span> = [<span class="variable language_">super</span> init];</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">self</span>) &#123;</span><br><span class="line">        _attributes = [<span class="built_in">NSMutableArray</span> array];</span><br><span class="line">        _ID = glCreateProgram();</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (![<span class="keyword">self</span> compileShader:&amp;_vertexShader type:GL_VERTEX_SHADER string:vShaderString]) &#123;</span><br><span class="line">            <span class="built_in">NSLog</span>(<span class="string">@&quot;Failed to compile vertex shader&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (![<span class="keyword">self</span> compileShader:&amp;_fragmentShader type:GL_FRAGMENT_SHADER string:fShaderString]) &#123;</span><br><span class="line">            <span class="built_in">NSLog</span>(<span class="string">@&quot;Failed to compile fragment shader&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        glAttachShader(_ID, _vertexShader);</span><br><span class="line">        glAttachShader(_ID, _fragmentShader);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">self</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 释放</span></span><br><span class="line">- (<span class="type">void</span>)dealloc &#123;</span><br><span class="line">    <span class="keyword">if</span> (_vertexShader) &#123;</span><br><span class="line">        glDeleteShader(_vertexShader);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (_fragmentShader) &#123;</span><br><span class="line">        glDeleteShader(_fragmentShader);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (_ID) &#123;</span><br><span class="line">        glDeleteProgram(_ID);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建、编译着色器</span></span><br><span class="line">- (<span class="type">BOOL</span>)compileShader:(GLuint *)shader type:(GLenum)type string:(<span class="built_in">NSString</span> *)shaderString &#123;</span><br><span class="line">    GLint status;</span><br><span class="line">    <span class="keyword">const</span> GLchar *source = (GLchar *)[shaderString UTF8String];</span><br><span class="line">    <span class="keyword">if</span> (!source) &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;Failed to load shader string&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NO</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">  	<span class="comment">// 创建着色器</span></span><br><span class="line">    *shader = glCreateShader(type);</span><br><span class="line">  	<span class="comment">// 绑定着色器代码</span></span><br><span class="line">    glShaderSource(*shader, <span class="number">1</span>, &amp;source, <span class="literal">NULL</span>);</span><br><span class="line">  	<span class="comment">// 编译着色器</span></span><br><span class="line">    glCompileShader(*shader);</span><br><span class="line">    </span><br><span class="line">  	<span class="comment">// 检查着色器编译状态</span></span><br><span class="line">    glGetShaderiv(*shader, GL_COMPILE_STATUS, &amp;status);</span><br><span class="line">    <span class="keyword">if</span> (status != GL_TRUE) &#123;</span><br><span class="line">        GLint logLength;</span><br><span class="line">        glGetShaderiv(*shader, GL_INFO_LOG_LENGTH, &amp;logLength);</span><br><span class="line">        <span class="keyword">if</span> (logLength) &#123;</span><br><span class="line">            GLchar *log = (GLchar *)malloc(logLength);</span><br><span class="line">            glGetShaderInfoLog(*shader, logLength, &amp;logLength, log);</span><br><span class="line">            <span class="keyword">if</span> (shader == &amp;_vertexShader) &#123;</span><br><span class="line">                <span class="keyword">self</span>.vertexShaderLog = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;%s&quot;</span>, log];</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">self</span>.fragmentShaderLog = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;%s&quot;</span>, log];</span><br><span class="line">            &#125;</span><br><span class="line">            free(log);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> status == GL_TRUE;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 链接着色器</span></span><br><span class="line">- (<span class="type">BOOL</span>)link &#123;</span><br><span class="line">    GLint status;</span><br><span class="line">    glLinkProgram(_ID);</span><br><span class="line">    glGetProgramiv(_ID, GL_LINK_STATUS, &amp;status);</span><br><span class="line">    <span class="keyword">if</span> (status == GL_FALSE) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NO</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (_vertexShader) &#123;</span><br><span class="line">        glDeleteShader(_vertexShader);</span><br><span class="line">        _vertexShader = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (_fragmentShader) &#123;</span><br><span class="line">        glDeleteShader(_fragmentShader);</span><br><span class="line">        _fragmentShader = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">YES</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用着色器程序</span></span><br><span class="line">- (<span class="type">void</span>)use &#123;</span><br><span class="line">    glUseProgram(_ID);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 给顶点着色器属性绑定 location</span></span><br><span class="line">- (<span class="type">void</span>)addAttribute:(<span class="built_in">NSString</span> *)attributeName &#123;</span><br><span class="line">    <span class="keyword">if</span> (![_attributes containsObject:attributeName]) &#123;</span><br><span class="line">        [_attributes addObject:attributeName];</span><br><span class="line">        glBindAttribLocation(_ID, (GLuint)[_attributes indexOfObject:attributeName], [attributeName UTF8String]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取顶点着色器属性 location</span></span><br><span class="line">- (GLuint)getAttributeLocation:(<span class="built_in">NSString</span> *)attributeName &#123;</span><br><span class="line">    <span class="keyword">return</span> (GLuint)[_attributes indexOfObject:attributeName];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取 uniform 属性 localtion</span></span><br><span class="line">- (GLuint)getUniformLocation:(<span class="built_in">NSString</span> *)uniformName &#123;</span><br><span class="line">    <span class="keyword">return</span> glGetUniformLocation(_ID, [uniformName UTF8String]);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印错误信息</span></span><br><span class="line">- (<span class="type">void</span>)showError &#123;</span><br><span class="line">    <span class="built_in">NSString</span> *progLog = [<span class="keyword">self</span> programLog];</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;Program link log: %@&quot;</span>, progLog);</span><br><span class="line">    <span class="built_in">NSString</span> *fragLog = [<span class="keyword">self</span> fragmentShaderLog];</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;Fragment shader compile log: %@&quot;</span>, fragLog);</span><br><span class="line">    <span class="built_in">NSString</span> *vertLog = [<span class="keyword">self</span> vertexShaderLog];</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;Vertex shader compile log: %@&quot;</span>, vertLog);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>有了着色器程序，再来看下顶点着色器和片段着色器的代码：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 顶点着色器</span></span><br><span class="line"><span class="keyword">static</span> <span class="built_in">NSString</span> *XP_GLK_VSH = <span class="string">@&quot; \</span></span><br><span class="line"><span class="string">attribute vec4 position; \</span></span><br><span class="line"><span class="string">attribute vec4 inputTextureCoordinate; \</span></span><br><span class="line"><span class="string">varying vec2 textureCoordinate; \</span></span><br><span class="line"><span class="string">\</span></span><br><span class="line"><span class="string">void main() \</span></span><br><span class="line"><span class="string">&#123; \</span></span><br><span class="line"><span class="string">gl_Position = position; \</span></span><br><span class="line"><span class="string">textureCoordinate = inputTextureCoordinate.xy; \</span></span><br><span class="line"><span class="string">&#125; \</span></span><br><span class="line"><span class="string">&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 顶点着色器有两个 attribute 的属性，position 是从顶点缓冲区获取的顶点坐标</span></span><br><span class="line"><span class="comment">// inputTextureCoordinate 则是纹理坐标，这两个属性的类型是 vec4，是一个四维的坐标</span></span><br><span class="line"><span class="comment">// 而我们创建的顶点、纹理坐标是二维的，opengl 会使用默认自动转成 vec4 类型</span></span><br><span class="line"><span class="comment">// textureCoordinate 是顶点着色器传递给片段着色器的属性，片段着色器使用 textureCoordinate 计算纹理颜色</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ************************************************************************</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 片段着色器</span></span><br><span class="line"><span class="keyword">static</span> <span class="built_in">NSString</span> *XP_GLK_FSH = <span class="string">@&quot; \</span></span><br><span class="line"><span class="string">varying highp vec2 textureCoordinate; \</span></span><br><span class="line"><span class="string">uniform sampler2D inputImageTexture; \</span></span><br><span class="line"><span class="string">\</span></span><br><span class="line"><span class="string">void main() \</span></span><br><span class="line"><span class="string">&#123; \</span></span><br><span class="line"><span class="string">gl_FragColor = texture2D(inputImageTexture, textureCoordinate); \</span></span><br><span class="line"><span class="string">&#125; \</span></span><br><span class="line"><span class="string">&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// textureCoordinate 是从顶点着色器传过来的顶点坐标，inputImageTexture 是纹理采样器</span></span><br><span class="line"><span class="comment">// texture2D()方法计算纹理在该点的颜色值，输出给 gl_FragColor</span></span><br><span class="line"><span class="comment">// 纹理采样器需要在使用前先绑定到纹理单元，稍后代码会有提到</span></span><br></pre></td></tr></table></figure>
+<p>有了顶点数据和着色器程序，接下来看一下 XPGLKView 的初始化代码。</p>
+<h2 id="初始化-v2">初始化</h2>
+<p>初始化方法中设置一些变量的默认值，主要还是配置 OpenGL 环境：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="type">void</span>)commonInit &#123;</span><br><span class="line">  	<span class="comment">// 标志位用于控制后台停止渲染</span></span><br><span class="line">    _needStopDisplay = <span class="literal">NO</span>;</span><br><span class="line">    <span class="comment">// 填充模式</span></span><br><span class="line">    _fillMode = XPVideoFillModeAspectFill;</span><br><span class="line">  	<span class="comment">// 递归锁 用来控制 openGL 的 API </span></span><br><span class="line">    _renderLock = [[<span class="built_in">NSRecursiveLock</span> alloc] init];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// add observer</span></span><br><span class="line">    [<span class="keyword">self</span> addObservers];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// layer</span></span><br><span class="line">  	<span class="comment">// 首先是拿到 UIView 上的 CAEAGLLayer 图层做一些设置，opaque 属性设置为 YES 可以提升渲染效率</span></span><br><span class="line">  	<span class="comment">// contentsScale 比例因子设置为屏幕的比例因子，是为了适配 Retina 这类高分辨率的屏幕</span></span><br><span class="line">  	<span class="comment">// drawableProperties 设置的两个 Key &amp; Value，kEAGLDrawablePropertyRetainedBacking 设置为 NO 表示当前帧绘制后就清空其内容</span></span><br><span class="line">  	<span class="comment">// kEAGLDrawablePropertyColorFormat 设置为 kEAGLColorFormatRGBA8 设置 renderBuffer 按 32位存储</span></span><br><span class="line">    <span class="built_in">CAEAGLLayer</span> *layer = (<span class="built_in">CAEAGLLayer</span> *)<span class="keyword">self</span>.layer;</span><br><span class="line">    layer.opaque = <span class="literal">YES</span>;</span><br><span class="line">    layer.contentsScale = [[<span class="built_in">UIScreen</span> mainScreen] scale];</span><br><span class="line">    layer.drawableProperties = [<span class="built_in">NSDictionary</span> dictionaryWithObjectsAndKeys:[<span class="built_in">NSNumber</span> numberWithBool:<span class="literal">NO</span>], kEAGLDrawablePropertyRetainedBacking, kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, <span class="literal">nil</span>];</span><br><span class="line">        </span><br><span class="line">    <span class="comment">// EAGLContext</span></span><br><span class="line">  	<span class="comment">// 创建 OpenGL 上下文，如果不支持 OpenGLES 3.0 则使用 2.0 版本，创建好后将上下文绑定到当前线程。</span></span><br><span class="line">    <span class="keyword">if</span> (!_context) &#123;</span><br><span class="line">        _context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];</span><br><span class="line">        <span class="keyword">if</span> (!_context) &#123;</span><br><span class="line">            _context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!_context || ![EAGLContext setCurrentContext:_context]) &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;failed to setup EAGLContext&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// clear color - black</span></span><br><span class="line">  	<span class="comment">// 默认填充颜色 - 黑色</span></span><br><span class="line">    _backgroundColor = GLKVector4Make(<span class="number">0.0</span>f, <span class="number">0.0</span>f, <span class="number">0.0</span>f, <span class="number">1.0</span>f);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// texture cache</span></span><br><span class="line">  	<span class="comment">// 创建纹理数据缓冲区，CVOpenGLESTextureRef 和 CVOpenGLESTextureCacheRef 来自 CoreVideo 框架</span></span><br><span class="line">  	<span class="comment">// 此例中用于将相机回调的 Pixel Buffer 转换成 OpenGL 的纹理缓存</span></span><br><span class="line">    CVReturn ret = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, <span class="literal">NULL</span>, _context, <span class="literal">NULL</span>, &amp;_textureCache);</span><br><span class="line">    <span class="keyword">if</span> (ret != kCVReturnSuccess) &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;CVOpenGLESTextureCacheCreate: %d&quot;</span>, ret);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// program</span></span><br><span class="line">  	<span class="comment">// 创建着色器程序，编译链接顶点着色器和片段着色器，并给顶端着色器绑定两个属性，顶点坐标和纹理坐标</span></span><br><span class="line">    _program = [[XPGLKProgram alloc] initWithVertexShaderString:XP_GLK_VSH fragmentShaderString:XP_GLK_FSH];</span><br><span class="line">    [_program addAttribute:<span class="string">@&quot;position&quot;</span>];</span><br><span class="line">    [_program addAttribute:<span class="string">@&quot;inputTextureCoordinate&quot;</span>];</span><br><span class="line">    <span class="keyword">if</span> (![_program link]) &#123;</span><br><span class="line">        [_program showError];</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;Filter shader link failed&quot;</span>);</span><br><span class="line">        _program = <span class="literal">nil</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// create FBO</span></span><br><span class="line">  	<span class="comment">// 创建帧缓存</span></span><br><span class="line">    glGenFramebuffers(<span class="number">1</span>, &amp;_frameBuffer);</span><br><span class="line">    glBindFramebuffer(GL_FRAMEBUFFER, _frameBuffer);</span><br><span class="line">    </span><br><span class="line">  	<span class="comment">// 创建颜色渲染缓存</span></span><br><span class="line">    glGenRenderbuffers(<span class="number">1</span>, &amp;_renderBuffer);</span><br><span class="line">    glBindRenderbuffer(GL_RENDERBUFFER, _renderBuffer);</span><br><span class="line">    </span><br><span class="line">  	<span class="comment">// 借助 layer 给 renderBuffer 分配空间（像素点个数、每个像素点占多少位）</span></span><br><span class="line">    [_context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(<span class="built_in">CAEAGLLayer</span> *)<span class="keyword">self</span>.layer];</span><br><span class="line">    </span><br><span class="line">  	<span class="comment">// 获取初始化后的 renderBuffer 宽高</span></span><br><span class="line">    GLint backingWidth, backingHeight;</span><br><span class="line">    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &amp;backingWidth);</span><br><span class="line">    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &amp;backingHeight);</span><br><span class="line">    </span><br><span class="line">  	<span class="comment">// 如果是 0，直接销毁返回</span></span><br><span class="line">    <span class="keyword">if</span> (backingWidth == <span class="number">0</span> || backingHeight == <span class="number">0</span>) &#123;</span><br><span class="line">        [<span class="keyword">self</span> destroyFrameBuffer];</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">  	<span class="comment">// 记录下来，用于调整视口大小</span></span><br><span class="line">    _viewportSize.width = (<span class="built_in">CGFloat</span>)backingWidth;</span><br><span class="line">    _viewportSize.height = (<span class="built_in">CGFloat</span>)backingHeight;</span><br><span class="line">    </span><br><span class="line">  	<span class="comment">// 将 renderBuffer 绑定到帧缓存的颜色缓冲区</span></span><br><span class="line">    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, _renderBuffer);</span><br><span class="line">  	<span class="comment">// 检查帧缓存状态</span></span><br><span class="line">    GLuint framebufferStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);</span><br><span class="line">    <span class="keyword">if</span> (framebufferStatus != GL_FRAMEBUFFER_COMPLETE) &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;Fail setup GL framebuffer %d:%d&quot;</span>, backingWidth, backingHeight);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;Success setup GL framebuffer %d:%d&quot;</span>, backingWidth, backingHeight);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// create VBO</span></span><br><span class="line">  	<span class="comment">// 创建顶点数据缓存</span></span><br><span class="line">    glGenBuffers(<span class="number">1</span>, &amp;_vertexBuffer);</span><br><span class="line">    glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);</span><br><span class="line">    glBufferData(GL_ARRAY_BUFFER, <span class="keyword">sizeof</span>(_vertices), _vertices, GL_DYNAMIC_DRAW);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// attributes、uniforms</span></span><br><span class="line">  	<span class="comment">// 获取顶点着色器定义的属性的 location</span></span><br><span class="line">    _positionAttribute = [_program getAttributeLocation:<span class="string">@&quot;position&quot;</span>];</span><br><span class="line">    _textureCoordinateAttribute = [_program getAttributeLocation:<span class="string">@&quot;inputTextureCoordinate&quot;</span>];</span><br><span class="line">  </span><br><span class="line">  	<span class="comment">// 获取片段着色器定义的纹理采样器的 location</span></span><br><span class="line">    _inputTextureUniform = [_program getUniformLocation:<span class="string">@&quot;inputImageTexture&quot;</span>];</span><br><span class="line">    </span><br><span class="line">  	<span class="comment">// 打开顶点着色器属性</span></span><br><span class="line">    glEnableVertexAttribArray(_positionAttribute);</span><br><span class="line">    glEnableVertexAttribArray(_textureCoordinateAttribute);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先通过 layer 配置帧缓冲区的一些属性，随后初始化并绑定上下文，创建我们封装过的着色器程序，创建帧缓存、顶点缓存，最后将顶点着色器属性打开。</p>
+<h2 id="渲染">渲染</h2>
+<p>初始化之后，就可以准备渲染画面了，渲染方法触发的时机是 AVCaptureSession 的相机数据帧回调，我们在回调里切换渲染线程，调用 displayPixelBuffer 方法：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">pragma</span> mark - AVCaptureVideoDataOutputSampleBufferDelegate</span></span><br><span class="line">- (<span class="type">void</span>)captureOutput:(<span class="built_in">AVCaptureOutput</span> *)captureOutput didOutputSampleBuffer:(<span class="built_in">CMSampleBufferRef</span>)sampleBuffer fromConnection:(<span class="built_in">AVCaptureConnection</span> *)connection &#123;</span><br><span class="line">    CVPixelBufferRef originPixelBuffer = <span class="built_in">CMSampleBufferGetImageBuffer</span>(sampleBuffer);</span><br><span class="line">    XPDispatchSync(<span class="keyword">self</span>.renderQueue, cameraSourceRenderQueueKey, ^&#123;</span><br><span class="line">        [<span class="keyword">self</span>.previewView displayPixelBuffer:originPixelBuffer];</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>渲染的方法实现：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="type">void</span>)displayPixelBuffer:(CVPixelBufferRef)pixelBuffer &#123;</span><br><span class="line">  	<span class="comment">// 避免在当前上下文使用多线程调用 opengl 接口  这里用了递归锁</span></span><br><span class="line">    [_renderLock lock];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// check needStopDisplay</span></span><br><span class="line">  	<span class="comment">// 后台不渲染</span></span><br><span class="line">    <span class="keyword">if</span> (_needStopDisplay) &#123;</span><br><span class="line">        [_renderLock unlock];</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// checkout eagl context</span></span><br><span class="line">  	<span class="comment">// 校验上下文</span></span><br><span class="line">    <span class="keyword">if</span> ([EAGLContext currentContext] != _context) &#123;</span><br><span class="line">        [EAGLContext setCurrentContext:_context];</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// use program</span></span><br><span class="line">  	<span class="comment">// 使用着色器程序</span></span><br><span class="line">    [_program use];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// bind frame buffer</span></span><br><span class="line">  	<span class="comment">// 绑定帧缓冲  根据颜色渲染缓冲的 buffer 大小更新视口</span></span><br><span class="line">    glBindFramebuffer(GL_FRAMEBUFFER, _frameBuffer);</span><br><span class="line">    glViewport(<span class="number">0</span>, <span class="number">0</span>, (GLint)_viewportSize.width, (GLint)_viewportSize.height);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// clean cache</span></span><br><span class="line">  	<span class="comment">// 刷新深度缓冲、颜色缓冲</span></span><br><span class="line">    glClearColor(_backgroundColor.r, _backgroundColor.g, _backgroundColor.b, _backgroundColor.a);</span><br><span class="line">    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// clean texture and texture cache</span></span><br><span class="line">  	<span class="comment">// 清理纹理缓冲</span></span><br><span class="line">    <span class="keyword">if</span> (_texture) &#123;</span><br><span class="line">        <span class="built_in">CFRelease</span>(_texture);</span><br><span class="line">        _texture = <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    CVOpenGLESTextureCacheFlush(_textureCache, <span class="number">0</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// create a CVOpenGLESTexture from the CVImageBuffer</span></span><br><span class="line">  	<span class="comment">// pixel buffer 转换成纹理数据</span></span><br><span class="line">    size_t frameWidth = CVPixelBufferGetWidth(pixelBuffer);</span><br><span class="line">    size_t frameHeight = CVPixelBufferGetHeight(pixelBuffer);</span><br><span class="line">    CVPixelBufferLockBaseAddress(pixelBuffer, <span class="number">0</span>);</span><br><span class="line">  	<span class="comment">// 相当于 glTexImage2D()</span></span><br><span class="line">    CVReturn ret = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,</span><br><span class="line">                                                                _textureCache,</span><br><span class="line">                                                                pixelBuffer,</span><br><span class="line">                                                                <span class="literal">NULL</span>,</span><br><span class="line">                                                                GL_TEXTURE_2D,</span><br><span class="line">                                                                GL_RGBA,  <span class="comment">// 颜色分量数量</span></span><br><span class="line">                                                                (GLsizei)frameWidth,</span><br><span class="line">                                                                (GLsizei)frameHeight,</span><br><span class="line">                                                                GL_BGRA,  <span class="comment">// 像素数据格式</span></span><br><span class="line">                                                                GL_UNSIGNED_BYTE,</span><br><span class="line">                                                                <span class="number">0</span>,</span><br><span class="line">                                                                &amp;_texture);</span><br><span class="line">    <span class="keyword">if</span> (!_texture || ret != kCVReturnSuccess) &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;error: Mapping texture:%d&quot;</span>, ret);</span><br><span class="line">    &#125;</span><br><span class="line">    CVPixelBufferUnlockBaseAddress(pixelBuffer, <span class="number">0</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// handle texture</span></span><br><span class="line">  	<span class="comment">// 激活纹理单元（一般 GL_TEXTURE0 这个纹理单元默认会被激活，不需要手动调用）</span></span><br><span class="line">    glActiveTexture(GL_TEXTURE0);</span><br><span class="line">  	<span class="comment">// 将刚生成的纹理到纹理缓冲区</span></span><br><span class="line">    glBindTexture(CVOpenGLESTextureGetTarget(_texture), CVOpenGLESTextureGetName(_texture));</span><br><span class="line">  	<span class="comment">// 配置纹理参数</span></span><br><span class="line">    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);</span><br><span class="line">    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);</span><br><span class="line">    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);</span><br><span class="line">    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);</span><br><span class="line">  	<span class="comment">// 将纹理单元 0 绑定到片段着色器的 inputImageTexture 纹理采样器</span></span><br><span class="line">    glUniform1i(_inputTextureUniform, <span class="number">0</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// update vertices</span></span><br><span class="line">  	<span class="comment">// 通过比对当前帧的宽高和前一帧的宽高，决定是否需要更新顶点坐标</span></span><br><span class="line">    [<span class="keyword">self</span> updateInputImageSize:<span class="built_in">CGSizeMake</span>(frameWidth, frameHeight)];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// bind vertex buffer and handle vertex shader attribute pointer</span></span><br><span class="line">  	<span class="comment">// 绑定顶点缓冲</span></span><br><span class="line">    glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);</span><br><span class="line">  	<span class="comment">// 告知顶点着色器如何解析顶点数据，即先解析两个 float 给 position 属性，再解析两个 float 给inputTextureCoordinate 属性。</span></span><br><span class="line">    glVertexAttribPointer(_positionAttribute, <span class="number">2</span>, GL_FLOAT, GL_FALSE, <span class="keyword">sizeof</span>(VerticesCoordinates), (<span class="type">void</span> *)offsetof(VerticesCoordinates, positionCoordinates));</span><br><span class="line">    glVertexAttribPointer(_textureCoordinateAttribute, <span class="number">2</span>, GL_FLOAT, GL_FALSE, <span class="keyword">sizeof</span>(VerticesCoordinates), (<span class="type">void</span> *)offsetof(VerticesCoordinates, textureCoordinates));</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// draw two triangle with 4 vertices</span></span><br><span class="line">  	<span class="comment">// 根据给的 4 个顶点绘制两个三角形</span></span><br><span class="line">    glDrawArrays(GL_TRIANGLE_STRIP, <span class="number">0</span>, <span class="number">4</span>);</span><br><span class="line">    </span><br><span class="line">  	<span class="comment">// 绑定 renderBuffer 并提交给 Core Animation</span></span><br><span class="line">    glBindRenderbuffer(GL_RENDERBUFFER, _renderBuffer);</span><br><span class="line">    [_context presentRenderbuffer:GL_RENDERBUFFER];</span><br><span class="line">    </span><br><span class="line">    [_renderLock unlock];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="适配填充模式">适配填充模式</h2>
+<p>按目前的顶点和纹理坐标，渲染内容默认会铺满整个图层，如果相机回调的 Pixel Buffer 宽高与图层宽高不一致，会产生拉伸的现象，因此需要适配不同的填充模式，我们定义了三种填充模式：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="built_in">NS_ENUM</span>(<span class="built_in">NSUInteger</span>, XPVideoFillMode) &#123;</span><br><span class="line">    XPVideoFillModeStretch,   <span class="comment">// 拉伸以填满屏幕</span></span><br><span class="line">    XPVideoFillModeAspectFit, <span class="comment">// 保持宽高比，长边铺满屏幕，短边填充黑边</span></span><br><span class="line">    XPVideoFillModeAspectFill,<span class="comment">// 保持宽高比，短边铺满屏幕，长边裁剪</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>每种填充模式的顶点坐标计算方式：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="type">void</span>)recalculateVerticesCoordinates &#123;</span><br><span class="line">  	<span class="comment">// 当前图层尺寸</span></span><br><span class="line">    <span class="built_in">CGSize</span> currentViewSize = _currentBoundsSize;</span><br><span class="line">    <span class="built_in">CGRect</span> currentViewBounds = <span class="built_in">CGRectMake</span>(<span class="number">0</span>, <span class="number">0</span>, currentViewSize.width, currentViewSize.height);</span><br><span class="line">  	<span class="comment">// 计算视频帧以 AspectRatio 方式填充在当前图层时，视频帧的 frame</span></span><br><span class="line">    <span class="built_in">CGRect</span> insetRect = <span class="built_in">AVMakeRectWithAspectRatioInsideRect</span>(_inputImageSize, currentViewBounds);</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">CGFloat</span> heightScaling, widthScaling;</span><br><span class="line">    <span class="keyword">switch</span> (_fillMode) &#123;</span><br><span class="line">        <span class="keyword">case</span> XPVideoFillModeStretch:</span><br><span class="line">            widthScaling = <span class="number">1.0</span>f;</span><br><span class="line">            heightScaling = <span class="number">1.0</span>f;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">            </span><br><span class="line">        <span class="keyword">case</span> XPVideoFillModeAspectFit:</span><br><span class="line">            widthScaling = insetRect.size.width / currentViewSize.width;</span><br><span class="line">            heightScaling = insetRect.size.height / currentViewSize.height;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">            </span><br><span class="line">        <span class="keyword">case</span> XPVideoFillModeAspectFill: &#123;</span><br><span class="line">            widthScaling = currentViewSize.height / insetRect.size.height;</span><br><span class="line">            heightScaling = currentViewSize.width / insetRect.size.width;</span><br><span class="line">        &#125;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">            </span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">  	<span class="comment">// 顶点坐标</span></span><br><span class="line">    _vertices[<span class="number">0</span>].positionCoordinates = GLKVector2Make(-widthScaling, -heightScaling);</span><br><span class="line">    _vertices[<span class="number">1</span>].positionCoordinates = GLKVector2Make(widthScaling, -heightScaling);</span><br><span class="line">    _vertices[<span class="number">2</span>].positionCoordinates = GLKVector2Make(-widthScaling, heightScaling);</span><br><span class="line">    _vertices[<span class="number">3</span>].positionCoordinates = GLKVector2Make(widthScaling, heightScaling);</span><br><span class="line"></span><br><span class="line">  	<span class="comment">// 纹理坐标</span></span><br><span class="line">    _vertices[<span class="number">0</span>].textureCoordinates = GLKVector2Make(<span class="number">0.0</span>f, <span class="number">1.0</span>f);</span><br><span class="line">    _vertices[<span class="number">1</span>].textureCoordinates = GLKVector2Make(<span class="number">1.0</span>f, <span class="number">1.0</span>f);</span><br><span class="line">    _vertices[<span class="number">2</span>].textureCoordinates = GLKVector2Make(<span class="number">0.0</span>f, <span class="number">0.0</span>f);</span><br><span class="line">    _vertices[<span class="number">3</span>].textureCoordinates = GLKVector2Make(<span class="number">1.0</span>f, <span class="number">0.0</span>f);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在渲染过程中，将顶点数据更新同步到 GPU：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">glBufferSubData(GL_ARRAY_BUFFER, <span class="number">0</span>, <span class="keyword">sizeof</span>(_vertices), _vertices);</span><br></pre></td></tr></table></figure>
+<h1>后记</h1>
+<p>相机画面的自定义渲染没有用到 OpenGL 的高级功能，主要是对 OpenGL 对象、纹理、管线概念的理解，和 Core Animation、Core Video 的交互。下面贴一些文档可以用来参考：</p>
+<blockquote>
+<p>1.OpenGL 中文手册 <a target="_blank" rel="noopener" href="https://learnopengl-cn.github.io/">https://learnopengl-cn.github.io/</a></p>
+<p>2.iOS 核心动画高级技巧 <a target="_blank" rel="noopener" href="https://zsisme.gitbooks.io/ios-/content/index.html">https://zsisme.gitbooks.io/ios-/content/index.html</a></p>
+<p>3.OpenGLES 苹果官网文档 <a target="_blank" rel="noopener" href="https://developer.apple.com/library/archive/documentation/3DDrawing/Conceptual/OpenGLES_ProgrammingGuide/Introduction/Introduction.html#//apple_ref/doc/uid/TP40008793-CH1-SW1">https://developer.apple.com/library/archive/documentation/3DDrawing/Conceptual/OpenGLES_ProgrammingGuide/Introduction/Introduction.html#//apple_ref/doc/uid/TP40008793-CH1-SW1</a></p>
+<p>4.《OpenGL ES应用开发实践 指南 iOS卷》</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/04/07/iOS-%E4%BD%BF%E7%94%A8-AVFoundation-%E9%87%87%E9%9B%86%E7%9B%B8%E6%9C%BA%E7%94%BB%E9%9D%A2/" rel="prev" title="iOS 使用 AVFoundation 采集相机画面">
+                  <i class="fa fa-angle-left"></i> iOS 使用 AVFoundation 采集相机画面
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/04/19/iOS-%E4%BD%BF%E7%94%A8-OpenGLES-%E5%AE%9E%E7%8E%B0%E7%9B%B8%E6%9C%BA%E7%94%BB%E9%9D%A2%E9%95%9C%E5%83%8F/" rel="next" title="iOS 使用 OpenGLES 实现相机画面镜像">
+                  iOS 使用 OpenGLES 实现相机画面镜像 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">XpSun</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">216k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:17</span>
+  </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"XiaopingSun","repo":"XiaopingSun.github.io","client_id":"f9864fbe3f26bf3e3fda","client_secret":"340b5fef89b3fed001756139cf60d36fd4a8a599","admin_user":"XiaopingSun","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","body":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"ead9df9986d6649ec5bb68bbadbfcbdf"}</script>
+<script src="/js/third-party/comments/gitalk.js" defer></script>
+
+</body>
+</html>
