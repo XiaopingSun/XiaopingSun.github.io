@@ -2,7 +2,8 @@
 title: SRWebSocket源码分析记录
 date: 2022-04-03 11:21:07
 index_img: https://hexo.qiniu.pursue.top/websocket.png
-categories: 网络协议
+categories:
+  - [互联网技术笔记, iOS 音视频开发]
 ---
 
 # 前言

@@ -3,7 +3,8 @@ title: FLV 协议封装
 date: 2022-05-10 14:37:48
 index_img: https://hexo.qiniu.pursue.top/flv.png
 banner_img:
-categories: 音视频开发
+categories:
+  - [互联网技术笔记, iOS 音视频开发]
 sticky:
 ---
 

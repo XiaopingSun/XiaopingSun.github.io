@@ -3,7 +3,8 @@ title: iOS 使用 AudioUnit 采集麦克风音频数据
 date: 2022-04-29 16:11:44
 index_img: https://hexo.qiniu.pursue.top/coreaudio.png
 banner_img: 
-categories: 音视频开发
+categories:
+  - [互联网技术笔记, iOS 音视频开发]
 sticky:
 ---
 

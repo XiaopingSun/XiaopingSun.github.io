@@ -3,7 +3,8 @@ title: cmake 基础使用
 date: 2022-07-09 23:58:46
 index_img: https://hexo.qiniu.pursue.top/cmake.jpeg
 banner_img:
-categories: 编译
+categories:
+  - [互联网技术笔记, 工具]
 sticky:
 ---
 

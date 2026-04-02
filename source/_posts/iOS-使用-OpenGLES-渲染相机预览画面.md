@@ -3,7 +3,8 @@ title: iOS 使用 OpenGLES 渲染相机预览画面
 date: 2022-04-17 14:37:32
 index_img: https://hexo.qiniu.pursue.top/opengl.jpeg
 banner_img:
-categories: 音视频开发
+categories:
+  - [互联网技术笔记, iOS 音视频开发]
 sticky:
 ---
 

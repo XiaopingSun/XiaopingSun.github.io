@@ -3,7 +3,7 @@ title: Hexo Markdown常用语法总结
 date: 2021-09-15 18:04:07
 index_img: https://hexo.qiniu.pursue.top/1200px-Markdown-mark.svg.png
 categories:
-    - 工具
+  - [互联网技术笔记, 工具]
 sticky:
 ---
 

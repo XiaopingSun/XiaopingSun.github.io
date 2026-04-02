@@ -3,7 +3,8 @@ title: iOS 使用 AVFoundation 采集相机画面
 date: 2022-04-07 10:27:02
 index_img: https://hexo.qiniu.pursue.top/xcode_banner.png
 banner_img:
-categories: 音视频开发
+categories:
+  - [互联网技术笔记, iOS 音视频开发]
 sticky:
 ---
 

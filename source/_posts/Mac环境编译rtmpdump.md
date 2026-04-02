@@ -3,7 +3,7 @@ title: Mac环境编译rtmpdump
 date: 2021-09-16 22:06:56
 index_img: https://hexo.qiniu.pursue.top/rtmpdump.png
 categories: 
-  - 音视频开发
+  - [互联网技术笔记, iOS 音视频开发]
 ---
 
 # 前言

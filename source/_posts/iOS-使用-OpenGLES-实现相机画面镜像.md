@@ -3,7 +3,8 @@ title: iOS 使用 OpenGLES 实现相机画面镜像
 date: 2022-04-19 12:02:00
 index_img: https://hexo.qiniu.pursue.top/opengl.jpeg
 banner_img:
-categories: 音视频开发
+categories:
+  - [互联网技术笔记, iOS 音视频开发]
 sticky:
 ---
 

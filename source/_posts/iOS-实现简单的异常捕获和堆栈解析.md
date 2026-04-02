@@ -3,7 +3,8 @@ title: iOS 实现简单的异常捕获和堆栈解析
 date: 2022-08-07 13:09:40
 index_img: https://hexo.qiniu.pursue.top/xcode_banner.png
 banner_img:
-categories: iOS
+categories:
+  - [互联网技术笔记, iOS 音视频开发]
 sticky:
 ---
 

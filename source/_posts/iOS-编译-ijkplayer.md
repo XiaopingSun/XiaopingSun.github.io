@@ -3,7 +3,8 @@ title: iOS 编译 ijkplayer
 date: 2022-05-13 09:14:38
 index_img: https://hexo.qiniu.pursue.top/ijkplayer.png
 banner_img:
-categories: 音视频开发
+categories:
+  - [互联网技术笔记, iOS 音视频开发]
 sticky:
 ---
 

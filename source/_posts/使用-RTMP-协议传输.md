@@ -3,7 +3,8 @@ title: 使用 RTMP 协议传输
 date: 2022-05-12 11:10:11
 index_img: https://hexo.qiniu.pursue.top/rtmp.png
 banner_img:
-categories: 音视频开发
+categories:
+  - [互联网技术笔记, iOS 音视频开发]
 sticky:
 ---
 

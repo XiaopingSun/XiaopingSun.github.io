@@ -3,7 +3,8 @@ title: iOS 使用 AudioToolBox 编码 MPEG4-AAC
 date: 2022-05-04 14:29:18
 index_img: https://hexo.qiniu.pursue.top/coreaudio.png
 banner_img:
-categories: 音视频开发
+categories:
+  - [互联网技术笔记, iOS 音视频开发]
 sticky:
 ---
 

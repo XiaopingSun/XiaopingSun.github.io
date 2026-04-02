@@ -392,9 +392,9 @@ codeblock:
 back2top:
   enable: true
   # Back to top in sidebar.
-  sidebar: false
+  sidebar: true
   # Scroll percent label in b2t button.
-  scrollpercent: false
+  scrollpercent: true
 
 # Reading progress bar
 reading_progress:
@@ -722,22 +722,20 @@ livere_uid: # <your_uid>
 # For more information: https://gitalk.github.io
 gitalk:
   enable: true
-  github_id: XiaopingSun
-  repo: XiaopingSun.github.io
-  client_id: f9864fbe3f26bf3e3fda
-  client_secret: 340b5fef89b3fed001756139cf60d36fd4a8a599
-  admin_user: XiaopingSun
-  distraction_free_mode: true # Facebook-like distraction free mode
-  # When the official proxy is not available, you can change it to your own proxy address
-  proxy: https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token # This is official proxy address
-  # Gitalk's display language depends on user's browser or system environment
-  # If you want everyone visiting your site to see a uniform language, you can set a force language value
-  # Available values: en | es-ES | fr | ru | zh-CN | zh-TW
+  client_id: Ov23libov3fTSGDVNbiG
+  client_secret: c17eab918ac43c9963fef736f63458f63f793513
+  admin_user: 'XiaopingSun'
+  repo: 'XiaopingSun.github.io'
+  github_id: 'XiaopingSun'
   language: zh-CN
-  # If you want to customize the content of the initialized Issue, please edit the body parameter.
-  # For example:
-  # body: Comments for post ${title}, see ${url}
-  body:
+  pager_direction: last
+  distraction_free_mode: false
+  id: location.pathname
+  # 默认 proxy 可能会失效，解决方法请见下方链接
+  # The default proxy may be invalid, refer to the links for solutions
+  # https://github.com/gitalk/gitalk/issues/429
+  # https://github.com/Zibri/cloudflare-cors-anywhere
+  proxy: https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token
 
 # Utterances
 # For more information: https://utteranc.es

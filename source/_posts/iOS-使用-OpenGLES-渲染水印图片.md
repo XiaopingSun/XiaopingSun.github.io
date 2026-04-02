@@ -3,7 +3,8 @@ title: iOS 使用 OpenGLES 渲染水印图片
 date: 2022-04-19 16:33:16
 index_img: https://hexo.qiniu.pursue.top/opengl.jpeg
 banner_img: 
-categories: 音视频开发
+categories:
+  - [互联网技术笔记, iOS 音视频开发]
 sticky:
 ---
 
