@@ -20,32 +20,25 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"blog.pursue.top","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-2}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
 
-    <meta name="description" content="前言 最近想看看 ijkplayer 的源码，学习下 ffmpeg，这篇先记录下 iOS 端编译支持 SSL 的 ijkplayer framework。 编译过程 首先将 ijkplayer 下载到本地： 1git clone git@github.com:bilibili&#x2F;ijkplayer.git 下载好的仓库在 k0.8.8的 Tag 上切分支： 1git checkout -B deve">
-<meta property="og:type" content="article">
-<meta property="og:title" content="iOS 编译 ijkplayer">
-<meta property="og:url" content="https://blog.pursue.top/2022/05/13/iOS-%E7%BC%96%E8%AF%91-ijkplayer/index.html">
+    <meta name="description" content="世上只有一种英雄主义，就是认清了生活的真相后还依然热爱它。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="XpSun&#39;s Blog">
+<meta property="og:url" content="https://blog.pursue.top/page/19/index.html">
 <meta property="og:site_name" content="XpSun&#39;s Blog">
-<meta property="og:description" content="前言 最近想看看 ijkplayer 的源码，学习下 ffmpeg，这篇先记录下 iOS 端编译支持 SSL 的 ijkplayer framework。 编译过程 首先将 ijkplayer 下载到本地： 1git clone git@github.com:bilibili&#x2F;ijkplayer.git 下载好的仓库在 k0.8.8的 Tag 上切分支： 1git checkout -B deve">
+<meta property="og:description" content="世上只有一种英雄主义，就是认清了生活的真相后还依然热爱它。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://hexo.qiniu.pursue.top/ijk.png">
-<meta property="og:image" content="https://hexo.qiniu.pursue.top/ijkplayerframework.png">
-<meta property="og:image" content="https://hexo.qiniu.pursue.top/addssl.png">
-<meta property="og:image" content="https://hexo.qiniu.pursue.top/armv7.png">
-<meta property="article:published_time" content="2022-05-13T01:14:38.000Z">
-<meta property="article:modified_time" content="2026-04-02T06:03:34.178Z">
 <meta property="article:author" content="XpSun">
 <meta property="article:tag" content="互联网 音乐 人生感悟">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://hexo.qiniu.pursue.top/ijk.png">
 
 
-<link rel="canonical" href="https://blog.pursue.top/2022/05/13/iOS-%E7%BC%96%E8%AF%91-ijkplayer/">
+<link rel="canonical" href="https://blog.pursue.top/page/19/">
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://blog.pursue.top/2022/05/13/iOS-%E7%BC%96%E8%AF%91-ijkplayer/","path":"2022/05/13/iOS-编译-ijkplayer/","title":"iOS 编译 ijkplayer"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":true,"isPost":false,"lang":"zh-CN","comments":"","permalink":"","path":"page/19/index.html","title":""}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>iOS 编译 ijkplayer | XpSun's Blog</title>
+<title>XpSun's Blog</title>
   
 
 
@@ -101,7 +94,7 @@
 
     <a href="/" class="brand" rel="start">
       <i class="logo-line"></i>
-      <p class="site-title">XpSun's Blog</p>
+      <h1 class="site-title">XpSun's Blog</h1>
       <i class="logo-line"></i>
     </a>
       <p class="site-subtitle" itemprop="description">来不及讲，故事多跌宕。</p>
@@ -155,7 +148,7 @@
   
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+    <div class="sidebar-inner sidebar-overview-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -168,7 +161,6 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">编译过程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">一个坑</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">4.</span> <span class="nav-text">后记</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -384,18 +376,17 @@
 
     </div>
 
-    <div class="main-inner post posts-expand">
+    <div class="main-inner index posts-expand">
 
-
-  
+    
 
 
 <div class="post-block">
   
   
 
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://blog.pursue.top/2022/05/13/iOS-%E7%BC%96%E8%AF%91-ijkplayer/">
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://blog.pursue.top/2021/09/15/Markdown%E5%B8%B8%E7%94%A8%E8%AF%AD%E6%B3%95/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/wechat_avatar.jpg">
@@ -408,13 +399,13 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="iOS 编译 ijkplayer | XpSun's Blog">
+      <meta itemprop="name" content=" | XpSun's Blog">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          iOS 编译 ijkplayer
-        </h1>
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/09/15/Markdown%E5%B8%B8%E7%94%A8%E8%AF%AD%E6%B3%95/" class="post-title-link" itemprop="url">Hexo Markdown常用语法总结</a>
+        </h2>
 
         <div class="post-meta-container">
           <div class="post-meta">
@@ -424,14 +415,14 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2022-05-13 09:14:38" itemprop="dateCreated datePublished" datetime="2022-05-13T09:14:38+08:00">2022-05-13</time>
+      <time title="创建时间：2021-09-15 18:04:07" itemprop="dateCreated datePublished" datetime="2021-09-15T18:04:07+08:00">2021-09-15</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-02 14:03:34" itemprop="dateModified" datetime="2026-04-02T14:03:34+08:00">2026-04-02</time>
+      <time title="修改时间：2026-04-02 14:04:06" itemprop="dateModified" datetime="2026-04-02T14:04:06+08:00">2026-04-02</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -443,7 +434,7 @@
         </span>
           ，
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E4%BA%92%E8%81%94%E7%BD%91%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/iOS-%E9%9F%B3%E8%A7%86%E9%A2%91%E5%BC%80%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">iOS 音视频开发</span></a>
+          <a href="/categories/%E4%BA%92%E8%81%94%E7%BD%91%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/%E5%B7%A5%E5%85%B7/" itemprop="url" rel="index"><span itemprop="name">工具</span></a>
         </span>
     </span>
 
@@ -454,14 +445,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>1.6k</span>
+      <span>2.8k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>1 分钟</span>
+      <span>3 分钟</span>
     </span>
 </div>
 
@@ -471,40 +462,311 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><h1>前言</h1>
-<p>最近想看看 ijkplayer 的源码，学习下 ffmpeg，这篇先记录下 iOS 端编译支持 SSL 的 ijkplayer framework。</p>
-<h1>编译过程</h1>
-<p>首先将 ijkplayer 下载到本地：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone git@github.com:bilibili/ijkplayer.git</span><br></pre></td></tr></table></figure>
-<p>下载好的仓库在 k0.8.8的 Tag 上切分支：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git checkout -B develop k0.8.8</span><br></pre></td></tr></table></figure>
-<p>进入仓库目录，我们编译用到的相关脚本是截图中红框部分：</p>
-<p><img src="https://hexo.qiniu.pursue.top/ijk.png" alt="ijkplayer 文件目录"></p>
-<div class="note info"><p><strong><a target="_blank" rel="noopener" href="http://init-ios.sh">init-ios.sh</a></strong>: 将 gas-preprocessor 和 ffmpeg 下载到 extra/ 文件夹下，并将 ffmpeg 按具体架构 git clone --reference 到 ios/ 文件夹下用于编译不同的架构。</p>
-<p><strong><a target="_blank" rel="noopener" href="http://init-ios-ssl.sh">init-ios-ssl.sh</a></strong>: 将 openssl 源码下载到 extra/ 文件夹下，并将其按架构 git clone --reference 到 ios/ 文件夹下用于编译不同的架构。</p>
-<p><strong><a target="_blank" rel="noopener" href="http://compile-ffmpeg.sh">compile-ffmpeg.sh</a></strong>: 脚本调用 do-compile-ffmpeg 编译不同架构的 ffmpeg，编译后 lipo create 生成 universal 版本和头文件。</p>
-<p><strong><a target="_blank" rel="noopener" href="http://compile-openssl.sh">compile-openssl.sh</a></strong>: 脚本调用 do-compile-openssl 编译不同架构的 openssl，编译后 lipo create 生成 universal 版本和头文件。</p>
-<p><strong>do-compile-ffmpeg</strong>: 配置编译参数，按架构编译 ffmpeg。</p>
-<p><strong>do-compile-openssl</strong>: 配置编译参数，按架构编译 openssl。</p>
+    <div class="post-body" itemprop="articleBody">
+          <h1>基础语法</h1>
+<h2 id="字体">字体</h2>
+<h3 id="标题">标题</h3>
+<ul>
+<li>使用底线的语法</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">我是一级标题</span><br><span class="line">=========</span><br></pre></td></tr></table></figure>
+<p>或</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">我是二级标题</span><br><span class="line">---------</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注：这种语法只支持两级标题</p>
+</blockquote>
+<ul>
+<li>使用#的语法（推荐）</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 我是一级标题</span><br><span class="line">## 我是二级标题</span><br><span class="line">### 我是三级标题</span><br><span class="line">#### 我是四级标题  </span><br><span class="line">##### 我是五级标题</span><br><span class="line">###### 我是六级标题</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注：这种语法只支持六级标题</p>
+</blockquote>
+<h3 id="粗体和斜体">粗体和斜体</h3>
+<ul>
+<li>粗体格式的语法如下</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">**加粗内容**（推荐）</span><br></pre></td></tr></table></figure>
+<p>或</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__加粗内容__</span><br></pre></td></tr></table></figure>
+<ul>
+<li>斜体格式的语法如下</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*斜体内容*（推荐）</span><br></pre></td></tr></table></figure>
+<p>或</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_斜体内容_</span><br></pre></td></tr></table></figure>
+<h2 id="段落与换行">段落与换行</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">片段1[空格][空格][回车]</span><br><span class="line">片段2</span><br></pre></td></tr></table></figure>
+<p>片段1<br>
+片段2</p>
+<h2 id="分割线">分割线</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">星号</span><br><span class="line">***</span><br><span class="line">* * *</span><br><span class="line">*********</span><br><span class="line">减号</span><br><span class="line">---</span><br><span class="line">- - -</span><br><span class="line">---------</span><br><span class="line">下划线</span><br><span class="line">___</span><br><span class="line">_ _ _</span><br><span class="line">_________</span><br></pre></td></tr></table></figure>
+<p>星号</p>
+<hr>
+<hr>
+<hr>
+<p>横杠</p>
+<hr>
+<hr>
+<hr>
+<p>下划线</p>
+<hr>
+<hr>
+<hr>
+<h2 id="删除线">删除线</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~~被删除的文字~~</span><br></pre></td></tr></table></figure>
+<p><s>被删除的文字</s></p>
+<h2 id="下划线">下划线</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;u&gt;下划线文字&lt;/u&gt;</span><br></pre></td></tr></table></figure>
+<p><u>下划线文字</u></p>
+<h2 id="转义">转义</h2>
+<ul>
+<li>语法如下</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\特殊符号</span><br></pre></td></tr></table></figure>
+<ul>
+<li>特殊符号如下</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">\   反斜线</span><br><span class="line">`   反引号</span><br><span class="line">*   星号</span><br><span class="line">_   下划线</span><br><span class="line">&#123;&#125;  花括号</span><br><span class="line">[]  方括号</span><br><span class="line">()  小括号</span><br><span class="line">#   井字号</span><br><span class="line">+   加号</span><br><span class="line">-   减号</span><br><span class="line">.   英文句点</span><br><span class="line">!   感叹号</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Example:</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\*\* 正常显示星号 \*\* </span><br></pre></td></tr></table></figure>
+<p>** 正常显示星号 **</p>
+<h2 id="表情符号">表情符号</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">:smile:</span><br><span class="line">:laughing:</span><br><span class="line">:clap:</span><br></pre></td></tr></table></figure>
+<p>😄<br>
+😆<br>
+👏</p>
+<p>其他表情符号参考<a target="_blank" rel="noopener" href="https://sunhwee.com/posts/a927e90e.html">Markdown Emoji表情语法速查表</a></p>
+<h2 id="列表">列表</h2>
+<h3 id="无序列表">无序列表</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">* 第一项</span><br><span class="line">* 第二项</span><br><span class="line">* 第三项</span><br><span class="line"></span><br><span class="line">+ 第一项</span><br><span class="line">+ 第二项</span><br><span class="line">+ 第三项</span><br><span class="line"></span><br><span class="line">- 第一项</span><br><span class="line">- 第二项</span><br><span class="line">- 第三项</span><br></pre></td></tr></table></figure>
+<ul>
+<li>第一项</li>
+<li>第二项</li>
+<li>第三项</li>
+</ul>
+<ul>
+<li>第一项</li>
+<li>第二项</li>
+<li>第三项</li>
+</ul>
+<ul>
+<li>第一项</li>
+<li>第二项</li>
+<li>第三项</li>
+</ul>
+<h3 id="有序列表">有序列表</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. 第一项</span><br><span class="line">2. 第二项</span><br><span class="line">3. 第三项</span><br></pre></td></tr></table></figure>
+<ol>
+<li>第一项</li>
+<li>第二项</li>
+<li>第三项</li>
+</ol>
+<h3 id="嵌套列表">嵌套列表</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">- 第一项</span><br><span class="line">    1. 第一子项</span><br><span class="line">    2. 第二子项</span><br><span class="line">    3. 第三子项</span><br><span class="line">- 第二项</span><br><span class="line">- 第三项</span><br></pre></td></tr></table></figure>
+<ul>
+<li>第一项
+<ol>
+<li>第一子项</li>
+<li>第二子项</li>
+<li>第三子项</li>
+</ol>
+</li>
+<li>第二项</li>
+<li>第三项</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1. 第一项</span><br><span class="line">    - 第一子项</span><br><span class="line">    - 第二子项</span><br><span class="line">    - 第三子项</span><br><span class="line">2. 第二项</span><br><span class="line">3. 第三项</span><br></pre></td></tr></table></figure>
+<ol>
+<li>第一项
+<ul>
+<li>第一子项</li>
+<li>第二子项</li>
+<li>第三子项</li>
+</ul>
+</li>
+<li>第二项</li>
+<li>第三项</li>
+</ol>
+<h2 id="链接">链接</h2>
+<h3 id="文字链接">文字链接</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在日常工作中我们经常使用的网址有[Google](https://www.google.com/)、[Github](https://github.com/)和[Stack Overflow]（https://stackoverflow.com/）</span><br></pre></td></tr></table></figure>
+<p>在日常工作中我们经常使用的网址有<a target="_blank" rel="noopener" href="https://www.google.com/">Google</a>、<a target="_blank" rel="noopener" href="https://github.com/">Github</a>和<a target="_blank" rel="noopener" href="https://stackoverflow.com/">Stack Overflow</a></p>
+<h3 id="网址链接">网址链接</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">博客地址&lt;https://blog.pursue.top/&gt;</span><br></pre></td></tr></table></figure>
+<p>博客地址<a href="https://blog.pursue.top/">https://blog.pursue.top/</a></p>
+<blockquote>
+<p>注: 扩展语法GFM中&lt;&gt;可省略</p>
+</blockquote>
+<h2 id="图片">图片</h2>
+<h3 id="图片链接">图片链接</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">![个人头像](https://qcdn-z1.qiniu.pursue.top/540%E9%98%BF%E6%96%B9.png)  </span><br></pre></td></tr></table></figure>
+<p><img src="https://qcdn-z1.qiniu.pursue.top/540%E9%98%BF%E6%96%B9.png" alt="个人头像"></p>
+<h3 id="图片标签">图片标签</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;img src=&quot;https://qcdn-z1.qiniu.pursue.top/540%E9%98%BF%E6%96%B9.png&quot; width=&quot;50%&quot;&gt;  </span><br></pre></td></tr></table></figure>
+<img src="https://qcdn-z1.qiniu.pursue.top/540%E9%98%BF%E6%96%B9.png" width="50%">  
+<h2 id="支持的HTML元素">支持的HTML元素</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">使用 &lt;kbd&gt;Ctrl&lt;/kbd&gt;+&lt;kbd&gt;Alt&lt;/kbd&gt;+&lt;kbd&gt;Del&lt;/kbd&gt; 重启电脑 </span><br></pre></td></tr></table></figure>
+<p>使用 <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Del</kbd> 重启电脑</p>
+<h2 id="引用与区块">引用与区块</h2>
+<h3 id="引用">引用</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; 这是一个引用</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>这是一个引用</p>
+</blockquote>
+<h3 id="区块">区块</h3>
+<ul>
+<li>区块嵌套</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt; 第一层</span><br><span class="line">&gt;&gt; 第二层</span><br><span class="line">&gt;&gt;&gt; 第三层</span><br><span class="line">&gt;&gt;&gt;&gt; 第四层</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>第一层</p>
+<blockquote>
+<p>第二层</p>
+<blockquote>
+<p>第三层</p>
+<blockquote>
+<p>第四层</p>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+<ul>
+<li>区块中使用列表</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; 1. 第一项</span><br><span class="line">&gt; 2. 第二项</span><br><span class="line">&gt; - 第一项</span><br><span class="line">&gt; - 第二项</span><br><span class="line">&gt; - 第三项</span><br></pre></td></tr></table></figure>
+<blockquote>
+<ol>
+<li>第一项</li>
+<li>第二项</li>
+</ol>
+<ul>
+<li>第一项</li>
+<li>第二项</li>
+<li>第三项</li>
+</ul>
+</blockquote>
+<ul>
+<li>列表中使用区块</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1. 第一项</span><br><span class="line">    &gt; 菜鸟教程</span><br><span class="line">    &gt; &gt; 学的不仅是技术</span><br><span class="line">    &gt; &gt;</span><br><span class="line">    &gt; &gt; &gt; 更是梦想</span><br><span class="line">2. 第二项</span><br></pre></td></tr></table></figure>
+<ol>
+<li>第一项
+<blockquote>
+<p>菜鸟教程</p>
+<blockquote>
+<p>学的不仅是技术</p>
+<blockquote>
+<p>更是梦想</p>
+</blockquote>
+</blockquote>
+</blockquote>
+</li>
+<li>第二项</li>
+</ol>
+<h2 id="fluid-主题便签">fluid 主题便签</h2>
+<p>在 markdown 中加入如下的代码来使用便签：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;% note success %&#125;</span><br><span class="line">文字 或者 &#x27;markdown&#x27; 均可</span><br><span class="line">&#123;% endnote %&#125;</span><br></pre></td></tr></table></figure>
+<p>或者使用 HTML 形式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;p class=&quot;note note-primary&quot;&gt;标签&lt;/p&gt;</span><br></pre></td></tr></table></figure>
+<p>可选便签：</p>
+<div class="note primary"><p>primary</p>
 </div>
-<p>如果不需要支持 ssl 按以下顺序执行脚本即可：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">./init-ios.sh</span><br><span class="line">cd ios/</span><br><span class="line">./compile-ffmpeg.sh</span><br></pre></td></tr></table></figure>
-<p>如果要支持 ssl，需要详细看下脚本内容，do-compile-ffmpeg 的 206 行有这样的代码：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">with openssl</span></span><br><span class="line">if [ -f &quot;$&#123;FFMPEG_DEP_OPENSSL_LIB&#125;/libssl.a&quot; ]; then</span><br><span class="line">    FFMPEG_CFG_FLAGS=&quot;$FFMPEG_CFG_FLAGS --enable-openssl&quot;</span><br><span class="line"></span><br><span class="line">    FFMPEG_CFLAGS=&quot;$FFMPEG_CFLAGS -I$&#123;FFMPEG_DEP_OPENSSL_INC&#125;&quot;</span><br><span class="line">    FFMPEG_DEP_LIBS=&quot;$FFMPEG_CFLAGS -L$&#123;FFMPEG_DEP_OPENSSL_LIB&#125; -lssl -lcrypto&quot;</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
-<p>do-compile-ffmpeg 脚本会先去当前架构下 openssl 的编译目录查看是否有编译好的 libssl.a 以此作为是否需要支持 ssl 的依据，所以在调用 <a target="_blank" rel="noopener" href="http://compile-ffmpeg.sh">compile-ffmpeg.sh</a> 脚本前需要先编译好 openssl，支持 ssl 的脚本执行顺序：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">./init-ios-openssl.sh</span><br><span class="line">./init-ios.sh</span><br><span class="line">cd ios/</span><br><span class="line">./compile-openssl.sh</span><br><span class="line">./compile-ffmpeg.sh</span><br></pre></td></tr></table></figure>
-<p>这样编译的 ffmpeg 会启用 ssl，编译完成后，打开 ijkplayer 的 demo 可以看到 ijkplayer 有两个静态库的 target，IJKMediaFramework 和 IJKMediaFrameworkWithSSL：</p>
-<p><img src="https://hexo.qiniu.pursue.top/ijkplayerframework.png" alt="ijkMediaFramework"></p>
-<p>IJKMediaFrameworkWithSSL 的库添加了 SSL 库的引用，但工程默认依赖的是 IJKMediaFramework，为了避免修改头文件，可以给 IJKMediaFramework 添加 SSL 库的引用：</p>
-<p><img src="https://hexo.qiniu.pursue.top/addssl.png" alt="添加 ssl 引用"></p>
-<p>添加好就可以 Build 项目了。</p>
-<h1>一个坑</h1>
-<p>不出意外编译过程中会碰到一个 armv7 的报错类似<a target="_blank" rel="noopener" href="https://github.com/bilibili/ijkplayer/issues/4494">这样</a>，解决方法是在脚本里将 armv7 架构去掉：</p>
-<p><img src="https://hexo.qiniu.pursue.top/armv7.png" alt="删除 armv7"></p>
-<p>如果项目有要求支持 armv7，可以尝试使用低版本的 xcode sdk 编译，上面的 issue 上有解决方法，但没有尝试。</p>
-<h1>后记</h1>
-<p>开始撸源码吧。</p>
+<details class="note "><summary><p>secondary</p>
+</summary>
+<p>secondary</p>
 
+</details>
+<div class="note success"><p>success</p>
+</div>
+<div class="note danger"><p>danger</p>
+</div>
+<div class="note warning"><p>warning</p>
+</div>
+<div class="note info"><p>info</p>
+</div>
+<details class="note "><summary><p>light</p>
+</summary>
+<p>light</p>
+
+</details>
+<h2 id="表格">表格</h2>
+<h3 id="表格格式">表格格式</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">| 序号 | 标题 | 网址 |</span><br><span class="line">| ------ | ------ | ------ |</span><br><span class="line">| 01 | 博客 | https://blog.pursue.top/ |</span><br><span class="line">| 02 | 微博 | https://weibo.com/u/2270909331 |</span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>标题</th>
+<th>网址</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>01</td>
+<td>博客</td>
+<td><a href="https://blog.pursue.top/">https://blog.pursue.top/</a></td>
+</tr>
+<tr>
+<td>02</td>
+<td>微博</td>
+<td><a target="_blank" rel="noopener" href="https://weibo.com/u/2270909331">https://weibo.com/u/2270909331</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="表格内使用其他标记">表格内使用其他标记</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">| 序号 | 标题 | 网址 |</span><br><span class="line">| ------ | ------ | ------ |</span><br><span class="line">| *01* | [博客](https://blog.pursue.top/) | https://blog.pursue.top/ |</span><br><span class="line">| **02** | [微博](https://weibo.com/u/2270909331) | https://weibo.com/u/2270909331 |</span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>标题</th>
+<th>网址</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>01</em></td>
+<td><a href="https://blog.pursue.top/">博客</a></td>
+<td><a href="https://blog.pursue.top/">https://blog.pursue.top/</a></td>
+</tr>
+<tr>
+<td><strong>02</strong></td>
+<td><a target="_blank" rel="noopener" href="https://weibo.com/u/2270909331">微博</a></td>
+<td><a target="_blank" rel="noopener" href="https://weibo.com/u/2270909331">https://weibo.com/u/2270909331</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="代码">代码</h2>
+<h3 id="行内代码">行内代码</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`Hello, world!`</span><br></pre></td></tr></table></figure>
+<p><code>Hello, world!</code></p>
+<h3 id="代码块">代码块</h3>
+<ul>
+<li>Tab或4个空格开头的代码块</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[Tab]int main(int argc, char * argv[]) &#123;</span><br><span class="line">				printf(&quot;Hello, World!&quot;);</span><br><span class="line">				return 0;</span><br><span class="line">		&#125;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>符号包裹的代码块（推荐）</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">```</span><br><span class="line">int main(int argc, char * argv[]) &#123;</span><br><span class="line">	printf(&quot;Hello, World!&quot;);</span><br><span class="line">	return 0;</span><br><span class="line">&#125;;</span><br><span class="line">```</span><br></pre></td></tr></table></figure>
+<p>或</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">~~~</span><br><span class="line">int main(int argc, char * argv[]) &#123;</span><br><span class="line">	printf(&quot;Hello, World!&quot;);</span><br><span class="line">	return 0;</span><br><span class="line">&#125;;</span><br><span class="line">~~~</span><br></pre></td></tr></table></figure>
+<ul>
+<li>语法高亮（C语言为例）</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">``` c</span><br><span class="line">int main(int argc, char * argv[]) &#123;</span><br><span class="line">	printf(&quot;Hello, World!&quot;);</span><br><span class="line">	return 0;</span><br><span class="line">&#125;;</span><br><span class="line">```</span><br></pre></td></tr></table></figure>
+<ul>
+<li>实际效果</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> * argv[])</span> &#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;Hello, World!&quot;</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h1>数学公式</h1>
+<p>To Do</p>
+<h1>流程图表</h1>
+<p>To Do</p>
+
+      
     </div>
 
     
@@ -512,21 +774,8 @@
     
 
     <footer class="post-footer">
-
-        
-
-          <div class="post-nav">
-            <div class="post-nav-item">
-                <a href="/2022/05/12/%E4%BD%BF%E7%94%A8-RTMP-%E5%8D%8F%E8%AE%AE%E4%BC%A0%E8%BE%93/" rel="prev" title="使用 RTMP 协议传输">
-                  <i class="fa fa-angle-left"></i> 使用 RTMP 协议传输
-                </a>
-            </div>
-            <div class="post-nav-item">
-                <a href="/2022/06/28/%E3%80%8A%E8%B4%B9%E6%9B%BC%E5%AD%A6%E4%B9%A0%E6%B3%95-%E7%94%A8%E8%BE%93%E5%87%BA%E5%80%92%E9%80%BC%E8%BE%93%E5%85%A5%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="next" title="《费曼学习法 - 用输出倒逼输入》读书笔记">
-                  《费曼学习法 - 用输出倒逼输入》读书笔记 <i class="fa fa-angle-right"></i>
-                </a>
-            </div>
-          </div>
+        <div class="post-eof"></div>
+      
     </footer>
   </article>
 </div>
@@ -534,9 +783,10 @@
 
 
 
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/18/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><span class="page-number current">19</span>
+  </nav>
 
-
-    <div class="comments gitalk-container"></div>
 </div>
   </main>
 
@@ -588,7 +838,7 @@
 </noscript>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
 
-<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"XiaopingSun","repo":"XiaopingSun.github.io","client_id":"Ov23libov3fTSGDVNbiG","client_secret":"c17eab918ac43c9963fef736f63458f63f793513","admin_user":"XiaopingSun","distraction_free_mode":false,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","body":null,"pager_direction":"last","id":"location.pathname","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"70125b461d6720cefce094539b8a37d8"}</script>
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"XiaopingSun","repo":"XiaopingSun.github.io","client_id":"Ov23libov3fTSGDVNbiG","client_secret":"c17eab918ac43c9963fef736f63458f63f793513","admin_user":"XiaopingSun","distraction_free_mode":false,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","body":null,"pager_direction":"last","id":"location.pathname","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"fc903e0db97497f6e16c22270f10fb0a"}</script>
 <script src="/js/third-party/comments/gitalk.js" defer></script>
 
 </body>

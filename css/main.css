@@ -1384,7 +1384,7 @@ pre code {
   vertical-align: middle;
 }
 .links-of-author a::before {
-  background: #ffe765;
+  background: #ec86b9;
   display: inline-block;
   margin-right: 3px;
   transform: translateY(-2px);
@@ -1422,6 +1422,27 @@ pre code {
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+.sidebar::-webkit-scrollbar {
+  width: 2px !important; /* 极细线，不建议再细，否则高分屏下会看不见 */
+  background-color: rgba(0,0,0,0.05); /* 给轨道一个极浅的底色，增加质感 */
+}
+.sidebar::-webkit-scrollbar-thumb {
+  background-color: #87daff !important; /* 你的蓝色 */
+  border-radius: 2px; /* 圆润处理 */
+/* 确保它在任何时候都可见 */
+  min-height: 30px; /* 防止文章太长导致滑块缩成一个小点 */
+}
+.sidebar::-webkit-scrollbar-button {
+  display: none !important;
+  height: 0;
+  width: 0;
+}
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background-color: #ade4ff !important;
 }
 .sidebar-toggle {
   bottom: 61px;
