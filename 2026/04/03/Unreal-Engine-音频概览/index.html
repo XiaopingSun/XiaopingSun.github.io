@@ -20,25 +20,27 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"blog.pursue.top","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-2}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
 
-    <meta name="description" content="世上只有一种英雄主义，就是认清了生活的真相后还依然热爱它。">
-<meta property="og:type" content="website">
-<meta property="og:title" content="XpSun&#39;s Blog">
-<meta property="og:url" content="https://blog.pursue.top/archives/2022/04/index.html">
+    <meta name="description" content="前言 一直有想法逐渐转方向做音频开发，无奈自己还是太懒了，随着这些年 AI 浪潮的兴起，音频传统算法逐渐与 AI 融合，对音频开发人员的技术要求更加严格。不过最近这段时间刚好不太忙，调研一下渲染引擎中空间音频的实现，借此也可以了解大型音频引擎的设计思想及 DSP 音频算法，算是给自己入个门。目前市面上的开源引擎，Godot 提供的音频模块比较基础，是一个简装版的音频管线，相比之下 Unreal E">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Unreal Engine 音频概览">
+<meta property="og:url" content="https://blog.pursue.top/2026/04/03/Unreal-Engine-%E9%9F%B3%E9%A2%91%E6%A6%82%E8%A7%88/index.html">
 <meta property="og:site_name" content="XpSun&#39;s Blog">
-<meta property="og:description" content="世上只有一种英雄主义，就是认清了生活的真相后还依然热爱它。">
+<meta property="og:description" content="前言 一直有想法逐渐转方向做音频开发，无奈自己还是太懒了，随着这些年 AI 浪潮的兴起，音频传统算法逐渐与 AI 融合，对音频开发人员的技术要求更加严格。不过最近这段时间刚好不太忙，调研一下渲染引擎中空间音频的实现，借此也可以了解大型音频引擎的设计思想及 DSP 音频算法，算是给自己入个门。目前市面上的开源引擎，Godot 提供的音频模块比较基础，是一个简装版的音频管线，相比之下 Unreal E">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-04-03T03:12:31.000Z">
+<meta property="article:modified_time" content="2026-04-03T07:28:37.133Z">
 <meta property="article:author" content="XpSun">
 <meta property="article:tag" content="互联网 音乐 人生感悟">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://blog.pursue.top/archives/2022/04/">
+<link rel="canonical" href="https://blog.pursue.top/2026/04/03/Unreal-Engine-%E9%9F%B3%E9%A2%91%E6%A6%82%E8%A7%88/">
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":false,"lang":"zh-CN","comments":"","permalink":"","path":"archives/2022/04/index.html","title":""}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://blog.pursue.top/2026/04/03/Unreal-Engine-%E9%9F%B3%E9%A2%91%E6%A6%82%E8%A7%88/","path":"2026/04/03/Unreal-Engine-音频概览/","title":"Unreal Engine 音频概览"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>归档 | XpSun's Blog</title>
+<title>Unreal Engine 音频概览 | XpSun's Blog</title>
   
 
 
@@ -94,7 +96,7 @@
 
     <a href="/" class="brand" rel="start">
       <i class="logo-line"></i>
-      <h1 class="site-title">XpSun's Blog</h1>
+      <p class="site-title">XpSun's Blog</p>
       <i class="logo-line"></i>
     </a>
       <p class="site-subtitle" itemprop="description">来不及讲，故事多跌宕。</p>
@@ -148,7 +150,7 @@
   
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -161,6 +163,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">笔记索引</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">框架整理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">4.</span> <span class="nav-text">后记</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -389,150 +392,136 @@
 
     </div>
 
-    <div class="main-inner archive posts-collapse">
+    <div class="main-inner post posts-expand">
 
 
   
-  
-  
-  <div class="post-block">
-    <div class="post-content">
-      <div class="collection-title">
-        <span class="collection-header">嗯..! 目前共计 20 篇日志。 继续努力。</span>
-      </div>
 
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.pursue.top/2026/04/03/Unreal-Engine-%E9%9F%B3%E9%A2%91%E6%A6%82%E8%A7%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/wechat_avatar.jpg">
+      <meta itemprop="name" content="XpSun">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="XpSun's Blog">
+      <meta itemprop="description" content="世上只有一种英雄主义，就是认清了生活的真相后还依然热爱它。">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Unreal Engine 音频概览 | XpSun's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Unreal Engine 音频概览
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
       
-    <div class="collection-year">
-      <span class="collection-header">2022<span class="collection-year-count">15</span></span>
+
+      <time title="创建时间：2026-04-03 11:12:31 / 修改时间：15:28:37" itemprop="dateCreated datePublished" datetime="2026-04-03T11:12:31+08:00">2026-04-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E4%BA%92%E8%81%94%E7%BD%91%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">互联网技术笔记</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E4%BA%92%E8%81%94%E7%BD%91%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/Unreal-Engine-%E9%9F%B3%E9%A2%91/" itemprop="url" rel="index"><span itemprop="name">Unreal Engine 音频</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>612</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>1 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1>前言</h1>
+<p>一直有想法逐渐转方向做音频开发，无奈自己还是太懒了，随着这些年 AI 浪潮的兴起，音频传统算法逐渐与 AI 融合，对音频开发人员的技术要求更加严格。不过最近这段时间刚好不太忙，调研一下渲染引擎中空间音频的实现，借此也可以了解大型音频引擎的设计思想及 DSP 音频算法，算是给自己入个门。目前市面上的开源引擎，Godot 提供的音频模块比较基础，是一个简装版的音频管线，相比之下 Unreal Engine 的音频模块是比较完善的，提供了相当精准的采样级别的参数控制，有非常丰富的 DSP 效果，可以支持一些对音频延迟和控制要求极高的音乐类游戏，并且支持三方音频引擎和算法接入音频管线，可以作为一些音频算法实施的基座，所以 Unreal Engine 是个不错的选择。但 Unreal Engine 代码量庞大，阅读难度很高，让我觉得无从下手，所以需要将需求拆解，按官方文档 <a target="_blank" rel="noopener" href="https://dev.epicgames.com/documentation/zh-cn/unreal-engine/audio-engine-overview-in-unreal-engine">Audio Engine Overview</a> 中的功能概述将学习路线拆解为以下的几个点。由点到线，通过对每个功能点的深入研究形成对某一音频模块线的理解，由线到面，每一个音频模块的交织构成整个音频系统的面，最后由面到体，深入理解音频引擎如何与渲染引擎其他模块配合，实现用户友好的开发和交互体验。万事开头难，先从跑起一个简单的音频播放场景开始吧。</p>
+<h1>笔记索引</h1>
+<ul>
+<li>一、Unreal Engine 音频初体验
+<ul>
+<li><a href="#link1">1.1 硬件连接</a></li>
+</ul>
+</li>
+<li>二、音频资产管理</li>
+<li>三、音源</li>
+<li>四、音效</li>
+<li>五、音频空间化</li>
+<li>六、混音</li>
+<li>七、并发管理</li>
+<li>八、音频分析</li>
+</ul>
+<h1>框架整理</h1>
+<h1>后记</h1>
+
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2022-04-29T16:11:44+08:00"
-              content="2022-04-29">
-          04-29
-        </time>
-      </div>
+    
+    
+    
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2022/04/29/iOS-%E4%BD%BF%E7%94%A8-AudioUnit-%E9%87%87%E9%9B%86%E9%BA%A6%E5%85%8B%E9%A3%8E%E9%9F%B3%E9%A2%91%E6%95%B0%E6%8D%AE/" itemprop="url">
-            <span itemprop="name">iOS 使用 AudioUnit 采集麦克风音频数据</span>
-          </a>
-      </div>
+    <footer class="post-footer">
 
-      
-    </header>
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/04/03/%E9%A6%96%E9%A1%B5/" rel="prev" title="Welcome to XpSun&#39;s Blog.">
+                  <i class="fa fa-angle-left"></i> Welcome to XpSun's Blog.
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
   </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2022-04-19T16:33:16+08:00"
-              content="2022-04-19">
-          04-19
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2022/04/19/iOS-%E4%BD%BF%E7%94%A8-OpenGLES-%E6%B8%B2%E6%9F%93%E6%B0%B4%E5%8D%B0%E5%9B%BE%E7%89%87/" itemprop="url">
-            <span itemprop="name">iOS 使用 OpenGLES 渲染水印图片</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2022-04-19T12:02:00+08:00"
-              content="2022-04-19">
-          04-19
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2022/04/19/iOS-%E4%BD%BF%E7%94%A8-OpenGLES-%E5%AE%9E%E7%8E%B0%E7%9B%B8%E6%9C%BA%E7%94%BB%E9%9D%A2%E9%95%9C%E5%83%8F/" itemprop="url">
-            <span itemprop="name">iOS 使用 OpenGLES 实现相机画面镜像</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2022-04-17T14:37:32+08:00"
-              content="2022-04-17">
-          04-17
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2022/04/17/iOS-%E4%BD%BF%E7%94%A8-OpenGLES-%E6%B8%B2%E6%9F%93%E7%9B%B8%E6%9C%BA%E9%A2%84%E8%A7%88%E7%94%BB%E9%9D%A2/" itemprop="url">
-            <span itemprop="name">iOS 使用 OpenGLES 渲染相机预览画面</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2022-04-07T10:27:02+08:00"
-              content="2022-04-07">
-          04-07
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2022/04/07/iOS-%E4%BD%BF%E7%94%A8-AVFoundation-%E9%87%87%E9%9B%86%E7%9B%B8%E6%9C%BA%E7%94%BB%E9%9D%A2/" itemprop="url">
-            <span itemprop="name">iOS 使用 AVFoundation 采集相机画面</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2022-04-03T11:21:07+08:00"
-              content="2022-04-03">
-          04-03
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2022/04/03/SRWebSocket%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E8%AE%B0%E5%BD%95/" itemprop="url">
-            <span itemprop="name">SRWebSocket源码分析记录</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
+</div>
 
 
-    </div>
-  </div>
-  
-  
-  
 
+
+
+
+    <div class="comments gitalk-container"></div>
 </div>
   </main>
 
@@ -584,7 +573,7 @@
 </noscript>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
 
-<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"XiaopingSun","repo":"XiaopingSun.github.io","client_id":"Ov23libov3fTSGDVNbiG","client_secret":"c17eab918ac43c9963fef736f63458f63f793513","admin_user":"XiaopingSun","distraction_free_mode":false,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","body":null,"pager_direction":"last","id":"location.pathname","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"4640e8fc60b0daa5ab763297dafaad77"}</script>
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"XiaopingSun","repo":"XiaopingSun.github.io","client_id":"Ov23libov3fTSGDVNbiG","client_secret":"c17eab918ac43c9963fef736f63458f63f793513","admin_user":"XiaopingSun","distraction_free_mode":false,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","body":null,"pager_direction":"last","id":"location.pathname","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"2dc81a1f6c82fad85fc53362a00d76cb"}</script>
 <script src="/js/third-party/comments/gitalk.js" defer></script>
 
 </body>
