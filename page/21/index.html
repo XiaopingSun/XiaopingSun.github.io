@@ -20,29 +20,25 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"blog.pursue.top","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-2}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
 
-    <meta name="description" content="前言 这两周的一个需求，给引擎添加 crash 捕获和上传功能。如果正常一个 iOS App 需要添加 crash 捕获，一般会接入 Bugly 这种一体化 crash 分析平台，或者如果有自己的后台来搜集 crash 日志，也可以使用 KSCrash 或 PLCrashReporter 来实现崩溃日志的捕获。但本身作为一个引擎 SDK 来说，还是要尽可能少的接入三方库，即使是开源的。好在需求仅要">
-<meta property="og:type" content="article">
-<meta property="og:title" content="iOS 实现简单的异常捕获和堆栈解析">
-<meta property="og:url" content="https://blog.pursue.top/2022/08/07/iOS-%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84%E5%BC%82%E5%B8%B8%E6%8D%95%E8%8E%B7%E5%92%8C%E5%A0%86%E6%A0%88%E8%A7%A3%E6%9E%90/index.html">
+    <meta name="description" content="世上只有一种英雄主义，就是认清了生活的真相后还依然热爱它。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="XpSun&#39;s Blog">
+<meta property="og:url" content="https://blog.pursue.top/page/21/index.html">
 <meta property="og:site_name" content="XpSun&#39;s Blog">
-<meta property="og:description" content="前言 这两周的一个需求，给引擎添加 crash 捕获和上传功能。如果正常一个 iOS App 需要添加 crash 捕获，一般会接入 Bugly 这种一体化 crash 分析平台，或者如果有自己的后台来搜集 crash 日志，也可以使用 KSCrash 或 PLCrashReporter 来实现崩溃日志的捕获。但本身作为一个引擎 SDK 来说，还是要尽可能少的接入三方库，即使是开源的。好在需求仅要">
+<meta property="og:description" content="世上只有一种英雄主义，就是认清了生活的真相后还依然热爱它。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://hexo.qiniu.pursue.top/5219632-04e43775dfba56f8.webp">
-<meta property="article:published_time" content="2022-08-07T05:09:40.000Z">
-<meta property="article:modified_time" content="2026-04-02T06:03:28.374Z">
 <meta property="article:author" content="XpSun">
 <meta property="article:tag" content="互联网 音乐 人生感悟">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://hexo.qiniu.pursue.top/5219632-04e43775dfba56f8.webp">
 
 
-<link rel="canonical" href="https://blog.pursue.top/2022/08/07/iOS-%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84%E5%BC%82%E5%B8%B8%E6%8D%95%E8%8E%B7%E5%92%8C%E5%A0%86%E6%A0%88%E8%A7%A3%E6%9E%90/">
+<link rel="canonical" href="https://blog.pursue.top/page/21/">
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://blog.pursue.top/2022/08/07/iOS-%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84%E5%BC%82%E5%B8%B8%E6%8D%95%E8%8E%B7%E5%92%8C%E5%A0%86%E6%A0%88%E8%A7%A3%E6%9E%90/","path":"2022/08/07/iOS-实现简单的异常捕获和堆栈解析/","title":"iOS 实现简单的异常捕获和堆栈解析"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":true,"isPost":false,"lang":"zh-CN","comments":"","permalink":"","path":"page/21/index.html","title":""}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>iOS 实现简单的异常捕获和堆栈解析 | XpSun's Blog</title>
+<title>XpSun's Blog</title>
   
 
 
@@ -98,7 +94,7 @@
 
     <a href="/" class="brand" rel="start">
       <i class="logo-line"></i>
-      <p class="site-title">XpSun's Blog</p>
+      <h1 class="site-title">XpSun's Blog</h1>
       <i class="logo-line"></i>
     </a>
       <p class="site-subtitle" itemprop="description">来不及讲，故事多跌宕。</p>
@@ -152,7 +148,7 @@
   
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+    <div class="sidebar-inner sidebar-overview-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -165,7 +161,6 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">Crash 的分类和处理顺序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">实现方式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">4.</span> <span class="nav-text">代码</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8D%95%E8%8E%B7-NSException"><span class="nav-number">4.1.</span> <span class="nav-text">捕获 NSException</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8D%95%E8%8E%B7-Unix-%E4%BF%A1%E5%8F%B7"><span class="nav-number">4.2.</span> <span class="nav-text">捕获 Unix 信号</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#C-%E5%A0%86%E6%A0%88%E4%BF%A1%E6%81%AF%E4%BC%98%E5%8C%96"><span class="nav-number">4.3.</span> <span class="nav-text">C++ 堆栈信息优化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E5%A0%86%E6%A0%88%E5%9C%B0%E5%9D%80%E4%BC%98%E5%8C%96"><span class="nav-number">4.4.</span> <span class="nav-text">函数堆栈地址优化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">6.</span> <span class="nav-text">后记</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -399,18 +394,17 @@
 
     </div>
 
-    <div class="main-inner post posts-expand">
+    <div class="main-inner index posts-expand">
 
-
-  
+    
 
 
 <div class="post-block">
   
   
 
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://blog.pursue.top/2022/08/07/iOS-%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84%E5%BC%82%E5%B8%B8%E6%8D%95%E8%8E%B7%E5%92%8C%E5%A0%86%E6%A0%88%E8%A7%A3%E6%9E%90/">
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://blog.pursue.top/2021/09/15/Markdown%E5%B8%B8%E7%94%A8%E8%AF%AD%E6%B3%95/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/wechat_avatar.jpg">
@@ -423,13 +417,13 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="iOS 实现简单的异常捕获和堆栈解析 | XpSun's Blog">
+      <meta itemprop="name" content=" | XpSun's Blog">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          iOS 实现简单的异常捕获和堆栈解析
-        </h1>
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/09/15/Markdown%E5%B8%B8%E7%94%A8%E8%AF%AD%E6%B3%95/" class="post-title-link" itemprop="url">Hexo Markdown常用语法总结</a>
+        </h2>
 
         <div class="post-meta-container">
           <div class="post-meta">
@@ -439,14 +433,14 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2022-08-07 13:09:40" itemprop="dateCreated datePublished" datetime="2022-08-07T13:09:40+08:00">2022-08-07</time>
+      <time title="创建时间：2021-09-15 18:04:07" itemprop="dateCreated datePublished" datetime="2021-09-15T18:04:07+08:00">2021-09-15</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-02 14:03:28" itemprop="dateModified" datetime="2026-04-02T14:03:28+08:00">2026-04-02</time>
+      <time title="修改时间：2026-04-02 14:04:06" itemprop="dateModified" datetime="2026-04-02T14:04:06+08:00">2026-04-02</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -458,7 +452,7 @@
         </span>
           ，
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E4%BA%92%E8%81%94%E7%BD%91%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/iOS-%E9%9F%B3%E8%A7%86%E9%A2%91%E5%BC%80%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">iOS 音视频开发</span></a>
+          <a href="/categories/%E4%BA%92%E8%81%94%E7%BD%91%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/%E5%B7%A5%E5%85%B7/" itemprop="url" rel="index"><span itemprop="name">工具</span></a>
         </span>
     </span>
 
@@ -469,14 +463,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>6.2k</span>
+      <span>2.8k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>6 分钟</span>
+      <span>3 分钟</span>
     </span>
 </div>
 
@@ -486,46 +480,311 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><h1>前言</h1>
-<p>这两周的一个需求，给引擎添加 crash 捕获和上传功能。如果正常一个 iOS App 需要添加 crash 捕获，一般会接入 Bugly 这种一体化 crash 分析平台，或者如果有自己的后台来搜集 crash 日志，也可以使用 KSCrash 或 PLCrashReporter 来实现崩溃日志的捕获。但本身作为一个引擎 SDK 来说，还是要尽可能少的接入三方库，即使是开源的。好在需求仅要求记录崩溃的大体堆栈信息，地址可解析即可，不需要太复杂的逻辑。</p>
-<h1>Crash 的分类和处理顺序</h1>
-<p>根据 Crash 的不同来源，一般分为 Mach 异常、Unix 信号 和 NSException。Mach 异常也称内核级异常，可以通过创建监控线程的方式监听 Mach 异常并处理异常信息，如果开发者没有捕获 Mach 异常，则异常将被转换为对应的 Unix 信号投递到出错线程。NSException 也称为应用级异常，可以通过 try catch 来捕获，也可以通过 NSSetUncaughtExceptionHandler 机制来捕获，最终未被处理的 NSException 会向自身程序发送 SIGABRT 信号使程序崩溃。三种异常处理的顺序可以参考这张图：</p>
-<p><img src="https://hexo.qiniu.pursue.top/5219632-04e43775dfba56f8.webp" alt="异常处理的顺序"></p>
-<h1>实现方式</h1>
-<p>Mach 异常 和 Unix 信号由于来源都是底层内核级异常，只是回调方式不同，因此在项目中选择监听 Unix 信号。应用级异常 NSException 是需要监听的，捕获的 exception 中有对排查问题很有帮助的 reason 信息，需要将这部分信息保存起来，再将 crash 信息传递给 Mach 和 Unix 层来捕获。</p>
-<h1>代码</h1>
-<h2 id="捕获-NSException">捕获 NSException</h2>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> IPhoneCrashHandler::initNSExceptionHandler() &#123;</span><br><span class="line">    <span class="keyword">if</span> (sPreviousUncaughtExceptionHandler == nullptr) &#123;</span><br><span class="line">        <span class="comment">// hold origin handler</span></span><br><span class="line">        sPreviousUncaughtExceptionHandler = <span class="built_in">NSGetUncaughtExceptionHandler</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// setup new handler</span></span><br><span class="line">    <span class="built_in">NSSetUncaughtExceptionHandler</span>(&amp;uncaughtNSExceptionHandler);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>初始化监听只需要调用 <code>NSSetUncaughtExceptionHandler</code> 传入回调函数指针即可，函数签名是 <code>typedef void NSUncaughtExceptionHandler(NSException *exception);</code> ，需要注意的是这个回调函数在 App 生命周期是唯一的，也就是说如果 App 有其他 crash 捕获模块，可能会有冲突。为了避免多个 crash 捕获失效的问题，需要先调用 <code>NSGetUncaughtExceptionHandler</code> 函数保存前任的函数指针，并在处理完 exception 之后主动调用这个函数传递 exception。</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="type">void</span> uncaughtNSExceptionHandler(<span class="built_in">NSException</span> *exception) &#123;</span><br><span class="line">    <span class="comment">// Handle current exception</span></span><br><span class="line">    sUncaughtException = exception;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Handle previous</span></span><br><span class="line">    <span class="keyword">if</span> (sPreviousUncaughtExceptionHandler != nullptr) &#123;</span><br><span class="line">        sPreviousUncaughtExceptionHandler(exception);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在回调函数里只需要保存保存 exception 指针，调用前任回调函数指针即可。NSException 如果没有被 try catch 或 NSSetUncaughtExceptionHandler 捕获处理，则会调用 c 的 abort()，kernal 针对 app 发出 _pthread_kill 的信号，转为 Mach 异常，如果 Mach 异常没有被捕获，则会转换成 Unix 信号。</p>
-<h2 id="捕获-Unix-信号">捕获 Unix 信号</h2>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> uint8_t handledBSDSignals[] = &#123;</span><br><span class="line">    SIGSEGV, <span class="comment">// signal   11  segmentation violation</span></span><br><span class="line">    SIGABRT, <span class="comment">// signal   6   abort</span></span><br><span class="line">    SIGFPE,     <span class="comment">// signal   8   floating-point exception</span></span><br><span class="line">    SIGILL,     <span class="comment">// signal   4   illegal instruction</span></span><br><span class="line">    SIGBUS,     <span class="comment">// signal   7   BUS</span></span><br><span class="line">    SIGALRM     <span class="comment">// signal   14  alarm</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> IPhoneCrashHandler::initBSDSignalHandler() &#123;</span><br><span class="line">    <span class="keyword">struct</span> sigaction act;</span><br><span class="line">    act.sa_flags = SA_SIGINFO;</span><br><span class="line">    act.sa_sigaction = BSDSignalHandler;</span><br><span class="line">    sigemptyset(&amp;act.sa_mask);</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; handledBSDSignalsNum; ++i) &#123;</span><br><span class="line">        sigaction(handledBSDSignals[i], &amp;act, &amp;sPreviousBSDSignalHandler[i]);</span><br><span class="line">        sPreviousBSDSignalHandlerMap.insert( &#123; handledBSDSignals[i], &amp;sPreviousBSDSignalHandler[i] &#125; );</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>handledBSDSignals 数组是监听的 signal 列表，调用 sigaction 函数给 signal 设置监听函数 BSDSignalHandler，并将之前设置过的前任监听函数指针保存到 sPreviousBSDSignalHandler，在处理完 Unix 信号后要调用前任函数指针。</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="type">void</span> BSDSignalHandler(<span class="type">int</span> sig, siginfo_t* siginfo, <span class="type">void</span>* ctx) &#123;</span><br><span class="line">    <span class="comment">// Handle current signal</span></span><br><span class="line">  	<span class="comment">// 获取 Unix 信号描述</span></span><br><span class="line">    <span class="built_in">NSString</span> *signal = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;%d (%s)&quot;</span>, sig, getBSDSignalDescription(sig).data()];</span><br><span class="line">  	<span class="comment">// 如果 sUncaughtException 不为 nil，说明是 NSException 抛出的异常</span></span><br><span class="line">    <span class="built_in">NSString</span> *exception = sUncaughtException ? [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;%@ (%@)&quot;</span>, [sUncaughtException name], [sUncaughtException reason]] : <span class="literal">nil</span>;</span><br><span class="line">  	<span class="comment">// 获取系统时间</span></span><br><span class="line">    <span class="built_in">NSString</span> *timestamp = [<span class="built_in">NSString</span> stringWithCString:GetSystemTimeFormatString().data() encoding:<span class="built_in">NSUTF8StringEncoding</span>];</span><br><span class="line">  	<span class="comment">// 如果是 NSException 异常，则从 sUncaughtException 指针获取堆栈信息，否则从 NSThread 获取，并将堆栈信息格式化处理</span></span><br><span class="line">    <span class="built_in">NSArray</span> *stackArray = formatCallbackSymbols(sUncaughtException ? sUncaughtException.callStackSymbols : <span class="built_in">NSThread</span>.callStackSymbols);</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSMutableString</span> *content = [<span class="built_in">NSMutableString</span> string];</span><br><span class="line">    [content appendFormat:<span class="string">@&quot;Pid: %d\n&quot;</span>, getpid()];</span><br><span class="line">    [content appendFormat:<span class="string">@&quot;Signal: %@\n&quot;</span>, signal];</span><br><span class="line">    <span class="keyword">if</span> (exception) [content appendFormat:<span class="string">@&quot;Exception: %@\n&quot;</span>, exception];</span><br><span class="line">    [content appendFormat:<span class="string">@&quot;Timestamp: %@\n&quot;</span>, timestamp];</span><br><span class="line">    <span class="keyword">for</span> (<span class="built_in">NSString</span> *stack <span class="keyword">in</span> stackArray) &#123;</span><br><span class="line">        [content appendFormat:<span class="string">@&quot;%@\n&quot;</span>, stack];</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSString</span> *saveDir = [<span class="built_in">NSString</span> stringWithCString:IPhoneCrashHandler::GetInstance()-&gt;GetCrashLogFileSaveDir().data() encoding:<span class="built_in">NSUTF8StringEncoding</span>];</span><br><span class="line">    <span class="built_in">NSString</span> *fileName = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;%@.crash&quot;</span>, timestamp];</span><br><span class="line">    <span class="built_in">NSString</span> *filePath = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;%@%@&quot;</span>, saveDir, fileName];</span><br><span class="line">    [content writeToFile:filePath atomically:<span class="literal">YES</span> encoding:<span class="built_in">NSUTF8StringEncoding</span> error:<span class="literal">nil</span>];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Handle previous</span></span><br><span class="line">    <span class="keyword">struct</span> sigaction* previousSigaction = sPreviousBSDSignalHandlerMap[sig];</span><br><span class="line">    <span class="keyword">if</span> (previousSigaction != nullptr &amp;&amp; previousSigaction-&gt;sa_sigaction != nullptr) &#123;</span><br><span class="line">        previousSigaction-&gt;sa_sigaction(sig, siginfo, ctx);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Kill with signal SIGKILL</span></span><br><span class="line">    kill(getpid(), SIGKILL);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在 Unix 信号的监听函数中，首先可以拿到信号类型，并判断是否是 NSException 抛出的异常，将堆栈信息格式化后写入本地文件，最后调用前任回调函数指针，给程序发送 SIGKILL 信号终止程序。</p>
-<h2 id="C-堆栈信息优化">C++ 堆栈信息优化</h2>
-<p>调试过程中发现记录的 c++ 堆栈是经过 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/359466948">name mangling</a> 机制处理过的，写入到日志里可读性比较差，需要做 demangle 处理：</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cxxabi.h&gt;</span></span></span><br><span class="line">...</span><br><span class="line"><span class="keyword">static</span> <span class="built_in">NSString</span>* getDemangledSymbol(<span class="built_in">NSString</span> *symbol) &#123;</span><br><span class="line">    size_t maxLength = <span class="number">1024</span>;</span><br><span class="line">    <span class="type">int</span> demangleStatus;</span><br><span class="line">    <span class="type">char</span>* demangledSymbol = (<span class="type">char</span>*)malloc(maxLength);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> ((demangledSymbol = abi::__cxa_demangle([symbol UTF8String],</span><br><span class="line">                                               demangledSymbol,</span><br><span class="line">                                               &amp;maxLength,</span><br><span class="line">                                             &amp;demangleStatus))</span><br><span class="line">        &amp;&amp; demangleStatus == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> [<span class="built_in">NSString</span> stringWithCString:demangledSymbol encoding:<span class="built_in">NSUTF8StringEncoding</span>];</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="函数堆栈地址优化">函数堆栈地址优化</h2>
-<p>通常在 crash 堆栈信息中会有一列是崩溃函数在虚拟内存空间的地址，如果是线上 Release 版本的 crash，日志里一般不会有详细的堆栈函数信息，需要通过程序打包时的符号表 dSYM 文件协助解析崩溃堆栈的地址。dSYM 中记录了程序中函数符号的内存地址，原理上来说 crash 堆栈里的崩溃函数地址应该与 dSYM 里的符号表是一一对应的，但由于苹果的 ASLR 机制的存在，程序在加载时会在前面插入一段随机的 offset，导致 crash 中的堆栈地址和 dSYM 的符号地址会有一个随机的差值。这个 offset 可以在程序运行时获取到，在捕获到 crash 后将堆栈地址减去 offset 保存到文件中，这样就可以直接使用 dSYM 解析出具体的符号。</p>
+    <div class="post-body" itemprop="articleBody">
+          <h1>基础语法</h1>
+<h2 id="字体">字体</h2>
+<h3 id="标题">标题</h3>
+<ul>
+<li>使用底线的语法</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">我是一级标题</span><br><span class="line">=========</span><br></pre></td></tr></table></figure>
+<p>或</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">我是二级标题</span><br><span class="line">---------</span><br></pre></td></tr></table></figure>
 <blockquote>
-<p>ASLR（Address space layout randomization）是一种针对缓冲区溢出的安全保护技术，通过对堆、栈、共享库映射等线性区布局的随机化，通过增加攻击者预测目的地址的难度，防止攻击者直接定位攻击代码位置，达到阻止溢出攻击的目的。据研究表明ASLR可以有效的降低缓冲区溢出攻击的成功率，如今Linux、FreeBSD、Windows等主流操作系统都已采用了该技术。</p>
+<p>注：这种语法只支持两级标题</p>
 </blockquote>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;mach-o/dyld.h&gt;</span><br><span class="line">...</span><br><span class="line">static uint64_t getOffsetOfASLR() &#123;</span><br><span class="line">    uint64_t offset = 0;</span><br><span class="line">    for (uint32_t i = 0; i &lt; _dyld_image_count(); i++) &#123;</span><br><span class="line">            if (_dyld_get_image_header(i)-&gt;filetype == MH_EXECUTE) &#123;</span><br><span class="line">                offset = _dyld_get_image_vmaddr_slide(i);</span><br><span class="line">                break;</span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return offset;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>以这条堆栈信息为例：</p>
-<p><code>CrashStack[5]:&lt;0x0000000106487418&gt;  xxx (-[IPhoneBridgeObjc showWebView:]+10) </code></p>
-<p>虽然已经知道它对应的符号，但还只是通过 dSYM 解析看下计算的地址是否正确，需要借助命令行工具 atos：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">atos -o xxx.app.dSYM/Contents/Resources/DWARF/xxx 0x0000000106487418</span><br><span class="line">-[IPhoneBridgeObjc showWebView:] (in xxx) (IPhoneBridge.mm:313)</span><br></pre></td></tr></table></figure>
-<h1>参考资料</h1>
+<ul>
+<li>使用#的语法（推荐）</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 我是一级标题</span><br><span class="line">## 我是二级标题</span><br><span class="line">### 我是三级标题</span><br><span class="line">#### 我是四级标题  </span><br><span class="line">##### 我是五级标题</span><br><span class="line">###### 我是六级标题</span><br></pre></td></tr></table></figure>
 <blockquote>
-<p>iOS Crash/崩溃/异常 捕获 <a target="_blank" rel="noopener" href="https://www.jianshu.com/p/3f6775c02257">https://www.jianshu.com/p/3f6775c02257</a></p>
-<p>iOS Crash收集,符号化分析看我就够了 <a target="_blank" rel="noopener" href="https://bucengyongyou.github.io/2016/08/03/iOS-Crash%E6%94%B6%E9%9B%86-%E7%AC%A6%E5%8F%B7%E5%8C%96%E5%88%86%E6%9E%90%E7%9C%8B%E6%88%91%E5%B0%B1%E5%A4%9F%E4%BA%86/">https://bucengyongyou.github.io/2016/08/03/iOS-Crash收集-符号化分析看我就够了/</a></p>
-<p>C++函数重载的实现机制之name mangling <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/359466948">https://zhuanlan.zhihu.com/p/359466948</a></p>
+<p>注：这种语法只支持六级标题</p>
 </blockquote>
-<h1>后记</h1>
-<p>最近状态有点差，周末在家就只想睡觉了，想学的东西很多，但时间少效率低，要好好调整下了。</p>
+<h3 id="粗体和斜体">粗体和斜体</h3>
+<ul>
+<li>粗体格式的语法如下</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">**加粗内容**（推荐）</span><br></pre></td></tr></table></figure>
+<p>或</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__加粗内容__</span><br></pre></td></tr></table></figure>
+<ul>
+<li>斜体格式的语法如下</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*斜体内容*（推荐）</span><br></pre></td></tr></table></figure>
+<p>或</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_斜体内容_</span><br></pre></td></tr></table></figure>
+<h2 id="段落与换行">段落与换行</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">片段1[空格][空格][回车]</span><br><span class="line">片段2</span><br></pre></td></tr></table></figure>
+<p>片段1<br>
+片段2</p>
+<h2 id="分割线">分割线</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">星号</span><br><span class="line">***</span><br><span class="line">* * *</span><br><span class="line">*********</span><br><span class="line">减号</span><br><span class="line">---</span><br><span class="line">- - -</span><br><span class="line">---------</span><br><span class="line">下划线</span><br><span class="line">___</span><br><span class="line">_ _ _</span><br><span class="line">_________</span><br></pre></td></tr></table></figure>
+<p>星号</p>
+<hr>
+<hr>
+<hr>
+<p>横杠</p>
+<hr>
+<hr>
+<hr>
+<p>下划线</p>
+<hr>
+<hr>
+<hr>
+<h2 id="删除线">删除线</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~~被删除的文字~~</span><br></pre></td></tr></table></figure>
+<p><s>被删除的文字</s></p>
+<h2 id="下划线">下划线</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;u&gt;下划线文字&lt;/u&gt;</span><br></pre></td></tr></table></figure>
+<p><u>下划线文字</u></p>
+<h2 id="转义">转义</h2>
+<ul>
+<li>语法如下</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\特殊符号</span><br></pre></td></tr></table></figure>
+<ul>
+<li>特殊符号如下</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">\   反斜线</span><br><span class="line">`   反引号</span><br><span class="line">*   星号</span><br><span class="line">_   下划线</span><br><span class="line">&#123;&#125;  花括号</span><br><span class="line">[]  方括号</span><br><span class="line">()  小括号</span><br><span class="line">#   井字号</span><br><span class="line">+   加号</span><br><span class="line">-   减号</span><br><span class="line">.   英文句点</span><br><span class="line">!   感叹号</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Example:</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\*\* 正常显示星号 \*\* </span><br></pre></td></tr></table></figure>
+<p>** 正常显示星号 **</p>
+<h2 id="表情符号">表情符号</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">:smile:</span><br><span class="line">:laughing:</span><br><span class="line">:clap:</span><br></pre></td></tr></table></figure>
+<p>😄<br>
+😆<br>
+👏</p>
+<p>其他表情符号参考<a target="_blank" rel="noopener" href="https://sunhwee.com/posts/a927e90e.html">Markdown Emoji表情语法速查表</a></p>
+<h2 id="列表">列表</h2>
+<h3 id="无序列表">无序列表</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">* 第一项</span><br><span class="line">* 第二项</span><br><span class="line">* 第三项</span><br><span class="line"></span><br><span class="line">+ 第一项</span><br><span class="line">+ 第二项</span><br><span class="line">+ 第三项</span><br><span class="line"></span><br><span class="line">- 第一项</span><br><span class="line">- 第二项</span><br><span class="line">- 第三项</span><br></pre></td></tr></table></figure>
+<ul>
+<li>第一项</li>
+<li>第二项</li>
+<li>第三项</li>
+</ul>
+<ul>
+<li>第一项</li>
+<li>第二项</li>
+<li>第三项</li>
+</ul>
+<ul>
+<li>第一项</li>
+<li>第二项</li>
+<li>第三项</li>
+</ul>
+<h3 id="有序列表">有序列表</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. 第一项</span><br><span class="line">2. 第二项</span><br><span class="line">3. 第三项</span><br></pre></td></tr></table></figure>
+<ol>
+<li>第一项</li>
+<li>第二项</li>
+<li>第三项</li>
+</ol>
+<h3 id="嵌套列表">嵌套列表</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">- 第一项</span><br><span class="line">    1. 第一子项</span><br><span class="line">    2. 第二子项</span><br><span class="line">    3. 第三子项</span><br><span class="line">- 第二项</span><br><span class="line">- 第三项</span><br></pre></td></tr></table></figure>
+<ul>
+<li>第一项
+<ol>
+<li>第一子项</li>
+<li>第二子项</li>
+<li>第三子项</li>
+</ol>
+</li>
+<li>第二项</li>
+<li>第三项</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1. 第一项</span><br><span class="line">    - 第一子项</span><br><span class="line">    - 第二子项</span><br><span class="line">    - 第三子项</span><br><span class="line">2. 第二项</span><br><span class="line">3. 第三项</span><br></pre></td></tr></table></figure>
+<ol>
+<li>第一项
+<ul>
+<li>第一子项</li>
+<li>第二子项</li>
+<li>第三子项</li>
+</ul>
+</li>
+<li>第二项</li>
+<li>第三项</li>
+</ol>
+<h2 id="链接">链接</h2>
+<h3 id="文字链接">文字链接</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在日常工作中我们经常使用的网址有[Google](https://www.google.com/)、[Github](https://github.com/)和[Stack Overflow]（https://stackoverflow.com/）</span><br></pre></td></tr></table></figure>
+<p>在日常工作中我们经常使用的网址有<a target="_blank" rel="noopener" href="https://www.google.com/">Google</a>、<a target="_blank" rel="noopener" href="https://github.com/">Github</a>和<a target="_blank" rel="noopener" href="https://stackoverflow.com/">Stack Overflow</a></p>
+<h3 id="网址链接">网址链接</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">博客地址&lt;https://blog.pursue.top/&gt;</span><br></pre></td></tr></table></figure>
+<p>博客地址<a href="https://blog.pursue.top/">https://blog.pursue.top/</a></p>
+<blockquote>
+<p>注: 扩展语法GFM中&lt;&gt;可省略</p>
+</blockquote>
+<h2 id="图片">图片</h2>
+<h3 id="图片链接">图片链接</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">![个人头像](https://qcdn-z1.qiniu.pursue.top/540%E9%98%BF%E6%96%B9.png)  </span><br></pre></td></tr></table></figure>
+<p><img src="https://qcdn-z1.qiniu.pursue.top/540%E9%98%BF%E6%96%B9.png" alt="个人头像"></p>
+<h3 id="图片标签">图片标签</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;img src=&quot;https://qcdn-z1.qiniu.pursue.top/540%E9%98%BF%E6%96%B9.png&quot; width=&quot;50%&quot;&gt;  </span><br></pre></td></tr></table></figure>
+<img src="https://qcdn-z1.qiniu.pursue.top/540%E9%98%BF%E6%96%B9.png" width="50%">  
+<h2 id="支持的HTML元素">支持的HTML元素</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">使用 &lt;kbd&gt;Ctrl&lt;/kbd&gt;+&lt;kbd&gt;Alt&lt;/kbd&gt;+&lt;kbd&gt;Del&lt;/kbd&gt; 重启电脑 </span><br></pre></td></tr></table></figure>
+<p>使用 <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Del</kbd> 重启电脑</p>
+<h2 id="引用与区块">引用与区块</h2>
+<h3 id="引用">引用</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; 这是一个引用</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>这是一个引用</p>
+</blockquote>
+<h3 id="区块">区块</h3>
+<ul>
+<li>区块嵌套</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt; 第一层</span><br><span class="line">&gt;&gt; 第二层</span><br><span class="line">&gt;&gt;&gt; 第三层</span><br><span class="line">&gt;&gt;&gt;&gt; 第四层</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>第一层</p>
+<blockquote>
+<p>第二层</p>
+<blockquote>
+<p>第三层</p>
+<blockquote>
+<p>第四层</p>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+<ul>
+<li>区块中使用列表</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; 1. 第一项</span><br><span class="line">&gt; 2. 第二项</span><br><span class="line">&gt; - 第一项</span><br><span class="line">&gt; - 第二项</span><br><span class="line">&gt; - 第三项</span><br></pre></td></tr></table></figure>
+<blockquote>
+<ol>
+<li>第一项</li>
+<li>第二项</li>
+</ol>
+<ul>
+<li>第一项</li>
+<li>第二项</li>
+<li>第三项</li>
+</ul>
+</blockquote>
+<ul>
+<li>列表中使用区块</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1. 第一项</span><br><span class="line">    &gt; 菜鸟教程</span><br><span class="line">    &gt; &gt; 学的不仅是技术</span><br><span class="line">    &gt; &gt;</span><br><span class="line">    &gt; &gt; &gt; 更是梦想</span><br><span class="line">2. 第二项</span><br></pre></td></tr></table></figure>
+<ol>
+<li>第一项
+<blockquote>
+<p>菜鸟教程</p>
+<blockquote>
+<p>学的不仅是技术</p>
+<blockquote>
+<p>更是梦想</p>
+</blockquote>
+</blockquote>
+</blockquote>
+</li>
+<li>第二项</li>
+</ol>
+<h2 id="fluid-主题便签">fluid 主题便签</h2>
+<p>在 markdown 中加入如下的代码来使用便签：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;% note success %&#125;</span><br><span class="line">文字 或者 &#x27;markdown&#x27; 均可</span><br><span class="line">&#123;% endnote %&#125;</span><br></pre></td></tr></table></figure>
+<p>或者使用 HTML 形式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;p class=&quot;note note-primary&quot;&gt;标签&lt;/p&gt;</span><br></pre></td></tr></table></figure>
+<p>可选便签：</p>
+<div class="note primary"><p>primary</p>
+</div>
+<details class="note "><summary><p>secondary</p>
+</summary>
+<p>secondary</p>
 
+</details>
+<div class="note success"><p>success</p>
+</div>
+<div class="note danger"><p>danger</p>
+</div>
+<div class="note warning"><p>warning</p>
+</div>
+<div class="note info"><p>info</p>
+</div>
+<details class="note "><summary><p>light</p>
+</summary>
+<p>light</p>
+
+</details>
+<h2 id="表格">表格</h2>
+<h3 id="表格格式">表格格式</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">| 序号 | 标题 | 网址 |</span><br><span class="line">| ------ | ------ | ------ |</span><br><span class="line">| 01 | 博客 | https://blog.pursue.top/ |</span><br><span class="line">| 02 | 微博 | https://weibo.com/u/2270909331 |</span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>标题</th>
+<th>网址</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>01</td>
+<td>博客</td>
+<td><a href="https://blog.pursue.top/">https://blog.pursue.top/</a></td>
+</tr>
+<tr>
+<td>02</td>
+<td>微博</td>
+<td><a target="_blank" rel="noopener" href="https://weibo.com/u/2270909331">https://weibo.com/u/2270909331</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="表格内使用其他标记">表格内使用其他标记</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">| 序号 | 标题 | 网址 |</span><br><span class="line">| ------ | ------ | ------ |</span><br><span class="line">| *01* | [博客](https://blog.pursue.top/) | https://blog.pursue.top/ |</span><br><span class="line">| **02** | [微博](https://weibo.com/u/2270909331) | https://weibo.com/u/2270909331 |</span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>标题</th>
+<th>网址</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>01</em></td>
+<td><a href="https://blog.pursue.top/">博客</a></td>
+<td><a href="https://blog.pursue.top/">https://blog.pursue.top/</a></td>
+</tr>
+<tr>
+<td><strong>02</strong></td>
+<td><a target="_blank" rel="noopener" href="https://weibo.com/u/2270909331">微博</a></td>
+<td><a target="_blank" rel="noopener" href="https://weibo.com/u/2270909331">https://weibo.com/u/2270909331</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="代码">代码</h2>
+<h3 id="行内代码">行内代码</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`Hello, world!`</span><br></pre></td></tr></table></figure>
+<p><code>Hello, world!</code></p>
+<h3 id="代码块">代码块</h3>
+<ul>
+<li>Tab或4个空格开头的代码块</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[Tab]int main(int argc, char * argv[]) &#123;</span><br><span class="line">				printf(&quot;Hello, World!&quot;);</span><br><span class="line">				return 0;</span><br><span class="line">		&#125;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>符号包裹的代码块（推荐）</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">```</span><br><span class="line">int main(int argc, char * argv[]) &#123;</span><br><span class="line">	printf(&quot;Hello, World!&quot;);</span><br><span class="line">	return 0;</span><br><span class="line">&#125;;</span><br><span class="line">```</span><br></pre></td></tr></table></figure>
+<p>或</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">~~~</span><br><span class="line">int main(int argc, char * argv[]) &#123;</span><br><span class="line">	printf(&quot;Hello, World!&quot;);</span><br><span class="line">	return 0;</span><br><span class="line">&#125;;</span><br><span class="line">~~~</span><br></pre></td></tr></table></figure>
+<ul>
+<li>语法高亮（C语言为例）</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">``` c</span><br><span class="line">int main(int argc, char * argv[]) &#123;</span><br><span class="line">	printf(&quot;Hello, World!&quot;);</span><br><span class="line">	return 0;</span><br><span class="line">&#125;;</span><br><span class="line">```</span><br></pre></td></tr></table></figure>
+<ul>
+<li>实际效果</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> * argv[])</span> &#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;Hello, World!&quot;</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h1>数学公式</h1>
+<p>To Do</p>
+<h1>流程图表</h1>
+<p>To Do</p>
+
+      
     </div>
 
     
@@ -533,21 +792,8 @@
     
 
     <footer class="post-footer">
-
-        
-
-          <div class="post-nav">
-            <div class="post-nav-item">
-                <a href="/2022/08/06/iOS-%E4%BD%BF%E7%94%A8-AVAssetWriter-%E5%AE%9E%E6%97%B6%E5%86%99%E5%85%A5%E8%A7%86%E9%A2%91%E6%B5%81/" rel="prev" title="iOS 使用 AVAssetWriter 实时写入视频流">
-                  <i class="fa fa-angle-left"></i> iOS 使用 AVAssetWriter 实时写入视频流
-                </a>
-            </div>
-            <div class="post-nav-item">
-                <a href="/2024/02/14/%E3%80%8A%E8%AE%A4%E7%9F%A5%E8%A7%89%E9%86%92%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="next" title="《认知觉醒》读书笔记">
-                  《认知觉醒》读书笔记 <i class="fa fa-angle-right"></i>
-                </a>
-            </div>
-          </div>
+        <div class="post-eof"></div>
+      
     </footer>
   </article>
 </div>
@@ -555,9 +801,10 @@
 
 
 
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/20/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/20/">20</a><span class="page-number current">21</span>
+  </nav>
 
-
-    <div class="comments gitalk-container"></div>
 </div>
   </main>
 
@@ -609,7 +856,7 @@
 </noscript>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
 
-<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"XiaopingSun","repo":"XiaopingSun.github.io","client_id":"Ov23libov3fTSGDVNbiG","client_secret":"c17eab918ac43c9963fef736f63458f63f793513","admin_user":"XiaopingSun","distraction_free_mode":false,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","body":null,"pager_direction":"last","id":"location.pathname","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"a045967811b152485a85ff971bdd3f00"}</script>
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"XiaopingSun","repo":"XiaopingSun.github.io","client_id":"Ov23libov3fTSGDVNbiG","client_secret":"c17eab918ac43c9963fef736f63458f63f793513","admin_user":"XiaopingSun","distraction_free_mode":false,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","body":null,"pager_direction":"last","id":"location.pathname","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"31cad57a83c164fcc1a981e26cf08506"}</script>
 <script src="/js/third-party/comments/gitalk.js" defer></script>
 
 </body>

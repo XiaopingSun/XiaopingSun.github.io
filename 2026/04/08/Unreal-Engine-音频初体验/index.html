@@ -20,29 +20,43 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"blog.pursue.top","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-2}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
 
-    <meta name="description" content="前言 这两周的一个需求，给引擎添加 crash 捕获和上传功能。如果正常一个 iOS App 需要添加 crash 捕获，一般会接入 Bugly 这种一体化 crash 分析平台，或者如果有自己的后台来搜集 crash 日志，也可以使用 KSCrash 或 PLCrashReporter 来实现崩溃日志的捕获。但本身作为一个引擎 SDK 来说，还是要尽可能少的接入三方库，即使是开源的。好在需求仅要">
+    <meta name="description" content="前言 先从搭建一个简单的音频场景开始，根据 Unreal Engine 音频引擎概览里的顺序创建使用音频基础组件。最近刚好要调研空间音频，就先使用 Unreal 提供的第一人称模板，依次创建音源、效果链、空间化、子混音等组件，让场景中的第一人称视角角色可以感受到各音频组件的作用效果，先学会使用它，再去研究技术实现。使用的 Unreal Engine 版本是 5.7.3。 场景搭建 Sound So">
 <meta property="og:type" content="article">
-<meta property="og:title" content="iOS 实现简单的异常捕获和堆栈解析">
-<meta property="og:url" content="https://blog.pursue.top/2022/08/07/iOS-%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84%E5%BC%82%E5%B8%B8%E6%8D%95%E8%8E%B7%E5%92%8C%E5%A0%86%E6%A0%88%E8%A7%A3%E6%9E%90/index.html">
+<meta property="og:title" content="Unreal Engine 音频初体验">
+<meta property="og:url" content="https://blog.pursue.top/2026/04/08/Unreal-Engine-%E9%9F%B3%E9%A2%91%E5%88%9D%E4%BD%93%E9%AA%8C/index.html">
 <meta property="og:site_name" content="XpSun&#39;s Blog">
-<meta property="og:description" content="前言 这两周的一个需求，给引擎添加 crash 捕获和上传功能。如果正常一个 iOS App 需要添加 crash 捕获，一般会接入 Bugly 这种一体化 crash 分析平台，或者如果有自己的后台来搜集 crash 日志，也可以使用 KSCrash 或 PLCrashReporter 来实现崩溃日志的捕获。但本身作为一个引擎 SDK 来说，还是要尽可能少的接入三方库，即使是开源的。好在需求仅要">
+<meta property="og:description" content="前言 先从搭建一个简单的音频场景开始，根据 Unreal Engine 音频引擎概览里的顺序创建使用音频基础组件。最近刚好要调研空间音频，就先使用 Unreal 提供的第一人称模板，依次创建音源、效果链、空间化、子混音等组件，让场景中的第一人称视角角色可以感受到各音频组件的作用效果，先学会使用它，再去研究技术实现。使用的 Unreal Engine 版本是 5.7.3。 场景搭建 Sound So">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://hexo.qiniu.pursue.top/5219632-04e43775dfba56f8.webp">
-<meta property="article:published_time" content="2022-08-07T05:09:40.000Z">
-<meta property="article:modified_time" content="2026-04-02T06:03:28.374Z">
+<meta property="og:image" content="https://hexo.qiniu.pursue.top/unreal_audio_soundwave.png">
+<meta property="og:image" content="https://hexo.qiniu.pursue.top/unreal_audio_soundwave_detail.png">
+<meta property="og:image" content="https://hexo.qiniu.pursue.top/unreal_audio_audiocomponent.png">
+<meta property="og:image" content="https://hexo.qiniu.pursue.top/unreal_audio_sourceeffect_eq.png">
+<meta property="og:image" content="https://hexo.qiniu.pursue.top/unreal_audio_sourceeffectchain.png">
+<meta property="og:image" content="https://hexo.qiniu.pursue.top/unreal_audio_add_sourceeffectchain.png">
+<meta property="og:image" content="https://hexo.qiniu.pursue.top/unreal_audio_sourceattenuation_detail.png">
+<meta property="og:image" content="https://hexo.qiniu.pursue.top/unreal_audio_audiovolume.png">
+<meta property="og:image" content="https://hexo.qiniu.pursue.top/unreal_audio_attenuation_reverb.png">
+<meta property="og:image" content="https://hexo.qiniu.pursue.top/unreal_audio_insights.png">
+<meta property="og:image" content="https://d1iv7db44yhgxn.cloudfront.net/documentation/images/f2318717-777a-4d64-9c04-78efbcb82eff/06-master-submix-default-properties.png">
+<meta property="og:image" content="https://hexo.qiniu.pursue.top/unreal_audio_soundwave_submix.png">
+<meta property="og:image" content="https://hexo.qiniu.pursue.top/unreal_audio_submix_audioinsights.png">
+<meta property="og:image" content="https://hexo.qiniu.pursue.top/unreal_audio_submixreverbeffect.png">
+<meta property="og:image" content="https://hexo.qiniu.pursue.top/unreal_audio_submixreverbeffect_insights.png">
+<meta property="article:published_time" content="2026-04-08T06:29:26.000Z">
+<meta property="article:modified_time" content="2026-04-10T02:34:08.333Z">
 <meta property="article:author" content="XpSun">
 <meta property="article:tag" content="互联网 音乐 人生感悟">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://hexo.qiniu.pursue.top/5219632-04e43775dfba56f8.webp">
+<meta name="twitter:image" content="https://hexo.qiniu.pursue.top/unreal_audio_soundwave.png">
 
 
-<link rel="canonical" href="https://blog.pursue.top/2022/08/07/iOS-%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84%E5%BC%82%E5%B8%B8%E6%8D%95%E8%8E%B7%E5%92%8C%E5%A0%86%E6%A0%88%E8%A7%A3%E6%9E%90/">
+<link rel="canonical" href="https://blog.pursue.top/2026/04/08/Unreal-Engine-%E9%9F%B3%E9%A2%91%E5%88%9D%E4%BD%93%E9%AA%8C/">
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://blog.pursue.top/2022/08/07/iOS-%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84%E5%BC%82%E5%B8%B8%E6%8D%95%E8%8E%B7%E5%92%8C%E5%A0%86%E6%A0%88%E8%A7%A3%E6%9E%90/","path":"2022/08/07/iOS-实现简单的异常捕获和堆栈解析/","title":"iOS 实现简单的异常捕获和堆栈解析"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://blog.pursue.top/2026/04/08/Unreal-Engine-%E9%9F%B3%E9%A2%91%E5%88%9D%E4%BD%93%E9%AA%8C/","path":"2026/04/08/Unreal-Engine-音频初体验/","title":"Unreal Engine 音频初体验"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>iOS 实现简单的异常捕获和堆栈解析 | XpSun's Blog</title>
+<title>Unreal Engine 音频初体验 | XpSun's Blog</title>
   
 
 
@@ -165,7 +179,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">Crash 的分类和处理顺序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">实现方式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">4.</span> <span class="nav-text">代码</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8D%95%E8%8E%B7-NSException"><span class="nav-number">4.1.</span> <span class="nav-text">捕获 NSException</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8D%95%E8%8E%B7-Unix-%E4%BF%A1%E5%8F%B7"><span class="nav-number">4.2.</span> <span class="nav-text">捕获 Unix 信号</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#C-%E5%A0%86%E6%A0%88%E4%BF%A1%E6%81%AF%E4%BC%98%E5%8C%96"><span class="nav-number">4.3.</span> <span class="nav-text">C++ 堆栈信息优化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E5%A0%86%E6%A0%88%E5%9C%B0%E5%9D%80%E4%BC%98%E5%8C%96"><span class="nav-number">4.4.</span> <span class="nav-text">函数堆栈地址优化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">6.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">场景搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Sound-Source"><span class="nav-number">2.1.</span> <span class="nav-text">Sound Source</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Audio-Component"><span class="nav-number">2.2.</span> <span class="nav-text">Audio Component</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Sound-Effect"><span class="nav-number">2.3.</span> <span class="nav-text">Sound Effect</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Attenuation"><span class="nav-number">2.4.</span> <span class="nav-text">Attenuation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Audio-Volume"><span class="nav-number">2.5.</span> <span class="nav-text">Audio Volume</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Submix"><span class="nav-number">2.6.</span> <span class="nav-text">Submix</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Submix-Effect"><span class="nav-number">2.7.</span> <span class="nav-text">Submix Effect</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">小思考</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">4.</span> <span class="nav-text">后记</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -410,7 +424,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://blog.pursue.top/2022/08/07/iOS-%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84%E5%BC%82%E5%B8%B8%E6%8D%95%E8%8E%B7%E5%92%8C%E5%A0%86%E6%A0%88%E8%A7%A3%E6%9E%90/">
+    <link itemprop="mainEntityOfPage" href="https://blog.pursue.top/2026/04/08/Unreal-Engine-%E9%9F%B3%E9%A2%91%E5%88%9D%E4%BD%93%E9%AA%8C/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/wechat_avatar.jpg">
@@ -423,12 +437,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="iOS 实现简单的异常捕获和堆栈解析 | XpSun's Blog">
+      <meta itemprop="name" content="Unreal Engine 音频初体验 | XpSun's Blog">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          iOS 实现简单的异常捕获和堆栈解析
+          Unreal Engine 音频初体验
         </h1>
 
         <div class="post-meta-container">
@@ -439,14 +453,14 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2022-08-07 13:09:40" itemprop="dateCreated datePublished" datetime="2022-08-07T13:09:40+08:00">2022-08-07</time>
+      <time title="创建时间：2026-04-08 14:29:26" itemprop="dateCreated datePublished" datetime="2026-04-08T14:29:26+08:00">2026-04-08</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-02 14:03:28" itemprop="dateModified" datetime="2026-04-02T14:03:28+08:00">2026-04-02</time>
+      <time title="修改时间：2026-04-10 10:34:08" itemprop="dateModified" datetime="2026-04-10T10:34:08+08:00">2026-04-10</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -458,7 +472,7 @@
         </span>
           ，
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E4%BA%92%E8%81%94%E7%BD%91%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/iOS-%E9%9F%B3%E8%A7%86%E9%A2%91%E5%BC%80%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">iOS 音视频开发</span></a>
+          <a href="/categories/%E4%BA%92%E8%81%94%E7%BD%91%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/Unreal-Engine-%E9%9F%B3%E9%A2%91/" itemprop="url" rel="index"><span itemprop="name">Unreal Engine 音频</span></a>
         </span>
     </span>
 
@@ -469,14 +483,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>6.2k</span>
+      <span>5.1k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>6 分钟</span>
+      <span>5 分钟</span>
     </span>
 </div>
 
@@ -487,44 +501,78 @@
     
     
     <div class="post-body" itemprop="articleBody"><h1>前言</h1>
-<p>这两周的一个需求，给引擎添加 crash 捕获和上传功能。如果正常一个 iOS App 需要添加 crash 捕获，一般会接入 Bugly 这种一体化 crash 分析平台，或者如果有自己的后台来搜集 crash 日志，也可以使用 KSCrash 或 PLCrashReporter 来实现崩溃日志的捕获。但本身作为一个引擎 SDK 来说，还是要尽可能少的接入三方库，即使是开源的。好在需求仅要求记录崩溃的大体堆栈信息，地址可解析即可，不需要太复杂的逻辑。</p>
-<h1>Crash 的分类和处理顺序</h1>
-<p>根据 Crash 的不同来源，一般分为 Mach 异常、Unix 信号 和 NSException。Mach 异常也称内核级异常，可以通过创建监控线程的方式监听 Mach 异常并处理异常信息，如果开发者没有捕获 Mach 异常，则异常将被转换为对应的 Unix 信号投递到出错线程。NSException 也称为应用级异常，可以通过 try catch 来捕获，也可以通过 NSSetUncaughtExceptionHandler 机制来捕获，最终未被处理的 NSException 会向自身程序发送 SIGABRT 信号使程序崩溃。三种异常处理的顺序可以参考这张图：</p>
-<p><img src="https://hexo.qiniu.pursue.top/5219632-04e43775dfba56f8.webp" alt="异常处理的顺序"></p>
-<h1>实现方式</h1>
-<p>Mach 异常 和 Unix 信号由于来源都是底层内核级异常，只是回调方式不同，因此在项目中选择监听 Unix 信号。应用级异常 NSException 是需要监听的，捕获的 exception 中有对排查问题很有帮助的 reason 信息，需要将这部分信息保存起来，再将 crash 信息传递给 Mach 和 Unix 层来捕获。</p>
-<h1>代码</h1>
-<h2 id="捕获-NSException">捕获 NSException</h2>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> IPhoneCrashHandler::initNSExceptionHandler() &#123;</span><br><span class="line">    <span class="keyword">if</span> (sPreviousUncaughtExceptionHandler == nullptr) &#123;</span><br><span class="line">        <span class="comment">// hold origin handler</span></span><br><span class="line">        sPreviousUncaughtExceptionHandler = <span class="built_in">NSGetUncaughtExceptionHandler</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// setup new handler</span></span><br><span class="line">    <span class="built_in">NSSetUncaughtExceptionHandler</span>(&amp;uncaughtNSExceptionHandler);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>初始化监听只需要调用 <code>NSSetUncaughtExceptionHandler</code> 传入回调函数指针即可，函数签名是 <code>typedef void NSUncaughtExceptionHandler(NSException *exception);</code> ，需要注意的是这个回调函数在 App 生命周期是唯一的，也就是说如果 App 有其他 crash 捕获模块，可能会有冲突。为了避免多个 crash 捕获失效的问题，需要先调用 <code>NSGetUncaughtExceptionHandler</code> 函数保存前任的函数指针，并在处理完 exception 之后主动调用这个函数传递 exception。</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="type">void</span> uncaughtNSExceptionHandler(<span class="built_in">NSException</span> *exception) &#123;</span><br><span class="line">    <span class="comment">// Handle current exception</span></span><br><span class="line">    sUncaughtException = exception;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Handle previous</span></span><br><span class="line">    <span class="keyword">if</span> (sPreviousUncaughtExceptionHandler != nullptr) &#123;</span><br><span class="line">        sPreviousUncaughtExceptionHandler(exception);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在回调函数里只需要保存保存 exception 指针，调用前任回调函数指针即可。NSException 如果没有被 try catch 或 NSSetUncaughtExceptionHandler 捕获处理，则会调用 c 的 abort()，kernal 针对 app 发出 _pthread_kill 的信号，转为 Mach 异常，如果 Mach 异常没有被捕获，则会转换成 Unix 信号。</p>
-<h2 id="捕获-Unix-信号">捕获 Unix 信号</h2>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> uint8_t handledBSDSignals[] = &#123;</span><br><span class="line">    SIGSEGV, <span class="comment">// signal   11  segmentation violation</span></span><br><span class="line">    SIGABRT, <span class="comment">// signal   6   abort</span></span><br><span class="line">    SIGFPE,     <span class="comment">// signal   8   floating-point exception</span></span><br><span class="line">    SIGILL,     <span class="comment">// signal   4   illegal instruction</span></span><br><span class="line">    SIGBUS,     <span class="comment">// signal   7   BUS</span></span><br><span class="line">    SIGALRM     <span class="comment">// signal   14  alarm</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> IPhoneCrashHandler::initBSDSignalHandler() &#123;</span><br><span class="line">    <span class="keyword">struct</span> sigaction act;</span><br><span class="line">    act.sa_flags = SA_SIGINFO;</span><br><span class="line">    act.sa_sigaction = BSDSignalHandler;</span><br><span class="line">    sigemptyset(&amp;act.sa_mask);</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; handledBSDSignalsNum; ++i) &#123;</span><br><span class="line">        sigaction(handledBSDSignals[i], &amp;act, &amp;sPreviousBSDSignalHandler[i]);</span><br><span class="line">        sPreviousBSDSignalHandlerMap.insert( &#123; handledBSDSignals[i], &amp;sPreviousBSDSignalHandler[i] &#125; );</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>handledBSDSignals 数组是监听的 signal 列表，调用 sigaction 函数给 signal 设置监听函数 BSDSignalHandler，并将之前设置过的前任监听函数指针保存到 sPreviousBSDSignalHandler，在处理完 Unix 信号后要调用前任函数指针。</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="type">void</span> BSDSignalHandler(<span class="type">int</span> sig, siginfo_t* siginfo, <span class="type">void</span>* ctx) &#123;</span><br><span class="line">    <span class="comment">// Handle current signal</span></span><br><span class="line">  	<span class="comment">// 获取 Unix 信号描述</span></span><br><span class="line">    <span class="built_in">NSString</span> *signal = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;%d (%s)&quot;</span>, sig, getBSDSignalDescription(sig).data()];</span><br><span class="line">  	<span class="comment">// 如果 sUncaughtException 不为 nil，说明是 NSException 抛出的异常</span></span><br><span class="line">    <span class="built_in">NSString</span> *exception = sUncaughtException ? [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;%@ (%@)&quot;</span>, [sUncaughtException name], [sUncaughtException reason]] : <span class="literal">nil</span>;</span><br><span class="line">  	<span class="comment">// 获取系统时间</span></span><br><span class="line">    <span class="built_in">NSString</span> *timestamp = [<span class="built_in">NSString</span> stringWithCString:GetSystemTimeFormatString().data() encoding:<span class="built_in">NSUTF8StringEncoding</span>];</span><br><span class="line">  	<span class="comment">// 如果是 NSException 异常，则从 sUncaughtException 指针获取堆栈信息，否则从 NSThread 获取，并将堆栈信息格式化处理</span></span><br><span class="line">    <span class="built_in">NSArray</span> *stackArray = formatCallbackSymbols(sUncaughtException ? sUncaughtException.callStackSymbols : <span class="built_in">NSThread</span>.callStackSymbols);</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSMutableString</span> *content = [<span class="built_in">NSMutableString</span> string];</span><br><span class="line">    [content appendFormat:<span class="string">@&quot;Pid: %d\n&quot;</span>, getpid()];</span><br><span class="line">    [content appendFormat:<span class="string">@&quot;Signal: %@\n&quot;</span>, signal];</span><br><span class="line">    <span class="keyword">if</span> (exception) [content appendFormat:<span class="string">@&quot;Exception: %@\n&quot;</span>, exception];</span><br><span class="line">    [content appendFormat:<span class="string">@&quot;Timestamp: %@\n&quot;</span>, timestamp];</span><br><span class="line">    <span class="keyword">for</span> (<span class="built_in">NSString</span> *stack <span class="keyword">in</span> stackArray) &#123;</span><br><span class="line">        [content appendFormat:<span class="string">@&quot;%@\n&quot;</span>, stack];</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSString</span> *saveDir = [<span class="built_in">NSString</span> stringWithCString:IPhoneCrashHandler::GetInstance()-&gt;GetCrashLogFileSaveDir().data() encoding:<span class="built_in">NSUTF8StringEncoding</span>];</span><br><span class="line">    <span class="built_in">NSString</span> *fileName = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;%@.crash&quot;</span>, timestamp];</span><br><span class="line">    <span class="built_in">NSString</span> *filePath = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;%@%@&quot;</span>, saveDir, fileName];</span><br><span class="line">    [content writeToFile:filePath atomically:<span class="literal">YES</span> encoding:<span class="built_in">NSUTF8StringEncoding</span> error:<span class="literal">nil</span>];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Handle previous</span></span><br><span class="line">    <span class="keyword">struct</span> sigaction* previousSigaction = sPreviousBSDSignalHandlerMap[sig];</span><br><span class="line">    <span class="keyword">if</span> (previousSigaction != nullptr &amp;&amp; previousSigaction-&gt;sa_sigaction != nullptr) &#123;</span><br><span class="line">        previousSigaction-&gt;sa_sigaction(sig, siginfo, ctx);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Kill with signal SIGKILL</span></span><br><span class="line">    kill(getpid(), SIGKILL);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在 Unix 信号的监听函数中，首先可以拿到信号类型，并判断是否是 NSException 抛出的异常，将堆栈信息格式化后写入本地文件，最后调用前任回调函数指针，给程序发送 SIGKILL 信号终止程序。</p>
-<h2 id="C-堆栈信息优化">C++ 堆栈信息优化</h2>
-<p>调试过程中发现记录的 c++ 堆栈是经过 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/359466948">name mangling</a> 机制处理过的，写入到日志里可读性比较差，需要做 demangle 处理：</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cxxabi.h&gt;</span></span></span><br><span class="line">...</span><br><span class="line"><span class="keyword">static</span> <span class="built_in">NSString</span>* getDemangledSymbol(<span class="built_in">NSString</span> *symbol) &#123;</span><br><span class="line">    size_t maxLength = <span class="number">1024</span>;</span><br><span class="line">    <span class="type">int</span> demangleStatus;</span><br><span class="line">    <span class="type">char</span>* demangledSymbol = (<span class="type">char</span>*)malloc(maxLength);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> ((demangledSymbol = abi::__cxa_demangle([symbol UTF8String],</span><br><span class="line">                                               demangledSymbol,</span><br><span class="line">                                               &amp;maxLength,</span><br><span class="line">                                             &amp;demangleStatus))</span><br><span class="line">        &amp;&amp; demangleStatus == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> [<span class="built_in">NSString</span> stringWithCString:demangledSymbol encoding:<span class="built_in">NSUTF8StringEncoding</span>];</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="函数堆栈地址优化">函数堆栈地址优化</h2>
-<p>通常在 crash 堆栈信息中会有一列是崩溃函数在虚拟内存空间的地址，如果是线上 Release 版本的 crash，日志里一般不会有详细的堆栈函数信息，需要通过程序打包时的符号表 dSYM 文件协助解析崩溃堆栈的地址。dSYM 中记录了程序中函数符号的内存地址，原理上来说 crash 堆栈里的崩溃函数地址应该与 dSYM 里的符号表是一一对应的，但由于苹果的 ASLR 机制的存在，程序在加载时会在前面插入一段随机的 offset，导致 crash 中的堆栈地址和 dSYM 的符号地址会有一个随机的差值。这个 offset 可以在程序运行时获取到，在捕获到 crash 后将堆栈地址减去 offset 保存到文件中，这样就可以直接使用 dSYM 解析出具体的符号。</p>
-<blockquote>
-<p>ASLR（Address space layout randomization）是一种针对缓冲区溢出的安全保护技术，通过对堆、栈、共享库映射等线性区布局的随机化，通过增加攻击者预测目的地址的难度，防止攻击者直接定位攻击代码位置，达到阻止溢出攻击的目的。据研究表明ASLR可以有效的降低缓冲区溢出攻击的成功率，如今Linux、FreeBSD、Windows等主流操作系统都已采用了该技术。</p>
-</blockquote>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;mach-o/dyld.h&gt;</span><br><span class="line">...</span><br><span class="line">static uint64_t getOffsetOfASLR() &#123;</span><br><span class="line">    uint64_t offset = 0;</span><br><span class="line">    for (uint32_t i = 0; i &lt; _dyld_image_count(); i++) &#123;</span><br><span class="line">            if (_dyld_get_image_header(i)-&gt;filetype == MH_EXECUTE) &#123;</span><br><span class="line">                offset = _dyld_get_image_vmaddr_slide(i);</span><br><span class="line">                break;</span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return offset;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>以这条堆栈信息为例：</p>
-<p><code>CrashStack[5]:&lt;0x0000000106487418&gt;  xxx (-[IPhoneBridgeObjc showWebView:]+10) </code></p>
-<p>虽然已经知道它对应的符号，但还只是通过 dSYM 解析看下计算的地址是否正确，需要借助命令行工具 atos：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">atos -o xxx.app.dSYM/Contents/Resources/DWARF/xxx 0x0000000106487418</span><br><span class="line">-[IPhoneBridgeObjc showWebView:] (in xxx) (IPhoneBridge.mm:313)</span><br></pre></td></tr></table></figure>
-<h1>参考资料</h1>
-<blockquote>
-<p>iOS Crash/崩溃/异常 捕获 <a target="_blank" rel="noopener" href="https://www.jianshu.com/p/3f6775c02257">https://www.jianshu.com/p/3f6775c02257</a></p>
-<p>iOS Crash收集,符号化分析看我就够了 <a target="_blank" rel="noopener" href="https://bucengyongyou.github.io/2016/08/03/iOS-Crash%E6%94%B6%E9%9B%86-%E7%AC%A6%E5%8F%B7%E5%8C%96%E5%88%86%E6%9E%90%E7%9C%8B%E6%88%91%E5%B0%B1%E5%A4%9F%E4%BA%86/">https://bucengyongyou.github.io/2016/08/03/iOS-Crash收集-符号化分析看我就够了/</a></p>
-<p>C++函数重载的实现机制之name mangling <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/359466948">https://zhuanlan.zhihu.com/p/359466948</a></p>
-</blockquote>
+<p>先从搭建一个简单的音频场景开始，根据 Unreal Engine 音频引擎概览里的顺序创建使用音频基础组件。最近刚好要调研空间音频，就先使用 Unreal 提供的第一人称模板，依次创建音源、效果链、空间化、子混音等组件，让场景中的第一人称视角角色可以感受到各音频组件的作用效果，先学会使用它，再去研究技术实现。使用的 Unreal Engine 版本是 5.7.3。</p>
+<h1>场景搭建</h1>
+<h2 id="Sound-Source">Sound Source</h2>
+<p>Unreal Engine 中使用的音源包括 Sound Wave，Sound Cue 以及 UE5 新推出的 Meta Sound，Sound Wave 相对基础一些，创建 Sound Wave 只需将准备好的音频资源（mp3 格式）拖入到资产面板中。根据 <a target="_blank" rel="noopener" href="https://dev.epicgames.com/documentation/unreal-engine/importing-audio-files">导入音频文件</a> 文档描述，Unreal Engine 支持的音频格式有 .wav 、 .ogg 、 .flac 、 .aif，使用 5.7.3 版本编辑器测试发现 .mp3 格式也是支持的，导入资产后 Unreal Engine 将使用 libsndfile 对音频做解码。支持 16、24 的位深，任意采样率以及 Mono、Stereo、4.0、5.1、7.1 的通道数。所有导入的音频文件会被转换成 16 位 .wav 文件，并生成 USoundWave 资产。编辑器在保存时使用 Oodle 压缩打包成 .uasset，这也是为什么转换后的音频资产包大小要比按位深等参数计算的 .pcm 裸数据的大小要小的原因。在音频资产烘焙阶段，编辑器会根据 Project Settings 中指定的默认压缩类型来压缩 Runtime 的资产，默认是 Bink Audio。导入后的资产详情：</p>
+<p><img src="https://hexo.qiniu.pursue.top/unreal_audio_soundwave.png" alt="Soundwave"></p>
+<p>双击 Sound Wave 可打开资产详情页，如果安装了 Waveform Editor 插件，可在右侧显示音频的波形图。详情页中大致包含以下四方面的信息：</p>
+<ul>
+<li>音源的基础信息描述。</li>
+<li>基础整形工具，比如波形标准化、淡入淡出等。</li>
+<li>音源串联的效果链及空间化配置</li>
+<li>音频基础分析</li>
+</ul>
+<p><img src="https://hexo.qiniu.pursue.top/unreal_audio_soundwave_detail.png" alt="Soundwave Detail"></p>
+<h2 id="Audio-Component">Audio Component</h2>
+<p>为了测试音频空间化的效果，需要在编辑器构造的场景中放置一个音源的载体，类比于现实环境中的音响、收音机一类的可发声装置。将之前创建的 SoundWave 资产拖入到场景中即可自动创建一个 Ambient Sound Actor 并挂载一个 Audio Component。Unreal Engine 采用 Actor-Component 架构，Ambient Sound Actor 是这个发声装置的物理载体，Audio Component 则负责音频相关的计算。</p>
+<p><img src="https://hexo.qiniu.pursue.top/unreal_audio_audiocomponent.png" alt="AudioComponent"></p>
+<p>可以看到 Audio Component 一样具有 Sound Effect Chain 和 Attenuation 的设置，区别是 Audio Component 的效果链与音源的效果链是叠加计算的，而空间化配置则是覆盖。除此之外 Audio Component 还可以调节音量、音调等基本参数，可以把它想象成一个电吉他音箱，除了还原音源（吉他+效果器）本身生成的声音外，还可以有一些个性化的调节，让同一音源的表现可以差异化。</p>
+<p>将 Audio Component 的 Auto Activate 选项勾选，运行游戏即可启动音源的播放。</p>
+<h2 id="Sound-Effect">Sound Effect</h2>
+<p>接下来给音源添加效果链，需要明确的是效果链作用于 Sound Wave 还是 Audio Component，这里我们将效果链作用于 Sound Wave，类比于给电吉他接上效果器。首先在资产面板创建 Source Effect Preset，弹出面板中列出了 16 个内置的效果器预设，选择 SourceEffectEQPreset，我们希望给音源加一个均衡效果器。在均衡效果器中可以调节频段、带宽和增益等参数，我们希望给低频 500hz 左右的频段添加 3db 的增益：</p>
+<p><img src="https://hexo.qiniu.pursue.top/unreal_audio_sourceeffect_eq.png" alt="SourceEffect EQ"></p>
+<p>有了 Source Effect Preset 还需要一个 Source Effect Preset Chain，将这块均衡效果器串联进来，右键资产面板创建，将均衡效果器添加到 Chain 数组中：</p>
+<p><img src="https://hexo.qiniu.pursue.top/unreal_audio_sourceeffectchain.png" alt="SourceEffectChain"></p>
+<p>最后在 Sound Wave 详情页中挂载效果链保存：</p>
+<p><img src="https://hexo.qiniu.pursue.top/unreal_audio_add_sourceeffectchain.png" alt="Attach SourceEffectChain to SoundWave"></p>
+<p>运行即可播放挂载了均衡效果器的音频效果，运行时效果器参数可以动态调整，可以调节频段感受下是否生效。</p>
+<h2 id="Attenuation">Attenuation</h2>
+<p>Attenuation 是音频空间化的关键配置资产，创建资产后同样也可以选择配置到 Sound Wave 还是 Audio Component。如果是想同一配置一组音源应用同一套衰减参数，就配置到 Sound Wave，如果个别 Audio Component 想用这个衰减配置覆盖掉音源的衰减配置则配置到 Audio Component 上。创建好后双击打开衰减配置详情：</p>
+<p><img src="https://hexo.qiniu.pursue.top/unreal_audio_sourceattenuation_detail.png" alt="SourceAttenuation Detail"></p>
+<p>Attenuation 的可配置项，文档 <a target="_blank" rel="noopener" href="https://dev.epicgames.com/documentation/unreal-engine/sound-attenuation-in-unreal-engine">音效衰减</a> 中已经有详细的介绍，这里简单总结一下：</p>
+<ul>
+<li>Attenuation (Volume)：听者根据与音源距离的远近衰减音量，可指定衰减区域的形状、对应形状的边界参数以及衰减函数，是比较基础的声音空间化处理，听者可以借此判断音源的远近，在我们公司的引擎里是有实现的，比较简单。</li>
+<li>Attenuation (Spatialization)：如果说上一个设置是判断音源的远近，那这一项则是通过听者与音源的位置和朝向计算不同声道下的音频差异表现，听者可以借助声音判断音源的具体位置。Unreal Audio 提供的默认空间化算法是 Panning 平移。</li>
+<li>Attenuation (Air Absorption)：随着距离的变化，空气对声音的吸收效果，高频比低频要衰减的更快，这里的参数主要配置距离、高低频衰减阈值和衰减函数，通过高低通滤波器模拟空气对音源中高低频的吸收效果。</li>
+<li>Attenuation (Focus)：这个配置就有意思了，模拟的是人耳的“鸡尾酒会效应”，指人的一种听力选择能力，在这种情况下，注意力集中在某一个人的谈话之中而忽略背景中其他的对话或噪音。该效应揭示了人类听觉系统中令人惊奇的能力，使我们可以在噪声中谈话。Unreal Engine 将这种听力选择能力简化并建模，规定了正前方为听力选择区，支持设置两个角度范围，定义了聚焦区域内外的音量、距离和优先级的衰减和增益，在 RPG、枪战、恐怖类游戏中比较常用。</li>
+<li>Attenuation (Reverb)：配置空间化的声音发送到混响效果的量级，如果在场景中添加了 Audio Volume，这个选项一定要打开才有效果。可以定义混响发送的方法，以及最大最小距离和对应的量级。</li>
+<li>Attenuation (Occlusion)：配置音频被遮挡的情况下的衰减参数，音源处会向听者发出射线检测障碍物，将音频按参数中的衰减音量、低通截止频率和差值时间来计算衰减，但 Unreal 默认没有考虑不同材质对声音的吸收效果差异。</li>
+<li>Attenuation (Priority)：支持根据距离配置声音的优先级。音频引擎（Audio Mixer）能同时处理的“并发语音数”是有限的（默认为 32 或 64），当场景中同时存在大量声音（例如战场上的爆炸、枪声、脚步声、环境音等）时，音频引擎会面临资源上限。这时，优先级设置就决定了哪些声音会被保留，哪些声音会被剔除或静音。</li>
+<li>Attenuation (Submix)：一直在困惑如果这里的 submix 挂载一个混响效果器，那 submix 的发送量不是跟上面 Attenuation (Reverb) 中的发送量冲突了。问了下 AI 发现 Attenuation (Reverb) 配置是与 Audio Volume 配套使用的，如果 Audio Volume 挂载了混响效果，可能会自动创建一个 submix 处理混响计算，Attenuation (Reverb) 的配置决定向这个自动生成的 submix 的音频发送量。而 Attenuation (Submix) 是新版本推荐的做法，灵活性较高。</li>
+<li>Attenuation (Source Data Override)：看文档介绍感觉是将场景信息和音频数据给到三方插件计算空间化再回写。</li>
+<li>Attenuation (AudioLink)：可以挂载外部音频引擎插件，比如 Wwise。</li>
+</ul>
+<p>运行项目，会发现声音会根据听者和音源距离衰减音量，根据听者方位调整各声道的音频表现，让听者可以根据声音辨别音源位置。</p>
+<h2 id="Audio-Volume">Audio Volume</h2>
+<p>设置好了空间化参数，我们尝试给场景中加一个混响效果。添加混响的方式有多种，空间混响旧版本使用 Audio Volume 配合 Attenuation 中的 Reverb 配置，新版本则推荐用 Audio Gameplay Volume 配合挂载混响效果器的 submix。这里我们为了了解 Unreal Engine 音频设计思路的演变，先使用 Audio Volume 创建空间混响效果。首先在场景中创建一个 Audio Volume，Blush Shape 使用默认的 Box，调整宽高把整个场景包裹起来，保证听者时刻处在混响范围内，接着创建一个 Revert Effect，挂载在 Audio Volume 上：</p>
+<p><img src="https://hexo.qiniu.pursue.top/unreal_audio_audiovolume.png" alt="AudioVolume"></p>
+<p>打开 Attenuation 详情页，确保 Reverb 选项中的开关被勾选，为了确保能清晰感知到混响效果，将 Reverb Send Method 调整为 Manual，并设置一个较大的值，保证混响发送量不会随听者与音源的距离衰减：</p>
+<p><img src="https://hexo.qiniu.pursue.top/unreal_audio_attenuation_reverb.png" alt="Attenuation Reverb"></p>
+<p>运行项目，可以听到一个不会随距离衰减的混响效果。也可以打开 Tools =&gt; Audio Insights 窗口查看 submix 的输入状态，下图中可以看到 MasterReverbSubmixDefault 这个子混音会有信号输入，说明 Attenuation 输出的空间化信号参与了混响计算：</p>
+<p><img src="https://hexo.qiniu.pursue.top/unreal_audio_insights.png" alt="Audio Insights"></p>
+<h2 id="Submix">Submix</h2>
+<p>submix 子混音类似于 Cubase、Logic 这种音频工作站的 bus，submix 之间可以互相连接，最终路由到主 submix，混音后输出到监听设备。引擎默认会自带几个内置 submix，除主 submix 外，还有主混响 submix，主 EQ submix，为的是兼容旧版本 Audio Volume 的混响以及 Sound Class Mix 的 EQ 调节，可以在项目设置中音频选项双击查看内置 submix：</p>
+<p><img src="https://d1iv7db44yhgxn.cloudfront.net/documentation/images/f2318717-777a-4d64-9c04-78efbcb82eff/06-master-submix-default-properties.png" alt="BuiltIn Submix"></p>
+<p>我们创建一个 Sound Submix，命名 Reverb Submix，用于后面挂载混响效果器。为了排除干扰将之前创建的 Audio Volume 和 Reverb Effect 资产删除。现在要测试一下这个 submix 是否可以将声音路由到主 submix，打开 Sound Wave 详情页，将 Enable Base Submix 关掉，不发送声音到主 submix，同时将 Enable Submix Send 打开，Sound Submix 指定为 Reverb Submix，Send Stage 设置为 Post Distance Attenuation，将空间化计算后的声音发送给 Reverb Submix：</p>
+<p><img src="https://hexo.qiniu.pursue.top/unreal_audio_soundwave_submix.png" alt="SoundWave Custom Submix"></p>
+<p>运行项目，听到声音则表示 Reverb Submix 收到了 Sound Wave 的声音并路由给主 submix，可以打开 Audio Insights 同步验证下。</p>
+<p><img src="https://hexo.qiniu.pursue.top/unreal_audio_submix_audioinsights.png" alt="Submix AudioInsights"></p>
+<p>但这里有个疑问，根据官网描述可以绕过 Sound Wave 直接在 Attenuation 的 submix 中指定 Reverb Submix，但测试下来法线是没有效果的，暂时没找到原因。</p>
+<h2 id="Submix-Effect">Submix Effect</h2>
+<p>创建好了 submix 并且听到 Sound Wave 经过 Reverb Submix 被路由给了主 submix，下一步就可以在 Reverb Submix 上挂载混响效果器。右键资产面板创建 Submix Effect Preset，选择 SubmixEffectReverb。打开 Reverb Submix，将 Submix Effect Preset 添加到 Submix Effect Chain 中：</p>
+<p><img src="https://hexo.qiniu.pursue.top/unreal_audio_submixreverbeffect.png" alt="Submix Reverb Effect"></p>
+<p>由于 Reverb Submix 只将干声处理成带有混响湿声，还是需要将 Sound Wave 中 Enable Base Submix 打开，这样是将干声直接发送到主 submix，经过 Revert Submix 处理过的湿声路由到主 submix 与干声混合达到最终混响效果，设置后运行项目即可。</p>
+<p>此时观察 Audio Insights，与上面相比，内置的 EQ submix 有音频输入，可能是 Sound Wave 开启 Enable Base Submix 是将音频路由到 EQ submix：</p>
+<p><img src="https://hexo.qiniu.pursue.top/unreal_audio_submixreverbeffect_insights.png" alt="Submix Reverb Effect AudioInsights"></p>
+<h1>小思考</h1>
+<ul>
+<li>空间化配置为什么会配置在音源上，按现实环境中的声音反射规律，空间化的计算应该与遮挡、传播介质等因素息息相关，而不是发声体本身决定的。</li>
+<li>Attenuation (Reverb) 和 Attenuation (Submix) 在挂载混响 submix 时是否是冲突的。</li>
+<li>Unreal Audio 音频模块有些历史包袱导致使用时有些混乱，有些觉得设计不合理的地方其实是为了兼容老版本的使用，好在文档写的还算详细，分析代码时也要多思考鉴别。</li>
+</ul>
 <h1>后记</h1>
-<p>最近状态有点差，周末在家就只想睡觉了，想学的东西很多，但时间少效率低，要好好调整下了。</p>
+<p>一个下午的时间又把整个流程捋了一遍，发现还是有细节比较模糊，结合文档和 Gemini AI 算是搞清了大部分的疑惑，感觉对 Unreal Engine 音频的设计理念的理解又深入了一小步。</p>
 
     </div>
 
@@ -538,14 +586,11 @@
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2022/08/06/iOS-%E4%BD%BF%E7%94%A8-AVAssetWriter-%E5%AE%9E%E6%97%B6%E5%86%99%E5%85%A5%E8%A7%86%E9%A2%91%E6%B5%81/" rel="prev" title="iOS 使用 AVAssetWriter 实时写入视频流">
-                  <i class="fa fa-angle-left"></i> iOS 使用 AVAssetWriter 实时写入视频流
+                <a href="/2026/04/03/Unreal-Engine-%E9%9F%B3%E9%A2%91%E6%A6%82%E8%A7%88/" rel="prev" title="Unreal Engine 音频概览">
+                  <i class="fa fa-angle-left"></i> Unreal Engine 音频概览
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2024/02/14/%E3%80%8A%E8%AE%A4%E7%9F%A5%E8%A7%89%E9%86%92%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="next" title="《认知觉醒》读书笔记">
-                  《认知觉醒》读书笔记 <i class="fa fa-angle-right"></i>
-                </a>
             </div>
           </div>
     </footer>
@@ -609,7 +654,7 @@
 </noscript>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
 
-<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"XiaopingSun","repo":"XiaopingSun.github.io","client_id":"Ov23libov3fTSGDVNbiG","client_secret":"c17eab918ac43c9963fef736f63458f63f793513","admin_user":"XiaopingSun","distraction_free_mode":false,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","body":null,"pager_direction":"last","id":"location.pathname","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"a045967811b152485a85ff971bdd3f00"}</script>
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"XiaopingSun","repo":"XiaopingSun.github.io","client_id":"Ov23libov3fTSGDVNbiG","client_secret":"c17eab918ac43c9963fef736f63458f63f793513","admin_user":"XiaopingSun","distraction_free_mode":false,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","body":null,"pager_direction":"last","id":"location.pathname","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"59587522d217cd26524f969465b919bb"}</script>
 <script src="/js/third-party/comments/gitalk.js" defer></script>
 
 </body>
